@@ -1,8 +1,8 @@
-# Чеклист тестов RuneBoard
+# Чеклист тестов PlanBoard
 
 Живой список: **дополнять при каждой новой фиче**, прогонять перед закрытием версии.
 
-**Статус v0.22.6:** `pnpm test` + `pnpm build` — OK (2026-07-06); `pnpm lint` — 6 warnings (backlog). Ручной прогон — частично.
+**Статус v0.25.1:** `pnpm test` + `pnpm build` — OK (2026-07-06); `pnpm lint` — warnings (backlog). Ручной прогон UI — частично.
 
 **Легенда:** `[ ]` — не проверено · `[~]` — частично · `[x]` — проверено / автотест
 
@@ -10,12 +10,13 @@
 ```bash
 pnpm lint              # oxlint
 pnpm build             # calendar + icons + tsc + vite
-pnpm test              # календарь + 5 verify-скриптов (~90 проверок)
+pnpm test              # календарь + 6 verify-скриптов (171 + spot checks)
 pnpm test:attachments  # verify-attachments.mjs (12)
 pnpm test:month        # verify-month-calendar.mjs (9)
-pnpm test:holidays     # verify-holiday-labels.mjs (23)
+pnpm test:holidays     # verify-holiday-labels.mjs (22)
 pnpm test:projects     # verify-projects.mjs (5)
-pnpm test:daily        # verify-daily-meetings.mjs (41)
+pnpm test:palettes     # verify-palettes.mjs (83)
+pnpm test:daily        # verify-daily-meetings.mjs (40)
 pnpm calendar          # holidays-ru-2025/2026/2027.json
 ```
 
@@ -27,8 +28,8 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 |---|----------|--------|
 | 0.1 | `pnpm lint` — без ошибок | [ ] |
 | 0.2 | `pnpm build` — успешная сборка | [x] |
-| 0.3 | `pnpm icons` — иконки без ошибок | [~] |
-| 0.4 | `pnpm test` — calendar + daily + attachments + month + holidays + projects | [x] |
+| 0.3 | `pnpm icons` — иконки + wordmark без ошибок | [x] |
+| 0.4 | `pnpm test` — calendar + daily + attachments + month + holidays + projects + palettes | [x] |
 | 0.5 | TypeScript `tsc -b` — без ошибок (входит в build) | [x] |
 
 ---
@@ -37,8 +38,11 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 
 | # | Проверка | Статус |
 |---|----------|--------|
-| 1.1 | Создание нового плана с дефолтными `settings` | [ ] |
-| 1.2 | `normalizePlan` — старый JSON без `colorPalette` → `northrend` | [ ] |
+| 1.1 | Создание нового плана с дефолтными `settings` (`plain`, `customTheme`, `ambientAnimation`) | [x] |
+| 1.2 | `normalizePlan` — неизвестная `colorPalette` → `plain`; `northrend` сохраняется | [x] |
+| 1.2a | `normalizePlan` — legacy без `colorPalette` → `plain` | [x] |
+| 1.2b | `normalizePlan` — `customTheme` merge + валидация hex | [x] |
+| 1.2c | `normalizePlan` — `ambientAnimation`: `off` / invalid → `auto` | [x] |
 | 1.3 | Автосохранение после изменения задачи / проекта / настроек | [ ] |
 | 1.4 | Путь `%APPDATA%\DoomPlanner\plan.json` (Electron) | [ ] |
 | 1.5 | Dev API `/api/plan` — тот же файл, что у Electron | [ ] |
@@ -125,7 +129,7 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 | 5.6 | `pnpm test` — spot checks календаря | [x] |
 | 5.7 | **2027** — подписи на каникулах, переносы (5 ноя, 31 дек, рабочая сб 20 фев) | [x] |
 | 5.8 | **2028+** — приблизительный календарь (ст. 112 ТК РФ, без переносов) | [x] |
-| 5.9 | `verify-holiday-labels.mjs` — 23 проверки | [x] |
+| 5.9 | `verify-holiday-labels.mjs` — 22 проверки | [x] |
 
 ---
 
@@ -136,7 +140,7 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 | 6.1 | Закрытое до дня дейлика — в отчёте; в день дейлика — в следующем | [x] |
 | 6.2 | Отметка ◆ на неделе и в месяце | [ ] |
 | 6.3 | «Скопировать для дейлика» — текст + заметки | [ ] |
-| 6.4 | `npx tsx scripts/verify-daily-meetings.mjs` — 23 OK | [x] |
+| 6.4 | `npx tsx scripts/verify-daily-meetings.mjs` — 40 OK | [x] |
 
 ---
 
@@ -145,7 +149,16 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 | # | Проверка | Статус |
 |---|----------|--------|
 | 7.1 | Тема: светлая / тёмная / система | [ ] |
-| 7.2 | Палитра: northrend / outland / pandaria — цвета и иконки вкладок | [ ] |
+| 7.2 | Палитры: plain + WoW + SW/GoT/Witcher — цвета и иконки вкладок | [ ] |
+| 7.2a | «Классика» — без фоновой анимации | [ ] |
+| 7.2b | Звёздные войны / GoT / Ведьмак — своя анимация фона | [ ] |
+| 7.2c | Фоновая анимация: «По палитре» / «Выключить» | [ ] |
+| 7.2d | Своя тема: color picker, фон-картинка, экспорт/импорт JSON | [ ] |
+| 7.2e | Сброс оформления → «Классика» тёмная | [ ] |
+| 7.2f | `npx tsx scripts/verify-palettes.mjs` — 83 проверки (CSS, дефолты, normalize, theme JSON, иконки + wordmark) | [x] |
+| 7.2h | **Бренд PlanBoard** — wordmark в сайдбаре и минимальном окне; без текста «RuneBoard» / «Рунный планировщик» | [ ] |
+| 7.2i | Wordmark per-палитра: `public/icons/wordmark/{palette}.png`, прозрачный фон | [x] |
+| 7.2g | Electron `plan-file.cjs` и `index.html` — дефолт `plain` | [x] |
 | 7.3 | Иконка вкладки в шапке при смене view | [ ] |
 | 7.4 | Фоновая анимация; `prefers-reduced-motion` | [ ] |
 | 7.5 | Настройки `modal-xl`: Оформление / Данные / Интеграции | [ ] |
@@ -230,11 +243,12 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 | 4 | Превью задач в месячном календаре | [x] | `scripts/verify-month-calendar.mjs` (9) |
 | 5 | Подписи праздников, 2027, fallback 2028+ | [x] | `scripts/verify-holiday-labels.mjs` (23) |
 | 6 | Завершённые проекты: селекторы, normalize | [x] | `scripts/verify-projects.mjs` (5) |
-| 7 | `exportPlanText` — формат DD/MM | [ ] | Vitest *(backlog)* |
-| 8 | `normalizePlan`, merge import | [ ] | Vitest *(backlog)* |
-| 9 | Селекторы, даты | [ ] | Vitest *(backlog)* |
-| 10 | Store CRUD | [ ] | Vitest *(backlog)* |
-| 11 | Компоненты smoke (RTL) | [ ] | Vitest *(backlog)* |
+| 7 | Палитры v0.24–v0.25.1: CSS, plain default, customTheme, wordmark | [x] | `scripts/verify-palettes.mjs` (83) |
+| 8 | `exportPlanText` — формат DD/MM | [ ] | Vitest *(backlog)* |
+| 9 | `normalizePlan`, merge import | [ ] | Vitest *(backlog)* |
+| 10 | Селекторы, даты | [ ] | Vitest *(backlog)* |
+| 11 | Store CRUD | [ ] | Vitest *(backlog)* |
+| 12 | Компоненты smoke (RTL) | [ ] | Vitest *(backlog)* |
 
 ---
 
@@ -242,6 +256,8 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 
 | Версия | Дата | Автотесты | Ручной прогон | Примечание |
 |--------|------|-----------|---------------|------------|
+| v0.25.1 | 2026-07-06 | all verify + palettes (83) | — | PlanBoard wordmark, `APP_NAME`, title; exe пока RuneBoard — §7.2h |
+| v0.25 | 2026-07-06 | all verify + palettes (76) | — | build OK; палитры SW/GoT/Witcher, customTheme — §7 |
 | v0.22.6 | 2026-07-06 | all verify + calendar 2027 | — | build OK; календарь 2027+ — §5.7–5.9 |
 | v0.22.5 | 2026-07 | + verify-projects | — | build OK; завершённые проекты — §3.5–3.8 |
 | v0.22.4 | 2026-07 | calendar + daily + attachments + month | частично | build OK; месяц — §4.4a |

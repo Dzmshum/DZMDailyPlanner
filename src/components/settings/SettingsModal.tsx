@@ -5,6 +5,7 @@ import { getPlanFilePath, usesSharedPlanFile } from '../../lib/storage'
 import { isElectron } from '../../lib/electron'
 import { Modal } from '../ui/Modal'
 import { PaletteToggle } from '../layout/PaletteToggle'
+import { CustomThemeSection } from './CustomThemeSection'
 import { ThemeToggle } from '../layout/ThemeToggle'
 
 type SettingsTab = 'appearance' | 'data' | 'integrations'
@@ -30,6 +31,8 @@ export function SettingsModal() {
   const setExportSettings = usePlanStore((s) => s.setExportSettings)
   const voiceInputEnabled = usePlanStore((s) => s.data.settings.voiceInputEnabled)
   const setVoiceInputEnabled = usePlanStore((s) => s.setVoiceInputEnabled)
+  const ambientAnimation = usePlanStore((s) => s.data.settings.ambientAnimation)
+  const setAmbientAnimation = usePlanStore((s) => s.setAmbientAnimation)
 
   const [tab, setTab] = useState<SettingsTab>('appearance')
   const [planPath, setPlanPath] = useState<string | null>(null)
@@ -80,6 +83,36 @@ export function SettingsModal() {
                 Меняет цвета, иконку и фоновую анимацию.
               </p>
               <PaletteToggle />
+
+              <h3 className="settings-section-title settings-section-title-spaced">
+                Фоновая анимация
+              </h3>
+              <p className="settings-hint">
+                Для палитры «Классика» анимация отключена. Для остальных — снежинки,
+                звёзды и т.д.
+              </p>
+              <div className="settings-radio-row">
+                {(
+                  [
+                    ['auto', 'По палитре'],
+                    ['off', 'Выключить'],
+                  ] as const
+                ).map(([mode, label]) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    className={`btn btn-sm ${ambientAnimation === mode ? 'btn-primary' : ''}`}
+                    onClick={() => setAmbientAnimation(mode)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              <h3 className="settings-section-title settings-section-title-spaced">
+                Своя тема
+              </h3>
+              <CustomThemeSection />
 
               {isElectron() && (
                 <>

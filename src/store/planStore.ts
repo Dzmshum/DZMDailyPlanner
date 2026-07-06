@@ -14,10 +14,13 @@ import type {
   CalendarSettings,
   DailySettings,
   ExportSettings,
+  CustomThemeSettings,
+  AmbientAnimation,
 } from '../types'
 import {
   createDefaultPlan,
   DEFAULT_PROJECT_COLORS,
+  DEFAULT_CUSTOM_THEME,
   normalizePlan,
 } from '../types'
 import { loadPlanFromDisk, savePlanToDisk } from '../lib/storage'
@@ -45,6 +48,10 @@ interface PlanState {
   setView: (view: ViewId) => void
   setTheme: (theme: ThemeMode) => void
   setColorPalette: (palette: ColorPalette) => void
+  setAmbientAnimation: (mode: AmbientAnimation) => void
+  setCustomTheme: (theme: CustomThemeSettings) => void
+  disableCustomTheme: () => void
+  resetCustomTheme: () => void
   setAgendaDate: (date: string) => void
   setWeekAnchor: (date: string) => void
   setSearchQuery: (query: string) => void
@@ -136,6 +143,36 @@ export const usePlanStore = create<PlanState>((set, get) => ({
   setColorPalette: (colorPalette) => {
     const { data } = get()
     set({ data: updateSettings(data, { colorPalette }) })
+  },
+
+  setAmbientAnimation: (ambientAnimation) => {
+    const { data } = get()
+    set({ data: updateSettings(data, { ambientAnimation }) })
+  },
+
+  setCustomTheme: (customTheme) => {
+    const { data } = get()
+    set({ data: updateSettings(data, { customTheme }) })
+  },
+
+  disableCustomTheme: () => {
+    const { data } = get()
+    set({
+      data: updateSettings(data, {
+        customTheme: { ...data.settings.customTheme, enabled: false },
+      }),
+    })
+  },
+
+  resetCustomTheme: () => {
+    const { data } = get()
+    set({
+      data: updateSettings(data, {
+        colorPalette: 'plain',
+        customTheme: { ...DEFAULT_CUSTOM_THEME },
+        ambientAnimation: 'auto',
+      }),
+    })
   },
 
   setAgendaDate: (date) => set({ agendaDate: date }),

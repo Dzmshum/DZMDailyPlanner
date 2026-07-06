@@ -51,6 +51,7 @@ assert(
 
 if (process.exitCode) {
   console.error('\nЕсть ошибки проверки')
+  process.exit(1)
 } else {
   console.log('\nВсе проверки пройдены')
 }

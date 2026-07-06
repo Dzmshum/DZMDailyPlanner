@@ -1,8 +1,8 @@
-import { APP_NAME } from '../../types'
 import { usePlanStore } from '../../store/planStore'
 import { getInboxTasks, getTodayTasks } from '../../lib/selectors'
 import { TaskCompleteToggle } from '../tasks/TaskCompleteToggle'
 import { WindowControls } from './WindowControls'
+import { BrandMark } from './BrandMark'
 import { expandElectronWindow, isElectron } from '../../lib/electron'
 
 export function MinimalView() {
@@ -32,7 +32,9 @@ export function MinimalView() {
   return (
     <div className="minimal-layout">
       <header className="minimal-header titlebar">
-        <span className="minimal-title titlebar-drag">{APP_NAME}</span>
+        <div className="titlebar-drag">
+          <BrandMark variant="wordmark" size="sm" />
+        </div>
         <div className="titlebar-no-drag">
           <WindowControls compact />
         </div>

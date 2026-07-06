@@ -1,23 +1,34 @@
 import type { ColorPalette } from '../../types'
+import {
+  COLOR_PALETTE_IDS,
+  UNIVERSE_PALETTE_IDS,
+  WOW_PALETTE_IDS,
+} from '../../lib/palettes'
 import { PALETTE_HINTS, PALETTE_LABELS } from '../../types'
 import { usePlanStore } from '../../store/planStore'
 import { BrandMark } from './BrandMark'
 
-const PALETTES: ColorPalette[] = ['northrend', 'outland', 'pandaria']
-
-export function PaletteToggle() {
-  const palette = usePlanStore((s) => s.data.settings.colorPalette)
-  const setColorPalette = usePlanStore((s) => s.setColorPalette)
-
+function PaletteGroup({
+  title,
+  palettes,
+  active,
+  onSelect,
+}: {
+  title: string
+  palettes: ColorPalette[]
+  active: ColorPalette
+  onSelect: (id: ColorPalette) => void
+}) {
   return (
-    <div className="palette-toggle">
+    <div className="palette-group">
+      <h4 className="palette-group-title">{title}</h4>
       <div className="palette-grid">
-        {PALETTES.map((id) => (
+        {palettes.map((id) => (
           <button
             key={id}
             type="button"
-            className={`palette-card palette-preview-${id} ${palette === id ? 'active' : ''}`}
-            onClick={() => setColorPalette(id)}
+            className={`palette-card palette-preview-${id} ${active === id ? 'active' : ''}`}
+            onClick={() => onSelect(id)}
             title={PALETTE_HINTS[id]}
           >
             <span className="palette-card-icon" aria-hidden>
@@ -29,6 +40,44 @@ export function PaletteToggle() {
           </button>
         ))}
       </div>
+    </div>
+  )
+}
+
+export function PaletteToggle() {
+  const palette = usePlanStore((s) => s.data.settings.colorPalette)
+  const customEnabled = usePlanStore((s) => s.data.settings.customTheme.enabled)
+  const setColorPalette = usePlanStore((s) => s.setColorPalette)
+  const disableCustomTheme = usePlanStore((s) => s.disableCustomTheme)
+
+  const onSelect = (id: ColorPalette) => {
+    if (customEnabled) disableCustomTheme()
+    setColorPalette(id)
+  }
+
+  return (
+    <div className="palette-toggle">
+      <PaletteGroup
+        title="Базовая"
+        palettes={['plain']}
+        active={palette}
+        onSelect={onSelect}
+      />
+      <PaletteGroup
+        title="World of Warcraft"
+        palettes={WOW_PALETTE_IDS}
+        active={palette}
+        onSelect={onSelect}
+      />
+      <PaletteGroup
+        title="Вселенные"
+        palettes={UNIVERSE_PALETTE_IDS}
+        active={palette}
+        onSelect={onSelect}
+      />
+      <span className="visually-hidden">
+        Всего палитр: {COLOR_PALETTE_IDS.length}
+      </span>
     </div>
   )
 }

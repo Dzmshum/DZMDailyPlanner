@@ -1,11 +1,19 @@
-import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync, existsSync, copyFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import sharp from 'sharp'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const iconsDir = join(root, 'public/icons')
-const palettes = ['northrend', 'outland', 'pandaria']
+const palettes = [
+  'plain',
+  'northrend',
+  'outland',
+  'pandaria',
+  'starwars',
+  'got',
+  'witcher',
+]
 const views = [
   'dashboard',
   'agenda',
@@ -28,9 +36,13 @@ const uiIcons = [
 ]
 
 const paletteColors = {
+  plain: '#6b8cff',
   northrend: '#30cfea',
   outland: '#92d038',
   pandaria: '#3daa6a',
+  starwars: '#4da6ff',
+  got: '#8b1538',
+  witcher: '#c87533',
 }
 
 /** Простые SVG-иконки для вкладок без исходного PNG */
@@ -91,6 +103,12 @@ function buildViewSvg(view, color) {
   )
 }
 
+function buildBrandSvg(color) {
+  return Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 96 96"><circle cx="48" cy="48" r="34" fill="none" stroke="${color}" stroke-width="3.5"/><path d="M48 18 L62 48 L48 78 L34 48 Z" fill="${color}" opacity="0.82"/></svg>`,
+  )
+}
+
 async function processIcon(sourcePath, outPath, size) {
   const source = readFileSync(sourcePath)
   const png = await removeLightBackground(source)
@@ -136,22 +154,97 @@ async function ensureUiIcon(palette, icon) {
   mkdirSync(uiDir, { recursive: true })
   const source = join(uiDir, `${icon}-source.png`)
   const out = join(uiDir, `${icon}.png`)
+  const northrendSource = join(iconsDir, 'ui', 'northrend', `${icon}-source.png`)
 
   if (!existsSync(source)) {
-    console.error(`Missing ${source}`)
-    process.exit(1)
+    if (!existsSync(northrendSource)) {
+      console.error(`Missing ${source} and fallback ${northrendSource}`)
+      process.exit(1)
+    }
+    copyFileSync(northrendSource, source)
+    console.warn(`Copied UI source from northrend → ${source}`)
   }
 
   await processIcon(source, out, 64)
 }
 
-for (const palette of palettes) {
-  const source = join(iconsDir, `${palette}-source.png`)
+async function processWordmark(sourcePath, outPath, maxWidth, maxHeight) {
+  const source = readFileSync(sourcePath)
+  const png = await removeLightBackground(source)
+    .then((img) => img.trim().png().toBuffer())
+    .then((buffer) =>
+      sharp(buffer)
+        .resize(maxWidth, maxHeight, {
+          fit: 'inside',
+          withoutEnlargement: true,
+          background: { r: 0, g: 0, b: 0, alpha: 0 },
+        })
+        .png({ compressionLevel: 9, palette: true })
+        .toBuffer(),
+    )
+
+  writeFileSync(outPath, png)
+  const rel = outPath.replace(root + '\\', '').replace(root + '/', '')
+  console.log(`${rel}: ${Math.round(png.length / 1024)} KB (wordmark)`)
+}
+
+async function processEmblemFromWordmark(sourcePath, outPath, size) {
+  const source = readFileSync(sourcePath)
+  const trimmedBuffer = await removeLightBackground(source)
+    .then((img) => img.trim().png().toBuffer())
+  const meta = await sharp(trimmedBuffer).metadata()
+  const emblemWidth = Math.max(1, Math.min(meta.width, Math.round(meta.height * 1.05)))
+
+  const png = await sharp(trimmedBuffer)
+    .extract({
+      left: 0,
+      top: 0,
+      width: Math.min(emblemWidth, meta.width),
+      height: meta.height,
+    })
+    .resize(size, size, {
+      fit: 'contain',
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
+    .png({ compressionLevel: 9, palette: true })
+    .toBuffer()
+
+  writeFileSync(outPath, png)
+  const rel = outPath.replace(root + '\\', '').replace(root + '/', '')
+  console.log(`${rel}: ${Math.round(png.length / 1024)} KB (${size}px emblem)`)
+}
+
+async function ensurePaletteWordmark(palette) {
+  const wordmarkDir = join(iconsDir, 'wordmark')
+  mkdirSync(wordmarkDir, { recursive: true })
+  const source = join(wordmarkDir, `${palette}-source.png`)
   if (!existsSync(source)) {
-    console.error(`Missing ${source}`)
+    console.error(`Missing wordmark source: ${source}`)
     process.exit(1)
   }
+  await processWordmark(source, join(wordmarkDir, `${palette}.png`), 220, 52)
+  await processEmblemFromWordmark(source, join(iconsDir, `${palette}.png`), 192)
+}
+
+async function ensurePaletteBrand(palette) {
+  const wordmarkSource = join(iconsDir, 'wordmark', `${palette}-source.png`)
+  if (existsSync(wordmarkSource)) {
+    await ensurePaletteWordmark(palette)
+    return
+  }
+
+  const source = join(iconsDir, `${palette}-source.png`)
+  if (!existsSync(source)) {
+    const color = paletteColors[palette]
+    const svg = buildBrandSvg(color)
+    await sharp(svg).png().toFile(source)
+    console.warn(`Generated placeholder ${source} — add a proper *-source.png`)
+  }
   await processIcon(source, join(iconsDir, `${palette}.png`), 192)
+}
+
+for (const palette of palettes) {
+  await ensurePaletteBrand(palette)
 }
 
 for (const palette of palettes) {
@@ -166,16 +259,25 @@ for (const palette of palettes) {
   }
 }
 
+const plainWordmark = join(iconsDir, 'wordmark', 'plain-source.png')
+const plainSource = join(iconsDir, 'plain-source.png')
 const northrendSource = join(iconsDir, 'northrend-source.png')
-await processIcon(northrendSource, join(root, 'public/icon.png'), 192)
-await processIcon(northrendSource, join(root, 'resources/icon.png'), 512)
+const appIconSource = existsSync(plainWordmark)
+  ? plainWordmark
+  : existsSync(plainSource)
+    ? plainSource
+    : northrendSource
+await processEmblemFromWordmark(appIconSource, join(root, 'public/icon.png'), 192)
+await processEmblemFromWordmark(appIconSource, join(root, 'resources/icon.png'), 512)
 
-const favicon = await removeLightBackground(readFileSync(northrendSource)).then((img) =>
-  img
-    .trim()
-    .resize(32, 32, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
-    .png({ compressionLevel: 9, palette: true })
-    .toBuffer(),
-)
+const faviconSource = await removeLightBackground(readFileSync(appIconSource))
+  .then((img) => img.trim().png().toBuffer())
+const favMeta = await sharp(faviconSource).metadata()
+const favEmblemWidth = Math.min(favMeta.width, Math.round(favMeta.height * 1.05))
+const favicon = await sharp(faviconSource)
+  .extract({ left: 0, top: 0, width: favEmblemWidth, height: favMeta.height })
+  .resize(32, 32, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+  .png({ compressionLevel: 9, palette: true })
+  .toBuffer()
 writeFileSync(join(root, 'public/favicon.png'), favicon)
 console.log(`public/favicon.png: ${Math.round(favicon.length / 1024)} KB (32px)`)

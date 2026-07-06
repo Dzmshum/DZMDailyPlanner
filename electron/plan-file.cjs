@@ -6,7 +6,17 @@ const DEFAULT_PLAN = {
   version: 1,
   settings: {
     theme: 'system',
-    colorPalette: 'northrend',
+    colorPalette: 'plain',
+    ambientAnimation: 'auto',
+    customTheme: {
+      enabled: false,
+      accent: '#6b8cff',
+      background: '#121418',
+      surface: '#1a1d24',
+      text: '#e8eaed',
+      backgroundImage: null,
+      ambientEnabled: false,
+    },
     defaultView: 'dashboard',
     windowMode: 'standard',
     calendar: { showHolidays: true, calendarView: 'week' },

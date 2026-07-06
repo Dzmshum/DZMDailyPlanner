@@ -186,14 +186,275 @@
   --rune-glow: 0 0 12px rgba(64, 176, 112, 0.24);
 }
 
+/* ——— Классика (нейтральная) ——— */
+[data-palette='plain'][data-theme='dark'] {
+  --bg-primary: #121418;
+  --bg-secondary: #1a1d24;
+  --bg-tertiary: #22262f;
+  --bg-hover: #2a2f3a;
+  --bg-frost: none;
+  --text-primary: #e8eaed;
+  --text-secondary: #a8adb8;
+  --text-muted: #6e7380;
+  --accent: #6b8cff;
+  --accent-hover: #85a0ff;
+  --accent-soft: rgba(107, 140, 255, 0.14);
+  --accent-glow: rgba(107, 140, 255, 0.28);
+  --gold: #c0a878;
+  --gold-soft: rgba(192, 168, 120, 0.12);
+  --border: rgba(120, 128, 148, 0.28);
+  --border-ice: rgba(107, 140, 255, 0.24);
+  --danger: #e07070;
+  --danger-soft: rgba(224, 112, 112, 0.14);
+  --success: #58b888;
+  --priority-high: #e07070;
+  --priority-medium: #d0a848;
+  --priority-low: #8890a0;
+  --sidebar-gradient: linear-gradient(180deg, #101218 0%, #1a1d24 100%);
+  --header-gradient: linear-gradient(90deg, rgba(107, 140, 255, 0.06) 0%, transparent 70%);
+  --rune-glow: none;
+}
+
+[data-palette='plain'][data-theme='light'] {
+  --bg-primary: #f0f2f5;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e4e8ee;
+  --bg-hover: #d8dde6;
+  --bg-frost: none;
+  --text-primary: #1a1d24;
+  --text-secondary: #4a5060;
+  --text-muted: #6e7380;
+  --accent: #4a6fd8;
+  --accent-hover: #5a7fe8;
+  --accent-soft: rgba(74, 111, 216, 0.12);
+  --accent-glow: rgba(74, 111, 216, 0.18);
+  --gold: #a08848;
+  --gold-soft: rgba(160, 136, 72, 0.1);
+  --border: rgba(40, 48, 64, 0.12);
+  --border-ice: rgba(74, 111, 216, 0.22);
+  --danger: #c84848;
+  --danger-soft: rgba(200, 72, 72, 0.08);
+  --success: #388868;
+  --priority-high: #c84848;
+  --priority-medium: #b08818;
+  --priority-low: #687080;
+  --sidebar-gradient: linear-gradient(180deg, #e8ebf0 0%, #f0f2f5 100%);
+  --header-gradient: linear-gradient(90deg, rgba(74, 111, 216, 0.08) 0%, transparent 100%);
+  --rune-glow: none;
+}
+
+/* ——— Звёздные войны ——— */
+[data-palette='starwars'][data-theme='dark'] {
+  --bg-primary: #060a14;
+  --bg-secondary: #0c1220;
+  --bg-tertiary: #141c2c;
+  --bg-hover: #1c2838;
+  --bg-frost: radial-gradient(ellipse at 50% 0%, rgba(77, 166, 255, 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 100%, rgba(255, 80, 60, 0.05) 0%, transparent 50%);
+  --text-primary: #e8f0ff;
+  --text-secondary: #98a8c8;
+  --text-muted: #607090;
+  --accent: #4da6ff;
+  --accent-hover: #6bb8ff;
+  --accent-soft: rgba(77, 166, 255, 0.16);
+  --accent-glow: rgba(77, 166, 255, 0.38);
+  --gold: #ffcc66;
+  --gold-soft: rgba(255, 204, 102, 0.18);
+  --border: rgba(70, 100, 150, 0.34);
+  --border-ice: rgba(77, 166, 255, 0.3);
+  --danger: #ff5050;
+  --danger-soft: rgba(255, 80, 80, 0.16);
+  --success: #58c090;
+  --priority-high: #ff5050;
+  --priority-medium: #ffcc66;
+  --priority-low: #8898b8;
+  --sidebar-gradient: linear-gradient(180deg, #080c18 0%, #101828 55%, #0c1018 100%);
+  --header-gradient: linear-gradient(90deg, rgba(77, 166, 255, 0.1) 0%, transparent 70%);
+  --rune-glow: 0 0 18px rgba(77, 166, 255, 0.42), 0 0 32px rgba(255, 204, 102, 0.12);
+}
+
+[data-palette='starwars'][data-theme='light'] {
+  --bg-primary: #e8eef8;
+  --bg-secondary: #f4f8fc;
+  --bg-tertiary: #d0dce8;
+  --bg-hover: #c0d0e0;
+  --bg-frost: radial-gradient(ellipse at 40% 0%, rgba(77, 166, 255, 0.08) 0%, transparent 50%);
+  --text-primary: #101828;
+  --text-secondary: #405068;
+  --text-muted: #607088;
+  --accent: #3080d0;
+  --accent-hover: #4090e0;
+  --accent-soft: rgba(48, 128, 208, 0.12);
+  --accent-glow: rgba(48, 128, 208, 0.2);
+  --gold: #c89830;
+  --gold-soft: rgba(200, 152, 48, 0.12);
+  --border: rgba(30, 50, 80, 0.12);
+  --border-ice: rgba(48, 128, 208, 0.24);
+  --danger: #c84040;
+  --danger-soft: rgba(200, 64, 64, 0.08);
+  --success: #388868;
+  --priority-high: #c84040;
+  --priority-medium: #c89830;
+  --priority-low: #607080;
+  --sidebar-gradient: linear-gradient(180deg, #dce8f4 0%, #e8eef8 100%);
+  --header-gradient: linear-gradient(90deg, rgba(48, 128, 208, 0.08) 0%, transparent 100%);
+  --rune-glow: 0 0 10px rgba(48, 128, 208, 0.22);
+}
+
+/* ——— Игра престолов ——— */
+[data-palette='got'][data-theme='dark'] {
+  --bg-primary: #100c10;
+  --bg-secondary: #1a1518;
+  --bg-tertiary: #241e22;
+  --bg-hover: #30282c;
+  --bg-frost: radial-gradient(ellipse at 30% 0%, rgba(139, 21, 56, 0.08) 0%, transparent 45%),
+    radial-gradient(ellipse at 70% 100%, rgba(201, 162, 39, 0.06) 0%, transparent 48%);
+  --text-primary: #f0ece8;
+  --text-secondary: #c0b0a8;
+  --text-muted: #887878;
+  --accent: #8b1538;
+  --accent-hover: #a82048;
+  --accent-soft: rgba(139, 21, 56, 0.18);
+  --accent-glow: rgba(139, 21, 56, 0.34);
+  --gold: #c9a227;
+  --gold-soft: rgba(201, 162, 39, 0.2);
+  --border: rgba(120, 90, 80, 0.36);
+  --border-ice: rgba(201, 162, 39, 0.28);
+  --danger: #e05050;
+  --danger-soft: rgba(224, 80, 80, 0.16);
+  --success: #58a070;
+  --priority-high: #e05050;
+  --priority-medium: #c9a227;
+  --priority-low: #a09088;
+  --sidebar-gradient: linear-gradient(180deg, #120e12 0%, #20181c 55%, #181418 100%);
+  --header-gradient: linear-gradient(90deg, rgba(139, 21, 56, 0.1) 0%, transparent 70%);
+  --rune-glow: 0 0 16px rgba(201, 162, 39, 0.32), 0 0 24px rgba(139, 21, 56, 0.2);
+}
+
+[data-palette='got'][data-theme='light'] {
+  --bg-primary: #f4f0ec;
+  --bg-secondary: #faf8f6;
+  --bg-tertiary: #e8e0d8;
+  --bg-hover: #dcd4cc;
+  --bg-frost: radial-gradient(ellipse at 35% 0%, rgba(139, 21, 56, 0.05) 0%, transparent 50%);
+  --text-primary: #201818;
+  --text-secondary: #504840;
+  --text-muted: #786860;
+  --accent: #8b1538;
+  --accent-hover: #9b2548;
+  --accent-soft: rgba(139, 21, 56, 0.1);
+  --accent-glow: rgba(139, 21, 56, 0.16);
+  --gold: #a88820;
+  --gold-soft: rgba(168, 136, 32, 0.12);
+  --border: rgba(60, 40, 40, 0.12);
+  --border-ice: rgba(168, 136, 32, 0.22);
+  --danger: #b83838;
+  --danger-soft: rgba(184, 56, 56, 0.08);
+  --success: #408858;
+  --priority-high: #b83838;
+  --priority-medium: #a88820;
+  --priority-low: #786860;
+  --sidebar-gradient: linear-gradient(180deg, #ece4dc 0%, #f4f0ec 100%);
+  --header-gradient: linear-gradient(90deg, rgba(139, 21, 56, 0.07) 0%, transparent 100%);
+  --rune-glow: 0 0 10px rgba(168, 136, 32, 0.2);
+}
+
+/* ——— Ведьмак ——— */
+[data-palette='witcher'][data-theme='dark'] {
+  --bg-primary: #12100e;
+  --bg-secondary: #1a1814;
+  --bg-tertiary: #242018;
+  --bg-hover: #302c24;
+  --bg-frost: radial-gradient(ellipse at 25% 0%, rgba(107, 140, 90, 0.06) 0%, transparent 42%),
+    radial-gradient(ellipse at 75% 100%, rgba(200, 117, 51, 0.07) 0%, transparent 48%);
+  --text-primary: #ece6dc;
+  --text-secondary: #b8a898;
+  --text-muted: #887868;
+  --accent: #c87533;
+  --accent-hover: #d88848;
+  --accent-soft: rgba(200, 117, 51, 0.16);
+  --accent-glow: rgba(200, 117, 51, 0.32);
+  --gold: #6b8c5a;
+  --gold-soft: rgba(107, 140, 90, 0.18);
+  --border: rgba(120, 100, 70, 0.34);
+  --border-ice: rgba(200, 117, 51, 0.28);
+  --danger: #c84838;
+  --danger-soft: rgba(200, 72, 56, 0.14);
+  --success: #6b8c5a;
+  --priority-high: #c84838;
+  --priority-medium: #c87533;
+  --priority-low: #988878;
+  --sidebar-gradient: linear-gradient(180deg, #141210 0%, #221c18 55%, #1a1612 100%);
+  --header-gradient: linear-gradient(90deg, rgba(200, 117, 51, 0.09) 0%, transparent 70%);
+  --rune-glow: 0 0 14px rgba(200, 117, 51, 0.34), 0 0 22px rgba(107, 140, 90, 0.18);
+}
+
+[data-palette='witcher'][data-theme='light'] {
+  --bg-primary: #f0ece4;
+  --bg-secondary: #faf8f4;
+  --bg-tertiary: #e4dcd0;
+  --bg-hover: #d8d0c4;
+  --bg-frost: radial-gradient(ellipse at 40% 0%, rgba(200, 117, 51, 0.05) 0%, transparent 48%);
+  --text-primary: #201810;
+  --text-secondary: #504838;
+  --text-muted: #786858;
+  --accent: #a86830;
+  --accent-hover: #b87840;
+  --accent-soft: rgba(168, 104, 48, 0.12);
+  --accent-glow: rgba(168, 104, 48, 0.18);
+  --gold: #5a7848;
+  --gold-soft: rgba(90, 120, 72, 0.12);
+  --border: rgba(80, 60, 40, 0.12);
+  --border-ice: rgba(168, 104, 48, 0.22);
+  --danger: #a83830;
+  --danger-soft: rgba(168, 56, 48, 0.08);
+  --success: #5a7848;
+  --priority-high: #a83830;
+  --priority-medium: #a86830;
+  --priority-low: #786858;
+  --sidebar-gradient: linear-gradient(180deg, #e8e0d4 0%, #f0ece4 100%);
+  --header-gradient: linear-gradient(90deg, rgba(168, 104, 48, 0.08) 0%, transparent 100%);
+  --rune-glow: 0 0 10px rgba(168, 104, 48, 0.2);
+}
+
+/* ——— Своя тема (базовые значения, переопределяются inline) ——— */
+[data-palette='custom'][data-theme='dark'],
+[data-palette='custom'][data-theme='light'] {
+  --bg-primary: #121418;
+  --bg-secondary: #1a1d24;
+  --bg-tertiary: #22262f;
+  --bg-hover: #2a2f3a;
+  --bg-frost: none;
+  --text-primary: #e8eaed;
+  --text-secondary: #a8adb8;
+  --text-muted: #6e7380;
+  --accent: #6b8cff;
+  --accent-hover: #85a0ff;
+  --accent-soft: rgba(107, 140, 255, 0.14);
+  --accent-glow: rgba(107, 140, 255, 0.28);
+  --gold: #c0a878;
+  --gold-soft: rgba(192, 168, 120, 0.12);
+  --border: rgba(120, 128, 148, 0.28);
+  --border-ice: rgba(107, 140, 255, 0.24);
+  --danger: #e07070;
+  --danger-soft: rgba(224, 112, 112, 0.14);
+  --success: #58b888;
+  --priority-high: #e07070;
+  --priority-medium: #d0a848;
+  --priority-low: #8890a0;
+  --sidebar-gradient: linear-gradient(180deg, #101218 0%, #1a1d24 100%);
+  --header-gradient: linear-gradient(90deg, rgba(107, 140, 255, 0.06) 0%, transparent 70%);
+  --rune-glow: none;
+}
+
 /* Fallback if palette not set yet */
 [data-theme='dark']:not([data-palette]) {
-  --bg-primary: #03060c;
-  --bg-secondary: #0a1018;
-  --accent: #30cfea;
-  --accent-glow: rgba(48, 207, 234, 0.36);
-  --border-ice: rgba(48, 207, 234, 0.3);
-  --rune-glow: 0 0 18px rgba(48, 207, 234, 0.48), 0 0 36px rgba(48, 207, 234, 0.18);
+  --bg-primary: #121418;
+  --bg-secondary: #1a1d24;
+  --accent: #6b8cff;
+  --accent-glow: rgba(107, 140, 255, 0.28);
+  --border-ice: rgba(107, 140, 255, 0.24);
+  --rune-glow: none;
 }
 
 *,
@@ -211,11 +472,18 @@ body,
 
 body {
   font-family: var(--font-sans);
-  background: var(--bg-primary);
+  background-color: var(--bg-primary);
   background-image: var(--bg-frost);
   background-attachment: fixed;
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
+}
+
+body.custom-bg-image {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)),
+    var(--bg-custom-image), var(--bg-frost);
+  background-size: cover, cover, auto;
+  background-position: center, center, center;
 }
 
 button,
@@ -291,8 +559,28 @@ html {
 .sidebar-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 12px 24px;
+  padding: 8px 8px 24px;
+}
+
+.sidebar-brand .brand-mark-wordmark {
+  width: auto;
+  max-width: 100%;
+  filter: drop-shadow(0 0 8px var(--accent-glow));
+}
+
+.brand-mark-lg {
+  height: 40px;
+  width: auto;
+}
+
+.brand-mark-wordmark.brand-mark-sm {
+  height: 22px;
+  width: auto;
+}
+
+.brand-mark-wordmark.brand-mark-md {
+  height: 30px;
+  width: auto;
 }
 
 .sidebar-brand-icon,
@@ -2365,6 +2653,18 @@ html.lightbox-open .view-content {
 
 .palette-toggle {
   margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.palette-group-title {
+  margin: 0 0 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
 }
 
 .palette-grid {
@@ -2423,6 +2723,53 @@ html.lightbox-open .view-content {
 
 .palette-preview-pandaria .palette-card-swatch {
   background: linear-gradient(145deg, #1c1814, #5ad890 50%, #f4c860);
+}
+
+.palette-preview-plain .palette-card-swatch {
+  background: linear-gradient(145deg, #121418, #6b8cff);
+}
+
+.palette-preview-starwars .palette-card-swatch {
+  background: linear-gradient(145deg, #060a14, #4da6ff 55%, #ffcc66);
+}
+
+.palette-preview-got .palette-card-swatch {
+  background: linear-gradient(145deg, #1a1518, #8b1538 50%, #c9a227);
+}
+
+.palette-preview-witcher .palette-card-swatch {
+  background: linear-gradient(145deg, #1a1814, #c87533 50%, #6b8c5a);
+}
+
+.custom-theme-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.custom-theme-colors {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.custom-theme-color-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.custom-theme-color-field input[type='color'] {
+  width: 44px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
 }
 
 .palette-card-name {

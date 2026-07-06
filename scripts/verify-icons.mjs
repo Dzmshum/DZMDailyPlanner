@@ -4,7 +4,7 @@ import { join } from 'node:path'
 const root = process.cwd()
 const buildDir = join(root, 'build')
 
-const palettes = ['northrend', 'outland', 'pandaria']
+const palettes = ['plain', 'northrend', 'outland', 'pandaria', 'starwars', 'got', 'witcher']
 const views = [
   'dashboard',
   'agenda',
@@ -50,6 +50,7 @@ const required = [
   'icon.png',
   'favicon.png',
   ...palettes.map((p) => `icons/${p}.png`),
+  ...palettes.map((p) => `icons/wordmark/${p}.png`),
   ...palettes.flatMap((p) => views.map((v) => `icons/views/${p}/${v}.png`)),
   ...palettes.flatMap((p) => uiIcons.map((i) => `icons/ui/${p}/${i}.png`)),
 ]

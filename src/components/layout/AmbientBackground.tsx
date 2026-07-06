@@ -39,6 +39,77 @@ function isWinterSeason() {
 }
 
 function ambientProfile(palette: ColorPalette, theme: 'light' | 'dark'): AmbientProfile | null {
+  if (palette === 'plain') return null
+
+  if (palette === 'starwars') {
+    if (theme === 'dark') {
+      return {
+        count: 56,
+        rise: false,
+        colors: ['#ffffff', '#8ec8ff', '#4da6ff', '#ffcc66'],
+        size: [0.6, 2],
+        speed: [0.05, 0.2],
+        kind: 'dot',
+        opacity: [0.25, 0.85],
+      }
+    }
+    return {
+      count: 36,
+      rise: false,
+      colors: ['#6080a8', '#90b8e0', '#c0d8f0'],
+      size: [0.8, 2.2],
+      speed: [0.04, 0.15],
+      kind: 'dot',
+      opacity: [0.12, 0.4],
+    }
+  }
+
+  if (palette === 'got') {
+    if (theme === 'dark') {
+      return {
+        count: 38,
+        rise: false,
+        colors: ['#e8e8ec', '#c9a227', '#8b1538'],
+        size: [1, 3],
+        speed: [0.25, 0.75],
+        kind: 'flake',
+        opacity: [0.15, 0.45],
+      }
+    }
+    return {
+      count: 28,
+      rise: false,
+      colors: ['#a89888', '#c9a227', '#8b1538'],
+      size: [1, 2.8],
+      speed: [0.18, 0.5],
+      kind: 'flake',
+      opacity: [0.1, 0.28],
+    }
+  }
+
+  if (palette === 'witcher') {
+    if (theme === 'dark') {
+      return {
+        count: 26,
+        rise: true,
+        colors: ['#c87533', '#6b8c5a', '#8a7060'],
+        size: [1, 2.6],
+        speed: [0.15, 0.45],
+        kind: 'mote',
+        opacity: [0.14, 0.38],
+      }
+    }
+    return {
+      count: 20,
+      rise: false,
+      colors: ['#a86830', '#5a7848', '#887060'],
+      size: [0.9, 2.4],
+      speed: [0.1, 0.32],
+      kind: 'mote',
+      opacity: [0.08, 0.22],
+    }
+  }
+
   if (palette === 'northrend') {
     if (theme === 'dark') {
       return {
@@ -174,6 +245,8 @@ function drawParticle(ctx: CanvasRenderingContext2D, p: Particle, color: string,
 export function AmbientBackground() {
   const palette = usePlanStore((s) => s.data.settings.colorPalette)
   const themeMode = usePlanStore((s) => s.data.settings.theme)
+  const ambientAnimation = usePlanStore((s) => s.data.settings.ambientAnimation)
+  const customTheme = usePlanStore((s) => s.data.settings.customTheme)
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>(() =>
     resolveTheme(themeMode),
   )
@@ -191,6 +264,9 @@ export function AmbientBackground() {
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
+
+    if (ambientAnimation === 'off') return
+    if (customTheme.enabled && !customTheme.ambientEnabled) return
 
     const profile = ambientProfile(palette, resolvedTheme)
     if (!profile) return
@@ -250,7 +326,7 @@ export function AmbientBackground() {
       cancelAnimationFrame(raf)
       window.removeEventListener('resize', resize)
     }
-  }, [palette, resolvedTheme])
+  }, [palette, resolvedTheme, ambientAnimation, customTheme.enabled, customTheme.ambientEnabled])
 
   return <canvas ref={canvasRef} className="ambient-bg" aria-hidden />
 }

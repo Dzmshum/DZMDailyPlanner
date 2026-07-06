@@ -1,5 +1,13 @@
 export type ThemeMode = 'light' | 'dark' | 'system'
-export type ColorPalette = 'northrend' | 'outland' | 'pandaria'
+export type ColorPalette =
+  | 'plain'
+  | 'northrend'
+  | 'outland'
+  | 'pandaria'
+  | 'starwars'
+  | 'got'
+  | 'witcher'
+export type AmbientAnimation = 'auto' | 'off'
 export type ViewId =
   | 'dashboard'
   | 'agenda'
@@ -81,9 +89,21 @@ export interface ExportSettings {
   exportTitle: string
 }
 
+export interface CustomThemeSettings {
+  enabled: boolean
+  accent: string
+  background: string
+  surface: string
+  text: string
+  backgroundImage: string | null
+  ambientEnabled: boolean
+}
+
 export interface Settings {
   theme: ThemeMode
   colorPalette: ColorPalette
+  ambientAnimation: AmbientAnimation
+  customTheme: CustomThemeSettings
   defaultView: ViewId
   windowMode: WindowMode
   calendar: CalendarSettings
@@ -112,19 +132,58 @@ export const STATUS_LABELS: Record<TaskStatus, string> = {
   done: 'Готово',
 }
 
-export const APP_NAME = 'RuneBoard'
-export const BRAND_TAGLINE = 'Рунный планировщик задач'
+export const APP_NAME = 'PlanBoard'
 
 export const PALETTE_LABELS: Record<ColorPalette, string> = {
+  plain: 'Классика',
   northrend: 'Нордскол',
   outland: 'Запределье',
   pandaria: 'Пандария',
+  starwars: 'Звёздные войны',
+  got: 'Игра престолов',
+  witcher: 'Ведьмак',
 }
 
 export const PALETTE_HINTS: Record<ColorPalette, string> = {
+  plain: 'Нейтральная тёмная тема без декора',
   northrend: 'Лёд, сталь, руны — Ледяная Корона',
   outland: 'Скверна, фиолет, зелёное пламя — Иллидан',
   pandaria: 'Нефрит, золото, шёлк — Пандария',
+  starwars: 'Космос, неон, звёзды — далёкая-далёкая галактика',
+  got: 'Гранит, бордо, золото — Железный трон',
+  witcher: 'Медь, руны, туман — Ведьмак',
+}
+
+export const DEFAULT_CUSTOM_THEME: CustomThemeSettings = {
+  enabled: false,
+  accent: '#6b8cff',
+  background: '#121418',
+  surface: '#1a1d24',
+  text: '#e8eaed',
+  backgroundImage: null,
+  ambientEnabled: false,
+}
+
+const HEX_COLOR = /^#[0-9a-fA-F]{6}$/
+
+function normalizeCustomThemeSettings(raw: unknown): CustomThemeSettings {
+  const d = DEFAULT_CUSTOM_THEME
+  if (!raw || typeof raw !== 'object') return { ...d }
+  const o = raw as Partial<CustomThemeSettings>
+  const color = (v: unknown, fb: string) =>
+    typeof v === 'string' && HEX_COLOR.test(v) ? v : fb
+  return {
+    enabled: Boolean(o.enabled),
+    accent: color(o.accent, d.accent),
+    background: color(o.background, d.background),
+    surface: color(o.surface, d.surface),
+    text: color(o.text, d.text),
+    backgroundImage:
+      typeof o.backgroundImage === 'string' && o.backgroundImage.length > 0
+        ? o.backgroundImage
+        : null,
+    ambientEnabled: Boolean(o.ambientEnabled),
+  }
 }
 
 export const VIEW_LABELS: Record<ViewId, string> = {
@@ -190,7 +249,9 @@ export function createDefaultPlan(): PlanData {
     version: 1,
     settings: {
       theme: 'system',
-      colorPalette: 'northrend',
+      colorPalette: 'plain',
+      ambientAnimation: 'auto',
+      customTheme: { ...DEFAULT_CUSTOM_THEME },
       defaultView: 'dashboard',
       windowMode: 'standard',
       calendar: { ...DEFAULT_CALENDAR_SETTINGS },
@@ -206,12 +267,31 @@ export function createDefaultPlan(): PlanData {
 
 export function normalizePlan(data: PlanData): PlanData {
   const defaults = createDefaultPlan().settings
+  const validPalettes: ColorPalette[] = [
+    'plain',
+    'northrend',
+    'outland',
+    'pandaria',
+    'starwars',
+    'got',
+    'witcher',
+  ]
+  const rawPalette = data.settings?.colorPalette
+  const colorPalette = validPalettes.includes(rawPalette as ColorPalette)
+    ? (rawPalette as ColorPalette)
+    : 'plain'
+  const ambientRaw = data.settings?.ambientAnimation
+  const ambientAnimation: AmbientAnimation =
+    ambientRaw === 'off' ? 'off' : 'auto'
+
   return {
     ...data,
     settings: {
       ...defaults,
       ...data.settings,
-      colorPalette: data.settings?.colorPalette ?? 'northrend',
+      colorPalette,
+      ambientAnimation,
+      customTheme: normalizeCustomThemeSettings(data.settings?.customTheme),
       windowMode: data.settings?.windowMode ?? 'standard',
       calendar: {
         ...defaults.calendar,

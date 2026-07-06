@@ -1,5 +1,5 @@
 import type { ViewId } from '../../types'
-import { APP_NAME, BRAND_TAGLINE, VIEW_LABELS } from '../../types'
+import { VIEW_LABELS } from '../../types'
 import { usePlanStore } from '../../store/planStore'
 import { getViewCounts, getActiveProjects } from '../../lib/selectors'
 import { BrandMark } from './BrandMark'
@@ -37,11 +37,7 @@ export function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
-        <BrandMark />
-        <div>
-          <div className="sidebar-brand-title">{APP_NAME}</div>
-          <div className="sidebar-brand-sub">{BRAND_TAGLINE}</div>
-        </div>
+        <BrandMark variant="wordmark" size="lg" />
       </div>
 
       <nav>

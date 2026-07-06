@@ -1,6 +1,6 @@
-# RuneBoard
+# PlanBoard
 
-Рунный планировщик задач (ранее DoomPlanner). Electron + React.
+Планировщик задач (ранее DoomPlanner / RuneBoard). Electron + React.
 
 Локальный планировщик с дедлайнами, проектами, календарём и дейликами.  
 Данные — один JSON-файл на компьютере. Интерфейс на русском.
@@ -9,7 +9,7 @@
 
 > **История:** изначально Tauri (Rust). Сейчас — **Electron**. Папку `src-tauri/` можно игнорировать.
 
-**Текущая версия:** v0.22.6 — см. [ROADMAP.md](./ROADMAP.md)
+**Текущая версия:** v0.25.1 — см. [ROADMAP.md](./ROADMAP.md)
 
 ---
 
@@ -17,7 +17,7 @@
 
 ### Уже есть собранный .exe
 
-Двойной клик по **`DoomPlanner.cmd`** (ищет `RuneBoard.exe`) или:
+Двойной клик по **`DoomPlanner.cmd`** (ищет `RuneBoard.exe` — имя exe до полного ребренда) или:
 
 ```
 dist-electron\RuneBoard 0.1.0.exe              ← portable
@@ -59,7 +59,7 @@ pnpm dev
 | `pnpm build` | Фронтенд в `build\` (+ иконки, календарь РФ) |
 | `pnpm icons` | Пересобрать PNG из `*-source.png` |
 | `pnpm calendar` | Обновить производственный календарь РФ |
-| `pnpm test` | Автотесты: календарь РФ + дейлики (41) + вложения (12) + месяц (9) + праздники (23) + проекты (5) |
+| `pnpm test` | Автотесты: календарь РФ + дейлики (40) + вложения (12) + месяц (9) + праздники (23) + проекты (5) + палитры/wordmark (83) |
 | `pnpm lint` | oxlint |
 
 **Файлы для двойного клика (Windows):**
@@ -130,11 +130,11 @@ pnpm electron:build
 Перед упаковкой автоматически:
 1. `pnpm build` — фронтенд, иконки, календарь РФ
 2. `strip-icon-sources` — исходники `*-source.png` (~80 МБ) не попадают в `build/`
-3. `verify-icons` — проверка 50 PNG + `resources/icon.png`
+3. `verify-icons` — проверка 57 PNG + `resources/icon.png`
 4. `electron-builder` — во временную папку (обход EPERM), копия в `dist-electron\`
 
 **Если `EPERM: operation not permitted`:**
-1. Закройте RuneBoard, если запущен
+1. Закройте PlanBoard / RuneBoard, если запущен
 2. Удалите `dist-electron`
 3. Запустите из **PowerShell**
 4. При необходимости — исключите папку проекта из антивируса
@@ -145,12 +145,14 @@ pnpm electron:build
 
 | Путь | Назначение |
 |------|------------|
-| `public/icons/*-source.png` | Исходники AI (не в .exe) |
+| `public/icons/wordmark/*-source.png` | Исходники wordmark PlanBoard per-палитра (не в .exe) |
+| `public/icons/wordmark/{palette}.png` | Компактный логотип «эмблема + PlanBoard» для сайдбара |
+| `public/icons/*-source.png` | Исходники эмблем (legacy; при wordmark эмблема вырезается из него) |
 | `public/icons/views/{palette}/` | Иконки вкладок (96px) |
 | `public/icons/ui/{palette}/` | UI: окно, закрыть, шевроны (64px) |
 | `resources/icon.png` | Иконка приложения для Electron (512px) |
 
-Заменить иконку: положить PNG в `*-source.png` → `pnpm icons` → `pnpm electron:build`.
+Заменить логотип: положить PNG в `wordmark/{palette}-source.png` → `pnpm icons` → `pnpm electron:build`.
 
 ---
 
@@ -175,7 +177,17 @@ pnpm electron:build
   "version": 1,
   "settings": {
     "theme": "system",
-    "colorPalette": "northrend",
+    "colorPalette": "plain",
+    "ambientAnimation": "auto",
+    "customTheme": {
+      "enabled": false,
+      "accent": "#6b8cff",
+      "background": "#121418",
+      "surface": "#1a1d24",
+      "text": "#e8eaed",
+      "backgroundImage": null,
+      "ambientEnabled": false
+    },
     "defaultView": "dashboard",
     "windowMode": "standard",
     "voiceInputEnabled": false,
@@ -264,9 +276,9 @@ DoomPlanner/
 
 ## Качество и план
 
-- **Тесты:** `pnpm test` — ~90 проверок в 5 скриптах + генератор календаря (2025–2027)
+- **Тесты:** `pnpm test` — ~171 проверка в 6 скриптах + генератор календаря (2025–2027)
 - **Чеклист:** [`TESTS.md`](TESTS.md)
-- **Backlog:** [`ROADMAP.md`](ROADMAP.md) — v0.24 палитры, v0.25 темы (тёмная по умолчанию), v0.23 мобилка, v0.3 Ollama
+- **Backlog:** [`ROADMAP.md`](ROADMAP.md) — v0.23 мобилка, v0.26 группировка дейлика, v0.27 анимации тем, v0.3 Ollama
 
 ---
 
