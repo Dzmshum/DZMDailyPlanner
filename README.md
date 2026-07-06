@@ -266,7 +266,7 @@ DoomPlanner/
 
 - **Тесты:** `pnpm test` — ~90 проверок в 5 скриптах + генератор календаря (2025–2027)
 - **Чеклист:** [`TESTS.md`](TESTS.md)
-- **Backlog:** [`ROADMAP.md`](ROADMAP.md) — v0.23 мобилка, v0.24 палитры, v0.3 Ollama
+- **Backlog:** [`ROADMAP.md`](ROADMAP.md) — v0.24 палитры, v0.25 темы (тёмная по умолчанию), v0.23 мобилка, v0.3 Ollama
 
 ---
 
