@@ -1,0 +1,291 @@
+import { useEffect, useState } from 'react'
+import type { JiraSettings } from '../../types'
+import { usePlanStore } from '../../store/planStore'
+import { getPlanFilePath, usesSharedPlanFile } from '../../lib/storage'
+import { isElectron } from '../../lib/electron'
+import { Modal } from '../ui/Modal'
+import { PaletteToggle } from '../layout/PaletteToggle'
+import { ThemeToggle } from '../layout/ThemeToggle'
+
+type SettingsTab = 'appearance' | 'data' | 'integrations'
+
+const TABS: { id: SettingsTab; label: string }[] = [
+  { id: 'appearance', label: 'Оформление' },
+  { id: 'data', label: 'Данные' },
+  { id: 'integrations', label: 'Интеграции' },
+]
+
+export function SettingsModal() {
+  const open = usePlanStore((s) => s.settingsOpen)
+  const closeSettings = usePlanStore((s) => s.closeSettings)
+  const jira = usePlanStore((s) => s.data.settings.jira)
+  const setJiraSettings = usePlanStore((s) => s.setJiraSettings)
+  const windowMode = usePlanStore((s) => s.data.settings.windowMode)
+  const setWindowMode = usePlanStore((s) => s.setWindowMode)
+  const calendar = usePlanStore((s) => s.data.settings.calendar)
+  const setCalendarSettings = usePlanStore((s) => s.setCalendarSettings)
+  const daily = usePlanStore((s) => s.data.settings.daily)
+  const setDailySettings = usePlanStore((s) => s.setDailySettings)
+  const exportSettings = usePlanStore((s) => s.data.settings.export)
+  const setExportSettings = usePlanStore((s) => s.setExportSettings)
+  const voiceInputEnabled = usePlanStore((s) => s.data.settings.voiceInputEnabled)
+  const setVoiceInputEnabled = usePlanStore((s) => s.setVoiceInputEnabled)
+
+  const [tab, setTab] = useState<SettingsTab>('appearance')
+  const [planPath, setPlanPath] = useState<string | null>(null)
+  const [sharedFile, setSharedFile] = useState(false)
+
+  useEffect(() => {
+    if (open) setTab('appearance')
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return
+    void usesSharedPlanFile().then(setSharedFile)
+    void getPlanFilePath().then(setPlanPath)
+  }, [open])
+
+  const patchJira = (updates: Partial<JiraSettings>) =>
+    setJiraSettings({ ...jira, ...updates })
+
+  return (
+    <Modal open={open} onClose={closeSettings} title="Настройки" size="xl">
+      <div className="settings-layout">
+        <nav className="settings-nav" aria-label="Разделы настроек">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              className={`settings-nav-item ${tab === t.id ? 'active' : ''}`}
+              onClick={() => setTab(t.id)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="settings-panel">
+          {tab === 'appearance' && (
+            <div className="settings-section settings-section-last">
+              <h3 className="settings-section-title">Тема интерфейса</h3>
+              <p className="settings-hint">
+                Сохраняется автоматически.
+              </p>
+              <ThemeToggle />
+
+              <h3 className="settings-section-title settings-section-title-spaced">
+                Цветовая палитра
+              </h3>
+              <p className="settings-hint">
+                Меняет цвета, иконку и фоновую анимацию.
+              </p>
+              <PaletteToggle />
+
+              {isElectron() && (
+                <>
+                  <h3 className="settings-section-title settings-section-title-spaced">
+                    Режим окна
+                  </h3>
+                  <p className="settings-hint">Только Electron. Минимальный — справа сверху.</p>
+                  <div className="settings-radio-row">
+                    {(
+                      [
+                        ['standard', 'Обычный'],
+                        ['maximized', 'Развёрнутый'],
+                        ['minimal', 'Минимальный'],
+                      ] as const
+                    ).map(([mode, label]) => (
+                      <button
+                        key={mode}
+                        type="button"
+                        className={`btn btn-sm ${windowMode === mode ? 'btn-primary' : ''}`}
+                        onClick={() => setWindowMode(mode)}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              <h3 className="settings-section-title settings-section-title-spaced">
+                Календарь
+              </h3>
+              <label className="settings-check">
+                <input
+                  type="checkbox"
+                  checked={calendar.showHolidays}
+                  onChange={(e) =>
+                    setCalendarSettings({ showHolidays: e.target.checked })
+                  }
+                />
+                Показывать праздники РФ
+              </label>
+
+              <h3 className="settings-section-title settings-section-title-spaced">
+                Дейлики
+              </h3>
+              <label className="settings-check">
+                <input
+                  type="checkbox"
+                  checked={daily.enabled}
+                  onChange={(e) => setDailySettings({ enabled: e.target.checked })}
+                />
+                Отмечать дни дейликов (пн и чт)
+              </label>
+
+              <h3 className="settings-section-title settings-section-title-spaced">
+                Экспорт текста
+              </h3>
+              <label className="settings-check">
+                <input
+                  type="checkbox"
+                  checked={exportSettings.includeDone}
+                  onChange={(e) =>
+                    setExportSettings({ includeDone: e.target.checked })
+                  }
+                />
+                Включать выполненные задачи
+              </label>
+              <label className="settings-check">
+                <input
+                  type="checkbox"
+                  checked={exportSettings.skipEmptyDays}
+                  onChange={(e) =>
+                    setExportSettings({ skipEmptyDays: e.target.checked })
+                  }
+                />
+                Пропускать пустые дни
+              </label>
+
+              <h3 className="settings-section-title settings-section-title-spaced">
+                Голосовой ввод
+              </h3>
+              <label className="settings-check">
+                <input
+                  type="checkbox"
+                  checked={voiceInputEnabled}
+                  onChange={(e) => setVoiceInputEnabled(e.target.checked)}
+                />
+                Кнопка микрофона во всех полях ввода текста (задачи, заметки, проекты)
+              </label>
+              <p className="settings-hint">Горячая клавиша: Ctrl+Shift+V</p>
+            </div>
+          )}
+
+          {tab === 'data' && (
+            <div className="settings-section settings-section-last">
+              <h3 className="settings-section-title">Файл плана</h3>
+              {sharedFile ? (
+                <>
+                  <p className="settings-hint">
+                    План хранится в одном файле на диске.{' '}
+                    {isElectron()
+                      ? 'Пересборка и обновление .exe не удаляют ваши задачи.'
+                      : 'В режиме pnpm dev браузер использует тот же файл, что и Electron.'}
+                  </p>
+                  {planPath && (
+                    <p className="settings-path">
+                      <span className="form-label">Файл данных</span>
+                      <code>{planPath}</code>
+                    </p>
+                  )}
+                  <p className="settings-hint">
+                    Резервная копия: <code>plan.json.bak</code> в той же папке.
+                    Импорт и экспорт — кнопки в шапке приложения.
+                  </p>
+                </>
+              ) : (
+                <p className="settings-hint">
+                  Данные в localStorage браузера (отдельно от десктоп-версии).
+                  Запустите <code>pnpm dev</code> или <code>pnpm electron:dev</code> для
+                  общего файла на диске.
+                </p>
+              )}
+            </div>
+          )}
+
+          {tab === 'integrations' && (
+            <div className="settings-section settings-section-last">
+              <h3 className="settings-section-title">Jira Cloud</h3>
+              <p className="settings-hint">
+                Экспорт задач в Jira Cloud через REST API. Токен создаётся в{' '}
+                <a
+                  href="https://id.atlassian.com/manage-profile/security/api-tokens"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Atlassian Account → API tokens
+                </a>
+                . Сохраняется автоматически. Работает в Electron.
+              </p>
+
+              <label className="settings-check">
+                <input
+                  type="checkbox"
+                  checked={jira.enabled}
+                  onChange={(e) => patchJira({ enabled: e.target.checked })}
+                />
+                Включить экспорт в Jira
+              </label>
+
+              <div className="form-group">
+                <label className="form-label">URL Jira</label>
+                <input
+                  className="form-input"
+                  placeholder="https://company.atlassian.net"
+                  value={jira.baseUrl}
+                  onChange={(e) => patchJira({ baseUrl: e.target.value })}
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Email</label>
+                  <input
+                    className="form-input"
+                    type="email"
+                    placeholder="you@company.com"
+                    value={jira.email}
+                    onChange={(e) => patchJira({ email: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">API Token</label>
+                  <input
+                    className="form-input"
+                    type="password"
+                    placeholder="••••••••"
+                    value={jira.apiToken}
+                    onChange={(e) => patchJira({ apiToken: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Ключ проекта</label>
+                  <input
+                    className="form-input"
+                    placeholder="PROJ"
+                    value={jira.projectKey}
+                    onChange={(e) => patchJira({ projectKey: e.target.value.toUpperCase() })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Тип задачи</label>
+                  <input
+                    className="form-input"
+                    placeholder="Task"
+                    value={jira.issueType}
+                    onChange={(e) => patchJira({ issueType: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </Modal>
+  )
+}

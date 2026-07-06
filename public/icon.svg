@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="sky" x1="256" y1="0" x2="256" y2="512">
+      <stop stop-color="#050a14"/>
+      <stop offset="0.55" stop-color="#0c1424"/>
+      <stop offset="1" stop-color="#03060c"/>
+    </linearGradient>
+    <linearGradient id="ice" x1="180" y1="120" x2="332" y2="400">
+      <stop stop-color="#7df9ff"/>
+      <stop offset="1" stop-color="#00b8d4"/>
+    </linearGradient>
+    <radialGradient id="soul" cx="256" cy="300" r="120">
+      <stop stop-color="#00e5ff" stop-opacity="0.9"/>
+      <stop offset="0.5" stop-color="#0088aa" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#0088aa" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#sky)"/>
+  <ellipse cx="256" cy="380" rx="200" ry="80" fill="url(#soul)" opacity="0.85"/>
+  <path d="M96 400h320v24H96v-24z" fill="#1a2438"/>
+  <path d="M120 400V200l32-48 32 32 32-56 32 48 32-40 32 64v200H120z" fill="#141e30" stroke="#2a3a58" stroke-width="4"/>
+  <path d="M200 152h112v48l-20 24h-72l-20-24v-48z" fill="url(#ice)" filter="url(#glow)" opacity="0.95"/>
+  <path d="M232 120h48v32h-48z" fill="#00e5ff" opacity="0.9"/>
+  <path d="M176 200h160v12H176zM192 240h128v8H192z" stroke="#3a5070" stroke-width="3"/>
+  <circle cx="256" cy="176" r="16" fill="#00e5ff" filter="url(#glow)"/>
+</svg>

@@ -1,0 +1,106 @@
+import { APP_NAME } from '../../types'
+import { usePlanStore } from '../../store/planStore'
+import { getInboxTasks, getTodayTasks } from '../../lib/selectors'
+import { TaskCompleteToggle } from '../tasks/TaskCompleteToggle'
+import { WindowControls } from './WindowControls'
+import { expandElectronWindow, isElectron } from '../../lib/electron'
+
+export function MinimalView() {
+  const tasks = usePlanStore((s) => s.data.tasks)
+  const openEditTask = usePlanStore((s) => s.openEditTask)
+  const openNewTask = usePlanStore((s) => s.openNewTask)
+  const openQuickCapture = usePlanStore((s) => s.openQuickCapture)
+  const toggleTaskDone = usePlanStore((s) => s.toggleTaskDone)
+  const setWindowMode = usePlanStore((s) => s.setWindowMode)
+
+  const todayTasks = getTodayTasks(tasks).slice(0, 7)
+  const inboxTasks = getInboxTasks(tasks).slice(0, 5)
+
+  const handleTaskClick = async (id: string) => {
+    if (isElectron()) {
+      setWindowMode('standard')
+      await expandElectronWindow(id)
+    }
+    openEditTask(id)
+  }
+
+  const handleExpand = async () => {
+    setWindowMode('standard')
+    await expandElectronWindow()
+  }
+
+  return (
+    <div className="minimal-layout">
+      <header className="minimal-header titlebar">
+        <span className="minimal-title titlebar-drag">{APP_NAME}</span>
+        <div className="titlebar-no-drag">
+          <WindowControls compact />
+        </div>
+      </header>
+
+      <div className="minimal-body">
+        <section className="minimal-section">
+          <h2 className="minimal-section-title">Сегодня</h2>
+          {todayTasks.length === 0 ? (
+            <p className="minimal-empty">Нет задач на сегодня</p>
+          ) : (
+            <ul className="minimal-list">
+              {todayTasks.map((task) => (
+                <li key={task.id} className="minimal-item">
+                  <TaskCompleteToggle
+                    checked={false}
+                    taskTitle={task.title}
+                    onToggle={() => toggleTaskDone(task.id)}
+                  />
+                  <button
+                    type="button"
+                    className="minimal-item-title"
+                    onClick={() => void handleTaskClick(task.id)}
+                  >
+                    {task.title}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        {inboxTasks.length > 0 && (
+          <section className="minimal-section">
+            <h2 className="minimal-section-title">Входящие</h2>
+            <ul className="minimal-list">
+              {inboxTasks.map((task) => (
+                <li key={task.id} className="minimal-item">
+                  <TaskCompleteToggle
+                    checked={false}
+                    taskTitle={task.title}
+                    onToggle={() => toggleTaskDone(task.id)}
+                  />
+                  <button
+                    type="button"
+                    className="minimal-item-title"
+                    onClick={() => void handleTaskClick(task.id)}
+                  >
+                    {task.title}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
+
+      <footer className="minimal-footer">
+        <button type="button" className="btn btn-sm" onClick={openQuickCapture}>
+          Быстро (Q / Й)
+        </button>
+        <button type="button" className="btn btn-sm btn-primary" onClick={openNewTask}>
+          +
+        </button>
+        <button type="button" className="btn btn-sm" onClick={() => void handleExpand()}>
+          Развернуть
+        </button>
+      </footer>
+    </div>
+  )
+}
