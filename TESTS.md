@@ -2,9 +2,9 @@
 
 Живой список: **дополнять при каждой новой фиче**, прогонять перед закрытием версии.
 
-**Статус v0.28.1:** `pnpm test` (~242) + `pnpm build` — OK (2026-07-07); `pnpm lint` — warnings (backlog). Ручной прогон UI — частично.
+**Статус v0.28.1:** `pnpm test` (~244) + `pnpm build` — OK (2026-07-07); `pnpm lint` — warnings (backlog). Ручной прогон UI — частично.
 
-**Планируется:** [v0.23](ROADMAP.md#v023--мобильное-приложение) мобилка · [v0.27](ROADMAP.md#v027--анимации-фона-20) анимации фона
+**Планируется:** [v0.27](ROADMAP.md#v027--анимации-фона-20) анимации фона · [v0.23](ROADMAP.md#v023--мобильное-приложение) мобилка
 
 **Легенда:** `[ ]` — не проверено · `[~]` — частично · `[x]` — проверено / автотест
 
@@ -12,12 +12,12 @@
 ```bash
 pnpm lint              # oxlint
 pnpm build             # calendar + icons + tsc + vite
-pnpm test              # календарь + 9 verify-скриптов (~242 + spot checks)
+pnpm test              # календарь + 9 verify-скриптов (~244 + spot checks)
 pnpm test:attachments  # verify-attachments.mjs (12)
 pnpm test:month        # verify-month-calendar.mjs (9)
 pnpm test:holidays     # verify-holiday-labels.mjs (22)
 pnpm test:projects     # verify-projects.mjs (5)
-pnpm test:palettes     # verify-palettes.mjs (89)
+pnpm test:palettes     # verify-palettes.mjs (91)
 pnpm test:export       # verify-export-text.mjs (3)
 pnpm test:settings     # verify-settings-ui.mjs (41)
 pnpm test:credit       # verify-task-credit.mjs (12)
@@ -48,6 +48,8 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 | 1.2a | `normalizePlan` — legacy без `colorPalette` → `plain` | [x] |
 | 1.2b | `normalizePlan` — `customTheme` merge + валидация hex | [x] |
 | 1.2c | `normalizePlan` — `ambientAnimation`: `off` / invalid → `auto` | [x] |
+| 1.2d | `normalizePlan` — `daily.days`: `normalizeDailyDays`, fallback `[1,4]` | [x] |
+| 1.2e | `normalizePlan` — `customTheme.basedOn`; миграция `ambientEnabled` → `ambientAnimation` | [x] |
 | 1.3 | Автосохранение после изменения задачи / проекта / настроек | [ ] |
 | 1.4 | Путь `%APPDATA%\DoomPlanner\plan.json` (Electron) | [ ] |
 | 1.5 | Dev API `/api/plan` — тот же файл, что у Electron | [ ] |
@@ -172,8 +174,9 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 | 7.2d2 | Переключение палитры не сбрасывает сохранённую «Мою тему» молча | [x] |
 | 7.2d3 | Одна настройка анимации фона (без `customTheme.ambientEnabled`) | [x] |
 | 7.2d4 | Таб «Поведение»: календарь, дейлик, экспорт, голос — вне «Оформления» | [x] |
+| 7.2d5 | `.btn-primary:hover` — текст читаем на всех палитрах (градиент не перезаписывается) | [x] |
 | 7.2e | Сброс оформления → «Классика» тёмная | [ ] |
-| 7.2f | `npx tsx scripts/verify-palettes.mjs` — 89 проверок (CSS, дефолты, normalize, theme JSON, иконки + wordmark) | [x] |
+| 7.2f | `npx tsx scripts/verify-palettes.mjs` — 91 проверка (CSS, дефолты, normalize, theme JSON, иконки + wordmark) | [x] |
 | 7.2h | **Бренд PlanBoard** — wordmark в сайдбаре и минимальном окне | [ ] |
 | 7.2i | Wordmark per-палитра: `public/icons/wordmark/{palette}.png` | [x] |
 | 7.2j | **ThemedCheckbox** — чекбоксы в настройках/экспорте; `checkbox-off` / `checkbox-on` per-палитра | [ ] |
@@ -269,7 +272,7 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 | 4 | Превью задач в месячном календаре | [x] | `scripts/verify-month-calendar.mjs` (9) |
 | 5 | Подписи праздников, 2027, fallback 2028+ | [x] | `scripts/verify-holiday-labels.mjs` (22) |
 | 6 | Завершённые проекты: селекторы, normalize | [x] | `scripts/verify-projects.mjs` (5) |
-| 7 | Палитры v0.24–v0.28: CSS, plain default, customTheme, wordmark, unified themes | [x] | `scripts/verify-palettes.mjs` (89) |
+| 7 | Палитры v0.24–v0.28: CSS, plain default, customTheme, wordmark, unified themes | [x] | `scripts/verify-palettes.mjs` (91) |
 | 8 | Telegram-экспорт: recent done, inbox, normalize | [x] | `scripts/verify-export-text.mjs` (3) |
 | 9 | Настройки UI: модалка, сайдбар, просроченные в повестке | [x] | `scripts/verify-settings-ui.mjs` (41) |
 | 9c | Зачёт просроченных: `getTaskCreditDayKey`, `isCompletedLate` (v0.28.1) | [x] | `scripts/verify-task-credit.mjs` (12) |
@@ -287,10 +290,9 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 
 | Версия | Ключевые проверки в TESTS.md |
 |--------|------------------------------|
-| **v0.23** | §мобилка — см. ROADMAP |
-| **v0.26** | §6.3 + новый verify — группировка похожих в дейлике |
 | **v0.27** | §7.2b–b2, §7.4 — анимация на каждую палитру, интенсивность (в т.ч. intense) |
 | **v0.23** | §4, §8 — адаптив, мобильный MVP |
+| **v0.26** | §6.3 + новый verify — группировка похожих в дейлике |
 
 ---
 
@@ -298,7 +300,7 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 
 | Версия | Дата | Автотесты | Ручной прогон | Примечание |
 |--------|------|-----------|---------------|------------|
-| v0.28.1 | 2026-07-07 | 9 verify (~242) + calendar, build OK | — | зачёт просроченных при закрытии — §2.3a–b, §4.1a, §4.2b, §9c, §10.3a |
+| v0.28.1 | 2026-07-07 | 9 verify (~244) + calendar, build OK | — | зачёт просроченных, фикс btn-primary — §2.3a–b, §4.1a, §4.2b, §7.2d5, §9c, §10.3a |
 | v0.28 | 2026-07-07 | 8 verify (~228) + calendar, build OK | — | настройки UX 2.0, дни дейликов — §6.1a–b, §7.2d1–d4, §7.5, §9a–b |
 | v0.25.3 | 2026-07-07 | 8 verify (198) + calendar, build OK | — | модалка настроек, кнопка ⚙ — §7.2k, §7.5a–b, §9; docs актуализированы |
 | v0.25.2 | 2026-07-07 | all verify + export (6) | — | повестка просроченные; TG сделанное/без срока; ThemedCheckbox — §4.2a, §7.2j, §10 |
