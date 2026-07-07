@@ -87,6 +87,14 @@ export interface ExportSettings {
   includeDone: boolean
   skipEmptyDays: boolean
   exportTitle: string
+  includeRecentDone: boolean
+  recentDoneDays: number
+  includeInbox: boolean
+}
+
+export interface CustomBackgroundImage {
+  id: string
+  dataUrl: string
 }
 
 export interface CustomThemeSettings {
@@ -95,7 +103,8 @@ export interface CustomThemeSettings {
   background: string
   surface: string
   text: string
-  backgroundImage: string | null
+  backgroundImages: CustomBackgroundImage[]
+  backgroundImageId: string | null
   ambientEnabled: boolean
 }
 
@@ -160,8 +169,63 @@ export const DEFAULT_CUSTOM_THEME: CustomThemeSettings = {
   background: '#121418',
   surface: '#1a1d24',
   text: '#e8eaed',
-  backgroundImage: null,
+  backgroundImages: [],
+  backgroundImageId: null,
   ambientEnabled: false,
+}
+
+const DATA_IMAGE = /^data:image\//
+
+export function normalizeBackgroundGallery(raw: unknown): {
+  backgroundImages: CustomBackgroundImage[]
+  backgroundImageId: string | null
+} {
+  const images: CustomBackgroundImage[] = []
+  const o = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : null
+
+  if (o && Array.isArray(o.backgroundImages)) {
+    for (const item of o.backgroundImages) {
+      if (!item || typeof item !== 'object') continue
+      const entry = item as Partial<CustomBackgroundImage>
+      if (
+        typeof entry.id === 'string' &&
+        entry.id.length > 0 &&
+        typeof entry.dataUrl === 'string' &&
+        DATA_IMAGE.test(entry.dataUrl)
+      ) {
+        images.push({ id: entry.id, dataUrl: entry.dataUrl })
+      }
+    }
+  }
+
+  if (
+    images.length === 0 &&
+    o &&
+    typeof o.backgroundImage === 'string' &&
+    DATA_IMAGE.test(o.backgroundImage)
+  ) {
+    images.push({ id: 'legacy-bg', dataUrl: o.backgroundImage })
+  }
+
+  let backgroundImageId: string | null = null
+  if (
+    o &&
+    typeof o.backgroundImageId === 'string' &&
+    images.some((img) => img.id === o.backgroundImageId)
+  ) {
+    backgroundImageId = o.backgroundImageId
+  } else if (
+    o &&
+    typeof o.backgroundImage === 'string' &&
+    DATA_IMAGE.test(o.backgroundImage)
+  ) {
+    const match = images.find((img) => img.dataUrl === o.backgroundImage)
+    backgroundImageId = match?.id ?? images[0]?.id ?? null
+  } else if (images.length > 0) {
+    backgroundImageId = images[0].id
+  }
+
+  return { backgroundImages: images, backgroundImageId }
 }
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/
@@ -172,16 +236,14 @@ function normalizeCustomThemeSettings(raw: unknown): CustomThemeSettings {
   const o = raw as Partial<CustomThemeSettings>
   const color = (v: unknown, fb: string) =>
     typeof v === 'string' && HEX_COLOR.test(v) ? v : fb
+  const gallery = normalizeBackgroundGallery(o)
   return {
     enabled: Boolean(o.enabled),
     accent: color(o.accent, d.accent),
     background: color(o.background, d.background),
     surface: color(o.surface, d.surface),
     text: color(o.text, d.text),
-    backgroundImage:
-      typeof o.backgroundImage === 'string' && o.backgroundImage.length > 0
-        ? o.backgroundImage
-        : null,
+    ...gallery,
     ambientEnabled: Boolean(o.ambientEnabled),
   }
 }
@@ -233,7 +295,12 @@ export const DEFAULT_EXPORT_SETTINGS: ExportSettings = {
   includeDone: false,
   skipEmptyDays: true,
   exportTitle: 'Текущий план.',
+  includeRecentDone: false,
+  recentDoneDays: 7,
+  includeInbox: false,
 }
+
+export const RECENT_DONE_DAY_OPTIONS = [3, 7, 14, 30] as const
 
 export const DEFAULT_JIRA_SETTINGS: JiraSettings = {
   enabled: false,
@@ -263,6 +330,12 @@ export function createDefaultPlan(): PlanData {
     projects: [],
     tasks: [],
   }
+}
+
+function normalizeRecentDoneDays(value: unknown): number {
+  const n = typeof value === 'number' ? value : Number(value)
+  if (!Number.isFinite(n)) return DEFAULT_EXPORT_SETTINGS.recentDoneDays
+  return Math.min(90, Math.max(1, Math.round(n)))
 }
 
 export function normalizePlan(data: PlanData): PlanData {
@@ -304,6 +377,9 @@ export function normalizePlan(data: PlanData): PlanData {
       export: {
         ...defaults.export,
         ...data.settings?.export,
+        includeRecentDone: data.settings?.export?.includeRecentDone ?? false,
+        recentDoneDays: normalizeRecentDoneDays(data.settings?.export?.recentDoneDays),
+        includeInbox: data.settings?.export?.includeInbox ?? false,
       },
       voiceInputEnabled: data.settings?.voiceInputEnabled ?? false,
       jira: {

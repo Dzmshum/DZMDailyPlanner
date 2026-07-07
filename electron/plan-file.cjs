@@ -25,6 +25,9 @@ const DEFAULT_PLAN = {
       includeDone: false,
       skipEmptyDays: true,
       exportTitle: 'Текущий план.',
+      includeRecentDone: false,
+      recentDoneDays: 7,
+      includeInbox: false,
     },
     voiceInputEnabled: false,
     jira: {

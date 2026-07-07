@@ -33,6 +33,9 @@ const uiIcons = [
   'close',
   'chevron-down',
   'chevron-right',
+  'checkbox-off',
+  'checkbox-on',
+  'settings',
 ]
 
 const paletteColors = {
@@ -96,6 +99,32 @@ function removeLightBackground(inputBuffer) {
     })
 }
 
+const checkboxSvgPaths = {
+  'checkbox-off':
+    '<rect x="16" y="16" width="32" height="32" rx="5" fill="none" stroke="COLOR" stroke-width="3.5"/>',
+  'checkbox-on':
+    '<rect x="16" y="16" width="32" height="32" rx="5" fill="COLOR" fill-opacity="0.22" stroke="COLOR" stroke-width="3.5"/><path d="M22 36 L30 44 L50 24" fill="none" stroke="COLOR" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>',
+}
+
+const uiSvgPaths = {
+  settings:
+    '<circle cx="32" cy="32" r="8" fill="COLOR" opacity="0.28"/><circle cx="32" cy="32" r="14" fill="none" stroke="COLOR" stroke-width="2.5" stroke-dasharray="4 3"/><path d="M32 14v5M32 45v5M14 32h5M45 32h5M19.8 19.8l3.5 3.5M40.7 40.7l3.5 3.5M44.2 19.8l-3.5 3.5M23.3 40.7l-3.5 3.5" stroke="COLOR" stroke-width="3" stroke-linecap="round"/>',
+}
+
+function buildUiSvg(icon, color) {
+  const body = uiSvgPaths[icon].replaceAll('COLOR', color)
+  return Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">${body}</svg>`,
+  )
+}
+
+function buildCheckboxSvg(icon, color) {
+  const body = checkboxSvgPaths[icon].replaceAll('COLOR', color)
+  return Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">${body}</svg>`,
+  )
+}
+
 function buildViewSvg(view, color) {
   const body = viewSvgPaths[view].replaceAll('COLOR', color)
   return Buffer.from(
@@ -157,12 +186,23 @@ async function ensureUiIcon(palette, icon) {
   const northrendSource = join(iconsDir, 'ui', 'northrend', `${icon}-source.png`)
 
   if (!existsSync(source)) {
-    if (!existsSync(northrendSource)) {
+    if (checkboxSvgPaths[icon]) {
+      const color = paletteColors[palette]
+      const svg = buildCheckboxSvg(icon, color)
+      await sharp(svg).png().toFile(source)
+      console.warn(`Generated placeholder ${source} — add a proper *-source.png`)
+    } else if (uiSvgPaths[icon]) {
+      const color = paletteColors[palette]
+      const svg = buildUiSvg(icon, color)
+      await sharp(svg).png().toFile(source)
+      console.warn(`Generated placeholder ${source} — add a proper *-source.png`)
+    } else if (!existsSync(northrendSource)) {
       console.error(`Missing ${source} and fallback ${northrendSource}`)
       process.exit(1)
+    } else {
+      copyFileSync(northrendSource, source)
+      console.warn(`Copied UI source from northrend → ${source}`)
     }
-    copyFileSync(northrendSource, source)
-    console.warn(`Copied UI source from northrend → ${source}`)
   }
 
   await processIcon(source, out, 64)

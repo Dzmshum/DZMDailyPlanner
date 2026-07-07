@@ -31,7 +31,3 @@ export function ViewIcon({ view, size = 'sm', palette: paletteProp }: ViewIconPr
     />
   )
 }
-
-export function viewIconSrc(palette: ColorPalette, view: ViewId) {
-  return assetUrl(`icons/views/${palette}/${resolveViewIcon(view)}.png`)
-}

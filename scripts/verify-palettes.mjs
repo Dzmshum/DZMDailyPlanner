@@ -148,10 +148,9 @@ assert(
   normalizeCustomTheme({ accent: 'red' }).accent === DEFAULT_CUSTOM_THEME.accent,
 )
 assert(
-  'normalizeCustomTheme: backgroundImage string',
-  normalizeCustomTheme({ backgroundImage: 'data:image/png;base64,x' }).backgroundImage?.startsWith(
-    'data:',
-  ),
+  'normalizeCustomTheme: legacy backgroundImage → gallery',
+  normalizeCustomTheme({ backgroundImage: 'data:image/png;base64,x' }).backgroundImages[0]
+    ?.dataUrl.startsWith('data:'),
 )
 
 const exported = exportThemeJson({

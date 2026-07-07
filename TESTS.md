@@ -2,7 +2,9 @@
 
 Живой список: **дополнять при каждой новой фиче**, прогонять перед закрытием версии.
 
-**Статус v0.25.1:** `pnpm test` + `pnpm build` — OK (2026-07-06); `pnpm lint` — warnings (backlog). Ручной прогон UI — частично.
+**Статус v0.25.3:** `pnpm test` (198) + `pnpm build` — OK (2026-07-07); `pnpm lint` — warnings (backlog). Ручной прогон UI — частично.
+
+**Планируется:** [v0.28](ROADMAP.md#v028--настройки-ux-20-и-единые-темы) настройки UX · [v0.25.4](ROADMAP.md#v0254--дни-дейликов-в-настройках) дни дейликов
 
 **Легенда:** `[ ]` — не проверено · `[~]` — частично · `[x]` — проверено / автотест
 
@@ -10,12 +12,14 @@
 ```bash
 pnpm lint              # oxlint
 pnpm build             # calendar + icons + tsc + vite
-pnpm test              # календарь + 6 verify-скриптов (171 + spot checks)
+pnpm test              # календарь + 8 verify-скриптов (~198 + spot checks)
 pnpm test:attachments  # verify-attachments.mjs (12)
 pnpm test:month        # verify-month-calendar.mjs (9)
-pnpm test:holidays     # verify-holiday-labels.mjs (22)
+pnpm test:holidays     # verify-holiday-labels.mjs (23)
 pnpm test:projects     # verify-projects.mjs (5)
 pnpm test:palettes     # verify-palettes.mjs (83)
+pnpm test:export       # verify-export-text.mjs (6)
+pnpm test:settings     # verify-settings-ui.mjs (20)
 pnpm test:daily        # verify-daily-meetings.mjs (40)
 pnpm calendar          # holidays-ru-2025/2026/2027.json
 ```
@@ -29,7 +33,7 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 | 0.1 | `pnpm lint` — без ошибок | [ ] |
 | 0.2 | `pnpm build` — успешная сборка | [x] |
 | 0.3 | `pnpm icons` — иконки + wordmark без ошибок | [x] |
-| 0.4 | `pnpm test` — calendar + daily + attachments + month + holidays + projects + palettes | [x] |
+| 0.4 | `pnpm test` — все 8 verify-скриптов + календарь | [x] |
 | 0.5 | TypeScript `tsc -b` — без ошибок (входит в build) | [x] |
 
 ---
@@ -104,6 +108,7 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 |---|----------|--------|
 | 4.1 | **Дашборд** — просроченные, сегодня, ближайшие | [ ] |
 | 4.2 | **Повестка** — активные + свёртываемый «Выполнено» | [ ] |
+| 4.2a | **Повестка** — блок «Просрочено» свёрнут по умолчанию; дедлайн раньше выбранного дня | [x] |
 | 4.3 | **Календарь (неделя)** — DnD между днями, full-height колонки | [ ] |
 | 4.4 | **Календарь** — месяц / квартал / год, кнопка «Сегодня» | [ ] |
 | 4.4a | **Месяц** — до 2 мини-полосок задач + `+N`; цвет проекта; клик по полоске → форма | [ ] |
@@ -129,7 +134,7 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 | 5.6 | `pnpm test` — spot checks календаря | [x] |
 | 5.7 | **2027** — подписи на каникулах, переносы (5 ноя, 31 дек, рабочая сб 20 фев) | [x] |
 | 5.8 | **2028+** — приблизительный календарь (ст. 112 ТК РФ, без переносов) | [x] |
-| 5.9 | `verify-holiday-labels.mjs` — 22 проверки | [x] |
+| 5.9 | `verify-holiday-labels.mjs` — 23 проверки | [x] |
 
 ---
 
@@ -138,6 +143,8 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 | # | Проверка | Статус |
 |---|----------|--------|
 | 6.1 | Закрытое до дня дейлика — в отчёте; в день дейлика — в следующем | [x] |
+| 6.1a | **Backlog v0.25.4:** выбор дней недели дейлика в настройках (чипы Пн–Вс, пресеты) | [ ] |
+| 6.1b | Кастомные дни: календарь, отчёт, `verify-daily-meetings` без регрессий | [ ] |
 | 6.2 | Отметка ◆ на неделе и в месяце | [ ] |
 | 6.3 | «Скопировать для дейлика» — текст + заметки | [ ] |
 | 6.4 | `npx tsx scripts/verify-daily-meetings.mjs` — 40 OK | [x] |
@@ -151,17 +158,27 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 | 7.1 | Тема: светлая / тёмная / система | [ ] |
 | 7.2 | Палитры: plain + WoW + SW/GoT/Witcher — цвета и иконки вкладок | [ ] |
 | 7.2a | «Классика» — без фоновой анимации | [ ] |
-| 7.2b | Звёздные войны / GoT / Ведьмак — своя анимация фона | [ ] |
+| 7.2b | У **каждой** палитры (кроме «Классика») — своя узнаваемая анимация фона | [ ] |
+| 7.2b1 | **Backlog v0.27:** уровни `subtle` / `auto` / `intense` — `intense` заметно посильнее | [ ] |
+| 7.2b2 | Превью интенсивности в настройках при смене пресета | [ ] |
 | 7.2c | Фоновая анимация: «По палитре» / «Выключить» | [ ] |
-| 7.2d | Своя тема: color picker, фон-картинка, экспорт/импорт JSON | [ ] |
+| 7.2d | Своя тема: color picker, фон-картинка, экспорт/импорт JSON | [~] |
+| 7.2d1 | **Backlog v0.28:** «Моя тема» — карточка в сетке палитр, не отдельный чекбокс | [ ] |
+| 7.2d2 | Переключение палитры не сбрасывает сохранённую «Мою тему» молча | [ ] |
+| 7.2d3 | Одна настройка анимации фона (без `customTheme.ambientEnabled`) | [ ] |
+| 7.2d4 | Таб «Приложение»: календарь, дейлик, экспорт, голос — вне «Оформления» | [ ] |
 | 7.2e | Сброс оформления → «Классика» тёмная | [ ] |
 | 7.2f | `npx tsx scripts/verify-palettes.mjs` — 83 проверки (CSS, дефолты, normalize, theme JSON, иконки + wordmark) | [x] |
-| 7.2h | **Бренд PlanBoard** — wordmark в сайдбаре и минимальном окне; без текста «RuneBoard» / «Рунный планировщик» | [ ] |
-| 7.2i | Wordmark per-палитра: `public/icons/wordmark/{palette}.png`, прозрачный фон | [x] |
+| 7.2h | **Бренд PlanBoard** — wordmark в сайдбаре и минимальном окне | [ ] |
+| 7.2i | Wordmark per-палитра: `public/icons/wordmark/{palette}.png` | [x] |
+| 7.2j | **ThemedCheckbox** — чекбоксы в настройках/экспорте; `checkbox-off` / `checkbox-on` per-палитра | [ ] |
+| 7.2k | **Кнопка «Настройки»** — по центру футера сайдбара; иконка `settings` per-палитра | [x] |
 | 7.2g | Electron `plan-file.cjs` и `index.html` — дефолт `plain` | [x] |
 | 7.3 | Иконка вкладки в шапке при смене view | [ ] |
 | 7.4 | Фоновая анимация; `prefers-reduced-motion` | [ ] |
 | 7.5 | Настройки `modal-xl`: Оформление / Данные / Интеграции | [ ] |
+| 7.5a | Модалка настроек **не меняет размер** при переключении табов; прокрутка в панели справа | [x] |
+| 7.5b | `npx tsx scripts/verify-settings-ui.mjs` — 20 проверок | [x] |
 | 7.6 | Jira-поля сохраняются автоматически | [ ] |
 | 7.7 | **Скроллбары** — тонкие, цвет палитры (не системные белые) | [ ] |
 
@@ -195,13 +212,16 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 
 ---
 
-## 10. Telegram-экспорт (v0.20)
+## 10. Telegram-экспорт (v0.20 + v0.25.2)
 
 | # | Проверка | Статус |
 |---|----------|--------|
 | 10.1 | Формат `DD/MM:` для дня / недели / месяца / квартала / года | [ ] |
 | 10.2 | Копирование в буфер, сохранение `.txt` | [ ] |
-| 10.3 | Настройки: выполненные, пустые дни, заголовок | [ ] |
+| 10.3 | Настройки: выполненные, пропускать пустые дни, заголовок | [ ] |
+| 10.4 | «Сделано за N дн.» — краткий блок по датам завершения | [x] |
+| 10.5 | «Без срока» — только при `includeInbox` | [x] |
+| 10.6 | `npx tsx scripts/verify-export-text.mjs` — все OK | [x] |
 
 ---
 
@@ -244,11 +264,27 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 | 5 | Подписи праздников, 2027, fallback 2028+ | [x] | `scripts/verify-holiday-labels.mjs` (23) |
 | 6 | Завершённые проекты: селекторы, normalize | [x] | `scripts/verify-projects.mjs` (5) |
 | 7 | Палитры v0.24–v0.25.1: CSS, plain default, customTheme, wordmark | [x] | `scripts/verify-palettes.mjs` (83) |
-| 8 | `exportPlanText` — формат DD/MM | [ ] | Vitest *(backlog)* |
-| 9 | `normalizePlan`, merge import | [ ] | Vitest *(backlog)* |
-| 10 | Селекторы, даты | [ ] | Vitest *(backlog)* |
-| 11 | Store CRUD | [ ] | Vitest *(backlog)* |
-| 12 | Компоненты smoke (RTL) | [ ] | Vitest *(backlog)* |
+| 8 | Telegram-экспорт: recent done, inbox, normalize | [x] | `scripts/verify-export-text.mjs` (6) |
+| 9 | Настройки UI: модалка, сайдбар, просроченные в повестке | [x] | `scripts/verify-settings-ui.mjs` (20) |
+| 9a | Единые темы, миграция `customTheme` (**v0.28**) | [ ] | расширить `verify-palettes` + `verify-settings-ui` |
+| 9b | Дни дейликов: UI + `normalizePlan` + daily tests (**v0.25.4**) | [ ] | `verify-daily-meetings.mjs` + `verify-settings-ui` |
+| 10 | `exportPlanText` — полный Vitest | [ ] | Vitest *(backlog)* |
+| 11 | `normalizePlan`, merge import | [ ] | Vitest *(backlog)* |
+| 12 | Селекторы, даты | [ ] | Vitest *(backlog)* |
+| 13 | Store CRUD | [ ] | Vitest *(backlog)* |
+| 14 | Компоненты smoke (RTL) | [ ] | Vitest *(backlog)* |
+
+---
+
+## 14. Планируемые версии (см. ROADMAP)
+
+| Версия | Ключевые проверки в TESTS.md |
+|--------|------------------------------|
+| **v0.28** | §7.2d1–d4, §7.5 (табы), §9a — единые темы, таб «Поведение» |
+| **v0.25.4** | §6.1a–b, §9b — `DailyDaysPicker`, кастомные `daily.days` |
+| **v0.26** | §6.3 + новый verify — группировка похожих в дейлике |
+| **v0.27** | §7.2b–b2, §7.4 — анимация на каждую палитру, интенсивность (в т.ч. intense) |
+| **v0.23** | §4, §8 — адаптив, мобильный MVP |
 
 ---
 
@@ -256,7 +292,9 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 
 | Версия | Дата | Автотесты | Ручной прогон | Примечание |
 |--------|------|-----------|---------------|------------|
-| v0.25.1 | 2026-07-06 | all verify + palettes (83) | — | PlanBoard wordmark, `APP_NAME`, title; exe пока RuneBoard — §7.2h |
+| v0.25.3 | 2026-07-07 | 8 verify (198) + calendar, build OK | — | модалка настроек, кнопка ⚙ — §7.2k, §7.5a–b, §9; docs актуализированы |
+| v0.25.2 | 2026-07-07 | all verify + export (6) | — | повестка просроченные; TG сделанное/без срока; ThemedCheckbox — §4.2a, §7.2j, §10 |
+| v0.25.1 | 2026-07-06 | all verify + palettes (83) | — | PlanBoard wordmark — §7.2h |
 | v0.25 | 2026-07-06 | all verify + palettes (76) | — | build OK; палитры SW/GoT/Witcher, customTheme — §7 |
 | v0.22.6 | 2026-07-06 | all verify + calendar 2027 | — | build OK; календарь 2027+ — §5.7–5.9 |
 | v0.22.5 | 2026-07 | + verify-projects | — | build OK; завершённые проекты — §3.5–3.8 |

@@ -10,6 +10,9 @@ export type UiIconId =
   | 'close'
   | 'chevron-down'
   | 'chevron-right'
+  | 'checkbox-off'
+  | 'checkbox-on'
+  | 'settings'
 
 interface UiIconProps {
   icon: UiIconId

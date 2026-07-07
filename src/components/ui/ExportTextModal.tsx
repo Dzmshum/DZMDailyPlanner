@@ -5,6 +5,8 @@ import { usePlanStore } from '../../store/planStore'
 import { parseDate } from '../../lib/dates'
 import { Modal } from './Modal'
 import { SegmentedControl, SegmentedControlItem } from './SegmentedControl'
+import { ThemedCheckbox } from './ThemedCheckbox'
+import { RECENT_DONE_DAY_OPTIONS } from '../../types'
 
 interface ExportTextModalProps {
   open: boolean
@@ -24,6 +26,7 @@ export function ExportTextModal({ open, onClose }: ExportTextModalProps) {
   const agendaDate = usePlanStore((s) => s.agendaDate)
   const weekAnchor = usePlanStore((s) => s.weekAnchor)
   const exportSettings = usePlanStore((s) => s.data.settings.export)
+  const setExportSettings = usePlanStore((s) => s.setExportSettings)
 
   const [period, setPeriod] = useState<ExportPeriod>('week')
   const [copied, setCopied] = useState(false)
@@ -41,6 +44,9 @@ export function ExportTextModal({ open, onClose }: ExportTextModalProps) {
         includeDone: exportSettings.includeDone,
         skipEmptyDays: exportSettings.skipEmptyDays,
         title: exportSettings.exportTitle,
+        includeRecentDone: exportSettings.includeRecentDone,
+        recentDoneDays: exportSettings.recentDoneDays,
+        includeInbox: exportSettings.includeInbox,
       }),
     [data, period, anchorDate, exportSettings],
   )
@@ -75,6 +81,40 @@ export function ExportTextModal({ open, onClose }: ExportTextModalProps) {
             </SegmentedControlItem>
           ))}
         </SegmentedControl>
+
+        <div className="export-text-options">
+          <ThemedCheckbox
+            checked={exportSettings.includeInbox}
+            onChange={(v) => setExportSettings({ includeInbox: v })}
+          >
+            Включать задачи без срока
+          </ThemedCheckbox>
+          <ThemedCheckbox
+            checked={exportSettings.includeRecentDone}
+            onChange={(v) => setExportSettings({ includeRecentDone: v })}
+          >
+            Добавить сделанное за период (кратко)
+          </ThemedCheckbox>
+          {exportSettings.includeRecentDone && (
+            <label className="export-recent-days">
+              <span>За последние</span>
+              <select
+                className="form-input form-input-inline"
+                value={exportSettings.recentDoneDays}
+                onChange={(e) =>
+                  setExportSettings({ recentDoneDays: Number(e.target.value) })
+                }
+              >
+                {RECENT_DONE_DAY_OPTIONS.map((days) => (
+                  <option key={days} value={days}>
+                    {days} дн.
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+        </div>
+
         <textarea className="form-input export-text-preview" readOnly value={text} rows={16} />
         <div className="export-text-actions">
           <button type="button" className="btn btn-primary" onClick={() => void handleCopy()}>

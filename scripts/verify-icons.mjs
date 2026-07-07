@@ -23,6 +23,9 @@ const uiIcons = [
   'close',
   'chevron-down',
   'chevron-right',
+  'checkbox-off',
+  'checkbox-on',
+  'settings',
 ]
 
 function walk(dir, out = []) {

@@ -4,6 +4,7 @@ import {
   applyBackgroundImage,
   applyCustomThemeVars,
   clearCustomThemeVars,
+  getActiveBackgroundImage,
 } from '../lib/customTheme'
 import type { ThemeMode } from '../types'
 
@@ -31,7 +32,7 @@ export function useTheme() {
     if (customTheme.enabled) {
       root.setAttribute('data-palette', 'custom')
       applyCustomThemeVars(root, customTheme)
-      applyBackgroundImage(document.body, customTheme.backgroundImage)
+      applyBackgroundImage(document.body, getActiveBackgroundImage(customTheme))
     } else {
       root.setAttribute('data-palette', colorPalette)
       clearCustomThemeVars(root)

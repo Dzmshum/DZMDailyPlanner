@@ -1,5 +1,5 @@
 import type { CustomThemeSettings } from '../types'
-import { DEFAULT_CUSTOM_THEME } from '../types'
+import { DEFAULT_CUSTOM_THEME, normalizeBackgroundGallery } from '../types'
 
 const CUSTOM_CSS_VARS = [
   '--bg-primary',
@@ -18,22 +18,28 @@ const CUSTOM_CSS_VARS = [
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/
 
+export function getActiveBackgroundImage(theme: CustomThemeSettings): string | null {
+  if (!theme.backgroundImageId) return null
+  return (
+    theme.backgroundImages.find((img) => img.id === theme.backgroundImageId)?.dataUrl ??
+    null
+  )
+}
+
 export function normalizeCustomTheme(raw: unknown): CustomThemeSettings {
   const d = DEFAULT_CUSTOM_THEME
   if (!raw || typeof raw !== 'object') return { ...d }
   const o = raw as Partial<CustomThemeSettings>
   const color = (v: unknown, fb: string) =>
     typeof v === 'string' && HEX_COLOR.test(v) ? v : fb
+  const gallery = normalizeBackgroundGallery(o)
   return {
     enabled: Boolean(o.enabled),
     accent: color(o.accent, d.accent),
     background: color(o.background, d.background),
     surface: color(o.surface, d.surface),
     text: color(o.text, d.text),
-    backgroundImage:
-      typeof o.backgroundImage === 'string' && o.backgroundImage.length > 0
-        ? o.backgroundImage
-        : null,
+    ...gallery,
     ambientEnabled: Boolean(o.ambientEnabled),
   }
 }

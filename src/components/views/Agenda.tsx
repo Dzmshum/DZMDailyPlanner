@@ -3,11 +3,13 @@ import { addDays, subDays } from 'date-fns'
 import { usePlanStore } from '../../store/planStore'
 import {
   getDoneTasksForDay,
+  getOverdueTasksForAgenda,
   getTasksForDay,
   groupTasksByProject,
 } from '../../lib/selectors'
 import { formatDisplayDate, formatDate, parseDate } from '../../lib/dates'
 import { TaskList } from '../tasks/TaskList'
+import { DoneTasksCollapsible } from '../tasks/DoneTasksCollapsible'
 import { EmptyState } from '../ui/EmptyState'
 import { UiIcon } from '../ui/UiIcon'
 import { PeriodNav } from '../ui/PeriodNav'
@@ -21,6 +23,7 @@ export function Agenda() {
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
 
   const date = parseDate(agendaDate)
+  const overdueTasks = getOverdueTasksForAgenda(tasks, date)
   const activeTasks = getTasksForDay(tasks, date)
   const doneTasks = getDoneTasksForDay(tasks, date)
   const activeGroups = groupTasksByProject(activeTasks, projects)
@@ -35,7 +38,7 @@ export function Agenda() {
     })
   }
 
-  const hasAny = activeTasks.length > 0 || doneTasks.length > 0
+  const hasAny = activeTasks.length > 0 || doneTasks.length > 0 || overdueTasks.length > 0
   const twoColumns = doneTasks.length > 0
 
   return (
@@ -57,6 +60,16 @@ export function Agenda() {
       ) : (
         <div className={`agenda-layout ${twoColumns ? '' : 'agenda-layout-single'}`}>
           <section className="agenda-main">
+            <DoneTasksCollapsible
+              tasks={overdueTasks}
+              label="Просрочено"
+              showDeadline
+              overdue
+              defaultCollapsed
+              titleClassName="danger"
+              className="agenda-overdue-section done-tasks-collapsible--top"
+            />
+
             {activeTasks.length > 0 ? (
               <>
                 <h2 className="section-title accent">К выполнению</h2>

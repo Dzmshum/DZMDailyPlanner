@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { JiraSettings } from '../../types'
+import { RECENT_DONE_DAY_OPTIONS } from '../../types'
 import { usePlanStore } from '../../store/planStore'
 import { getPlanFilePath, usesSharedPlanFile } from '../../lib/storage'
 import { isElectron } from '../../lib/electron'
@@ -7,6 +8,7 @@ import { Modal } from '../ui/Modal'
 import { PaletteToggle } from '../layout/PaletteToggle'
 import { CustomThemeSection } from './CustomThemeSection'
 import { ThemeToggle } from '../layout/ThemeToggle'
+import { ThemedCheckbox } from '../ui/ThemedCheckbox'
 
 type SettingsTab = 'appearance' | 'data' | 'integrations'
 
@@ -144,64 +146,85 @@ export function SettingsModal() {
               <h3 className="settings-section-title settings-section-title-spaced">
                 Календарь
               </h3>
-              <label className="settings-check">
-                <input
-                  type="checkbox"
-                  checked={calendar.showHolidays}
-                  onChange={(e) =>
-                    setCalendarSettings({ showHolidays: e.target.checked })
-                  }
-                />
+              <ThemedCheckbox
+                className="settings-check"
+                checked={calendar.showHolidays}
+                onChange={(v) => setCalendarSettings({ showHolidays: v })}
+              >
                 Показывать праздники РФ
-              </label>
+              </ThemedCheckbox>
 
               <h3 className="settings-section-title settings-section-title-spaced">
                 Дейлики
               </h3>
-              <label className="settings-check">
-                <input
-                  type="checkbox"
-                  checked={daily.enabled}
-                  onChange={(e) => setDailySettings({ enabled: e.target.checked })}
-                />
+              <ThemedCheckbox
+                className="settings-check"
+                checked={daily.enabled}
+                onChange={(v) => setDailySettings({ enabled: v })}
+              >
                 Отмечать дни дейликов (пн и чт)
-              </label>
+              </ThemedCheckbox>
 
               <h3 className="settings-section-title settings-section-title-spaced">
                 Экспорт текста
               </h3>
-              <label className="settings-check">
-                <input
-                  type="checkbox"
-                  checked={exportSettings.includeDone}
-                  onChange={(e) =>
-                    setExportSettings({ includeDone: e.target.checked })
-                  }
-                />
+              <ThemedCheckbox
+                className="settings-check"
+                checked={exportSettings.includeDone}
+                onChange={(v) => setExportSettings({ includeDone: v })}
+              >
                 Включать выполненные задачи
-              </label>
-              <label className="settings-check">
-                <input
-                  type="checkbox"
-                  checked={exportSettings.skipEmptyDays}
-                  onChange={(e) =>
-                    setExportSettings({ skipEmptyDays: e.target.checked })
-                  }
-                />
+              </ThemedCheckbox>
+              <ThemedCheckbox
+                className="settings-check"
+                checked={exportSettings.skipEmptyDays}
+                onChange={(v) => setExportSettings({ skipEmptyDays: v })}
+              >
                 Пропускать пустые дни
-              </label>
+              </ThemedCheckbox>
+              <ThemedCheckbox
+                className="settings-check"
+                checked={exportSettings.includeInbox}
+                onChange={(v) => setExportSettings({ includeInbox: v })}
+              >
+                Включать задачи без срока
+              </ThemedCheckbox>
+              <ThemedCheckbox
+                className="settings-check"
+                checked={exportSettings.includeRecentDone}
+                onChange={(v) => setExportSettings({ includeRecentDone: v })}
+              >
+                Добавлять сделанное за период (кратко)
+              </ThemedCheckbox>
+              {exportSettings.includeRecentDone && (
+                <label className="settings-field">
+                  <span className="settings-label">Период для сделанного</span>
+                  <select
+                    className="form-input"
+                    value={exportSettings.recentDoneDays}
+                    onChange={(e) =>
+                      setExportSettings({ recentDoneDays: Number(e.target.value) })
+                    }
+                  >
+                    {RECENT_DONE_DAY_OPTIONS.map((days) => (
+                      <option key={days} value={days}>
+                        {days} дней
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
 
               <h3 className="settings-section-title settings-section-title-spaced">
                 Голосовой ввод
               </h3>
-              <label className="settings-check">
-                <input
-                  type="checkbox"
-                  checked={voiceInputEnabled}
-                  onChange={(e) => setVoiceInputEnabled(e.target.checked)}
-                />
+              <ThemedCheckbox
+                className="settings-check"
+                checked={voiceInputEnabled}
+                onChange={setVoiceInputEnabled}
+              >
                 Кнопка микрофона во всех полях ввода текста (задачи, заметки, проекты)
-              </label>
+              </ThemedCheckbox>
               <p className="settings-hint">Горячая клавиша: Ctrl+Shift+V</p>
             </div>
           )}
@@ -253,14 +276,13 @@ export function SettingsModal() {
                 . Сохраняется автоматически. Работает в Electron.
               </p>
 
-              <label className="settings-check">
-                <input
-                  type="checkbox"
-                  checked={jira.enabled}
-                  onChange={(e) => patchJira({ enabled: e.target.checked })}
-                />
+              <ThemedCheckbox
+                className="settings-check"
+                checked={jira.enabled}
+                onChange={(v) => patchJira({ enabled: v })}
+              >
                 Включить экспорт в Jira
-              </label>
+              </ThemedCheckbox>
 
               <div className="form-group">
                 <label className="form-label">URL Jira</label>

@@ -1,5 +1,5 @@
 import type { Priority, Project, Task, ViewId } from '../types'
-import { isAfter, isBefore, isSameDay, addDays } from 'date-fns'
+import { isAfter, isBefore, isSameDay, addDays, startOfDay } from 'date-fns'
 import {
   isOverdue,
   isToday,
@@ -43,8 +43,19 @@ export function getDoneTasks(tasks: Task[]): Task[] {
 }
 
 export function getOverdueTasks(tasks: Task[]): Task[] {
+  return getOverdueTasksForAgenda(tasks, today())
+}
+
+/** Активные задачи с дедлайном раньше выбранного дня повестки (без задач на этот день). */
+export function getOverdueTasksForAgenda(tasks: Task[], agendaDate: Date): Task[] {
+  const day = startOfDay(agendaDate)
   return getActiveTasks(tasks)
-    .filter((t) => t.deadline && isOverdue(t.deadline))
+    .filter((t) => {
+      if (!t.deadline) return false
+      const deadline = startOfDay(parseDate(t.deadline))
+      if (isSameDay(deadline, day)) return false
+      return isBefore(deadline, day)
+    })
     .sort((a, b) => (a.deadline ?? '').localeCompare(b.deadline ?? ''))
 }
 

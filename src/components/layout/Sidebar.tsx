@@ -4,6 +4,7 @@ import { usePlanStore } from '../../store/planStore'
 import { getViewCounts, getActiveProjects } from '../../lib/selectors'
 import { BrandMark } from './BrandMark'
 import { ViewIcon } from './ViewIcon'
+import { UiIcon } from '../ui/UiIcon'
 
 const NAV_ITEMS: ViewId[] = [
   'dashboard',
@@ -60,8 +61,9 @@ export function Sidebar() {
       </nav>
 
       <div className="sidebar-footer">
-        <button className="btn btn-ghost settings-btn" onClick={openSettings}>
-          ⚙ Настройки
+        <button type="button" className="nav-item settings-btn" onClick={openSettings}>
+          <UiIcon icon="settings" size="md" />
+          Настройки
         </button>
       </div>
     </aside>
