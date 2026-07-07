@@ -14,6 +14,8 @@ import {
   isCompletedForDailyReport,
 } from '../src/lib/dailyMeetings.ts'
 import { parseDate, formatDate } from '../src/lib/dates.ts'
+import { normalizeDailyDays } from '../src/lib/dailyLabels.ts'
+import { normalizePlan, createDefaultPlan } from '../src/types/index.ts'
 
 const DOW = [1, 4]
 
@@ -307,6 +309,58 @@ const deferredJuly6 = getPeriodEndDeferredTasks(
   july6,
 ).map((t) => t.id)
 assert('перенос 6 июля: только c', deferredJuly6.length === 1 && deferredJuly6[0] === 'c')
+
+// --- normalizeDailyDays ---
+assert('normalizeDailyDays default', JSON.stringify(normalizeDailyDays(null)) === '[1,4]')
+assert('normalizeDailyDays empty → fallback', JSON.stringify(normalizeDailyDays([])) === '[1,4]')
+assert(
+  'normalizeDailyDays dedupe sort',
+  JSON.stringify(normalizeDailyDays([4, 1, 4, 3])) === '[1,3,4]',
+)
+assert(
+  'normalizeDailyDays invalid filtered',
+  JSON.stringify(normalizeDailyDays([1, 9, -1, 4])) === '[1,4]',
+)
+
+const planWeekdays = normalizePlan({
+  ...createDefaultPlan(),
+  settings: {
+    ...createDefaultPlan().settings,
+    daily: { enabled: true, days: [1, 2, 3, 4, 5] },
+  },
+})
+assert(
+  'normalizePlan daily weekdays',
+  JSON.stringify(planWeekdays.settings.daily.days) === '[1,2,3,4,5]',
+)
+
+// --- Кастомные дни: только среда ---
+const WED = [3]
+const wedAug5 = d('2026-08-05') // среда
+const periodWed = getDailyReportPeriod(WED, wedAug5)
+assert('среда: target = 5 августа', formatDate(periodWed.targetDaily) === '2026-08-05')
+assert(
+  '04.08 входит в отчёт среды 5 августа',
+  isCompletedForDailyReport(d('2026-08-04'), wedAug5, periodWed.previousDaily, WED),
+)
+
+// --- Пн–Пт ---
+const WEEKDAYS = [1, 2, 3, 4, 5]
+const friAug7 = d('2026-08-07')
+const periodFri = getDailyReportPeriod(WEEKDAYS, friAug7)
+assert(
+  'пятница при буднях: target 7 августа',
+  formatDate(periodFri.targetDaily) === '2026-08-07',
+)
+
+// --- Пн, Ср, Пт ---
+const MWF = [1, 3, 5]
+const wedAug12 = d('2026-08-12')
+const periodMWF = getDailyReportPeriod(MWF, wedAug12)
+assert(
+  'среда при MWF: target 12 августа',
+  formatDate(periodMWF.targetDaily) === '2026-08-12',
+)
 
 if (process.exitCode) {
   console.error('\nЕсть ошибки проверки')

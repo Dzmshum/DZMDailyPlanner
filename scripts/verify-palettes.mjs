@@ -176,6 +176,29 @@ assert(
   mergedTheme.settings.customTheme.accent === '#ff0000',
 )
 
+const migratedAmbient = normalizePlan({
+  ...createDefaultPlan(),
+  settings: {
+    ...createDefaultPlan().settings,
+    ambientAnimation: 'auto',
+    customTheme: { enabled: true, ambientEnabled: false, accent: '#aabbcc' },
+  },
+})
+assert(
+  'normalizePlan: ambientEnabled false → ambientAnimation off',
+  migratedAmbient.settings.ambientAnimation === 'off',
+)
+
+const preservedCustom = normalizePlan({
+  ...createDefaultPlan(),
+  settings: {
+    ...createDefaultPlan().settings,
+    colorPalette: 'northrend',
+    customTheme: { enabled: true, accent: '#ff0000', basedOn: 'northrend' },
+  },
+})
+assert('normalizePlan: customTheme basedOn', preservedCustom.settings.customTheme.basedOn === 'northrend')
+
 // --- palettes lib ---
 assert('isColorPalette: starwars', isColorPalette('starwars'))
 assert('isColorPalette: bogus', !isColorPalette('bogus'))
@@ -196,6 +219,10 @@ for (const id of COLOR_PALETTE_IDS) {
   assert(`wordmark PNG: ${id}`, existsSync(join(iconsDir, 'wordmark', `${id}.png`)))
 }
 assert('CustomThemeSection exists', existsSync(join(root, 'src/components/settings/CustomThemeSection.tsx')))
+assert('DailyDaysPicker exists', existsSync(join(root, 'src/components/settings/DailyDaysPicker.tsx')))
+assert('ThemePreview exists', existsSync(join(root, 'src/components/settings/ThemePreview.tsx')))
+assert('PaletteToggle custom card', readFileSync(join(root, 'src/components/layout/PaletteToggle.tsx'), 'utf8').includes('Моя тема'))
+assert('planStore selectBuiltInPalette', readFileSync(join(root, 'src/store/planStore.ts'), 'utf8').includes('selectBuiltInPalette'))
 
 if (failed > 0) {
   console.error(`\nПроверка палитр: ${failed} ошибок`)

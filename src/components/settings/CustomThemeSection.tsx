@@ -4,6 +4,8 @@ import { usePlanStore } from '../../store/planStore'
 import {
   type CustomBackgroundImage,
   type CustomThemeSettings,
+  type ColorPalette,
+  PALETTE_LABELS,
 } from '../../types'
 import {
   applyCustomThemeVars,
@@ -11,7 +13,9 @@ import {
   getActiveBackgroundImage,
   importThemeJson,
 } from '../../lib/customTheme'
-import { ThemedCheckbox } from '../ui/ThemedCheckbox'
+import { createCustomThemeFromPalette } from '../../lib/paletteThemeColors'
+import { COLOR_PALETTE_IDS } from '../../lib/palettes'
+import { ThemePreview } from './ThemePreview'
 
 type ThemeColorKey = 'accent' | 'background' | 'surface' | 'text'
 
@@ -92,6 +96,10 @@ export function CustomThemeSection() {
     setCustomTheme({ ...customTheme, ...patch, enabled: true })
   }
 
+  const createFromPalette = (palette: ColorPalette) => {
+    setCustomTheme(createCustomThemeFromPalette(palette, customTheme))
+  }
+
   const onBgFiles = async (files: FileList | undefined) => {
     if (!files?.length) return
 
@@ -163,139 +171,159 @@ export function CustomThemeSection() {
     reader.readAsText(file)
   }
 
-  return (
-    <div className="custom-theme-section">
-      <ThemedCheckbox
-        className="settings-check"
-        checked={customTheme.enabled}
-        onChange={(enabled) => setCustomTheme({ ...customTheme, enabled })}
-      >
-        Своя тема (цвета поверх выбранной палитры)
-      </ThemedCheckbox>
-
-      {customTheme.enabled && (
-        <>
-          <div className="custom-theme-colors">
-            {COLOR_FIELDS.map(({ key, label }) => (
-              <label key={key} className="custom-theme-color-field">
-                <span>{label}</span>
-                <ThemeColorInput
-                  colorKey={key}
-                  value={customTheme[key]}
-                  theme={customTheme}
-                  onCommit={(colorKey, color) => update({ [colorKey]: color })}
-                />
-              </label>
-            ))}
-          </div>
-
-          <div className="custom-theme-bg">
-            <div className="settings-radio-row">
-              <button
-                type="button"
-                className="btn btn-sm"
-                onClick={() => bgRef.current?.click()}
-              >
-                Добавить фон
-              </button>
-              {activeBackground && (
-                <button type="button" className="btn btn-sm" onClick={clearBackground}>
-                  Без фона
-                </button>
-              )}
-            </div>
-
-            {customTheme.backgroundImages.length > 0 && (
-              <div className="custom-theme-bg-gallery" role="list" aria-label="Сохранённые фоны">
-                {customTheme.backgroundImages.map((img) => {
-                  const active = img.id === customTheme.backgroundImageId
-                  return (
-                    <div
-                      key={img.id}
-                      className={`custom-theme-bg-tile${active ? ' active' : ''}`}
-                      role="listitem"
-                    >
-                      <button
-                        type="button"
-                        className="custom-theme-bg-tile-select"
-                        onClick={() => selectBackground(img.id)}
-                        title={active ? 'Текущий фон' : 'Выбрать фон'}
-                        aria-pressed={active}
-                      >
-                        <img src={img.dataUrl} alt="" />
-                      </button>
-                      <button
-                        type="button"
-                        className="custom-theme-bg-tile-remove"
-                        onClick={() => removeBackground(img.id)}
-                        aria-label="Удалить фон"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-
-            <p className="settings-hint">
-              До {MAX_BG_IMAGES} изображений, макс. ~1.5 МБ каждое. Клик по плитке — выбрать фон.
-            </p>
-          </div>
-          <input
-            ref={bgRef}
-            type="file"
-            accept="image/*"
-            multiple
-            className="visually-hidden"
-            onChange={(e) => {
-              void onBgFiles(e.target.files ?? undefined)
-              e.target.value = ''
-            }}
-          />
-
-          <ThemedCheckbox
-            className="settings-check"
-            checked={customTheme.ambientEnabled}
-            onChange={(ambientEnabled) => update({ ambientEnabled })}
-          >
-            Фоновая анимация (по выбранной палитре)
-          </ThemedCheckbox>
-
-          <div className="settings-radio-row">
-            <button type="button" className="btn btn-sm" onClick={onExport}>
-              Экспорт темы
-            </button>
+  if (!customTheme.enabled) {
+    return (
+      <div className="custom-theme-section custom-theme-empty">
+        <p className="settings-hint">
+          Выберите карточку «Моя тема» выше или создайте тему на основе любой палитры.
+        </p>
+        <div className="settings-radio-row">
+          <span className="settings-label-inline">Создать на основе:</span>
+          {COLOR_PALETTE_IDS.map((id) => (
             <button
+              key={id}
               type="button"
               className="btn btn-sm"
-              onClick={() => importRef.current?.click()}
+              onClick={() => createFromPalette(id)}
             >
-              Импорт темы
+              {PALETTE_LABELS[id]}
             </button>
-            <button type="button" className="btn btn-sm" onClick={resetCustomTheme}>
-              Сброс к «Классика»
-            </button>
-          </div>
-          <input
-            ref={importRef}
-            type="file"
-            accept="application/json,.json"
-            className="visually-hidden"
-            onChange={(e) => {
-              onImportFile(e.target.files?.[0])
-              e.target.value = ''
-            }}
-          />
-        </>
-      )}
+          ))}
+        </div>
+      </div>
+    )
+  }
 
-      {!customTheme.enabled && (
-        <p className="settings-hint">
-          По умолчанию — палитра «Классика» без декора. Включите свою тему для
-          произвольных цветов и фона.
+  const basedOnLabel = customTheme.basedOn ? PALETTE_LABELS[customTheme.basedOn] : null
+
+  return (
+    <div className="custom-theme-section">
+      {basedOnLabel && (
+        <p className="settings-hint custom-theme-based-on">
+          На основе палитры «{basedOnLabel}»
         </p>
       )}
+
+      <ThemePreview theme={customTheme} />
+
+      <div className="custom-theme-colors">
+        {COLOR_FIELDS.map(({ key, label }) => (
+          <label key={key} className="custom-theme-color-field">
+            <span>{label}</span>
+            <ThemeColorInput
+              colorKey={key}
+              value={customTheme[key]}
+              theme={customTheme}
+              onCommit={(colorKey, color) => update({ [colorKey]: color })}
+            />
+          </label>
+        ))}
+      </div>
+
+      <div className="custom-theme-bg">
+        <div className="settings-radio-row">
+          <button
+            type="button"
+            className="btn btn-sm"
+            onClick={() => bgRef.current?.click()}
+          >
+            Добавить фон
+          </button>
+          {activeBackground && (
+            <button type="button" className="btn btn-sm" onClick={clearBackground}>
+              Без фона
+            </button>
+          )}
+        </div>
+
+        {customTheme.backgroundImages.length > 0 && (
+          <div className="custom-theme-bg-gallery" role="list" aria-label="Сохранённые фоны">
+            {customTheme.backgroundImages.map((img) => {
+              const active = img.id === customTheme.backgroundImageId
+              return (
+                <div
+                  key={img.id}
+                  className={`custom-theme-bg-tile${active ? ' active' : ''}`}
+                  role="listitem"
+                >
+                  <button
+                    type="button"
+                    className="custom-theme-bg-tile-select"
+                    onClick={() => selectBackground(img.id)}
+                    title={active ? 'Текущий фон' : 'Выбрать фон'}
+                    aria-pressed={active}
+                  >
+                    <img src={img.dataUrl} alt="" />
+                  </button>
+                  <button
+                    type="button"
+                    className="custom-theme-bg-tile-remove"
+                    onClick={() => removeBackground(img.id)}
+                    aria-label="Удалить фон"
+                  >
+                    ×
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        <p className="settings-hint">
+          До {MAX_BG_IMAGES} изображений, макс. ~1.5 МБ каждое. Клик по плитке — выбрать фон.
+        </p>
+      </div>
+      <input
+        ref={bgRef}
+        type="file"
+        accept="image/*"
+        multiple
+        className="visually-hidden"
+        onChange={(e) => {
+          void onBgFiles(e.target.files ?? undefined)
+          e.target.value = ''
+        }}
+      />
+
+      <div className="settings-radio-row custom-theme-from-palette">
+        <span className="settings-label-inline">Создать на основе:</span>
+        {COLOR_PALETTE_IDS.map((id) => (
+          <button
+            key={id}
+            type="button"
+            className="btn btn-sm"
+            onClick={() => createFromPalette(id)}
+          >
+            {PALETTE_LABELS[id]}
+          </button>
+        ))}
+      </div>
+
+      <div className="settings-radio-row">
+        <button type="button" className="btn btn-sm" onClick={onExport}>
+          Экспорт темы
+        </button>
+        <button
+          type="button"
+          className="btn btn-sm"
+          onClick={() => importRef.current?.click()}
+        >
+          Импорт темы
+        </button>
+        <button type="button" className="btn btn-sm" onClick={resetCustomTheme}>
+          Сбросить оформление
+        </button>
+      </div>
+      <input
+        ref={importRef}
+        type="file"
+        accept="application/json,.json"
+        className="visually-hidden"
+        onChange={(e) => {
+          onImportFile(e.target.files?.[0])
+          e.target.value = ''
+        }}
+      />
     </div>
   )
 }

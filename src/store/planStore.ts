@@ -48,6 +48,8 @@ interface PlanState {
   setView: (view: ViewId) => void
   setTheme: (theme: ThemeMode) => void
   setColorPalette: (palette: ColorPalette) => void
+  selectBuiltInPalette: (palette: ColorPalette) => void
+  selectCustomTheme: () => void
   setAmbientAnimation: (mode: AmbientAnimation) => void
   setCustomTheme: (theme: CustomThemeSettings) => void
   disableCustomTheme: () => void
@@ -143,6 +145,25 @@ export const usePlanStore = create<PlanState>((set, get) => ({
   setColorPalette: (colorPalette) => {
     const { data } = get()
     set({ data: updateSettings(data, { colorPalette }) })
+  },
+
+  selectBuiltInPalette: (colorPalette) => {
+    const { data } = get()
+    set({
+      data: updateSettings(data, {
+        colorPalette,
+        customTheme: { ...data.settings.customTheme, enabled: false },
+      }),
+    })
+  },
+
+  selectCustomTheme: () => {
+    const { data } = get()
+    set({
+      data: updateSettings(data, {
+        customTheme: { ...data.settings.customTheme, enabled: true },
+      }),
+    })
   },
 
   setAmbientAnimation: (ambientAnimation) => {

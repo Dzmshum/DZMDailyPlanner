@@ -23,6 +23,9 @@ export type ExportPeriod = 'day' | 'week' | 'month' | 'quarter' | 'year'
 export type Priority = 'low' | 'medium' | 'high'
 export type TaskStatus = 'todo' | 'in_progress' | 'done'
 
+import { normalizeDailyDays } from '../lib/dailyLabels'
+import { isColorPalette } from '../lib/palettes'
+
 export interface TaskTime {
   start: string
   end: string
@@ -99,12 +102,15 @@ export interface CustomBackgroundImage {
 
 export interface CustomThemeSettings {
   enabled: boolean
+  /** Палитра-основа при создании «Моей темы» */
+  basedOn: ColorPalette | null
   accent: string
   background: string
   surface: string
   text: string
   backgroundImages: CustomBackgroundImage[]
   backgroundImageId: string | null
+  /** @deprecated Используйте settings.ambientAnimation; мигрируется в normalizePlan */
   ambientEnabled: boolean
 }
 
@@ -165,6 +171,7 @@ export const PALETTE_HINTS: Record<ColorPalette, string> = {
 
 export const DEFAULT_CUSTOM_THEME: CustomThemeSettings = {
   enabled: false,
+  basedOn: null,
   accent: '#6b8cff',
   background: '#121418',
   surface: '#1a1d24',
@@ -239,6 +246,7 @@ function normalizeCustomThemeSettings(raw: unknown): CustomThemeSettings {
   const gallery = normalizeBackgroundGallery(o)
   return {
     enabled: Boolean(o.enabled),
+    basedOn: isColorPalette(o.basedOn) ? o.basedOn : null,
     accent: color(o.accent, d.accent),
     background: color(o.background, d.background),
     surface: color(o.surface, d.surface),
@@ -354,8 +362,20 @@ export function normalizePlan(data: PlanData): PlanData {
     ? (rawPalette as ColorPalette)
     : 'plain'
   const ambientRaw = data.settings?.ambientAnimation
-  const ambientAnimation: AmbientAnimation =
+  let ambientAnimation: AmbientAnimation =
     ambientRaw === 'off' ? 'off' : 'auto'
+  const customTheme = normalizeCustomThemeSettings(data.settings?.customTheme)
+  const rawCustom = data.settings?.customTheme
+  if (
+    customTheme.enabled &&
+    rawCustom &&
+    typeof rawCustom === 'object' &&
+    'ambientEnabled' in rawCustom &&
+    !(rawCustom as { ambientEnabled?: boolean }).ambientEnabled &&
+    ambientAnimation === 'auto'
+  ) {
+    ambientAnimation = 'off'
+  }
 
   return {
     ...data,
@@ -364,15 +384,15 @@ export function normalizePlan(data: PlanData): PlanData {
       ...data.settings,
       colorPalette,
       ambientAnimation,
-      customTheme: normalizeCustomThemeSettings(data.settings?.customTheme),
+      customTheme,
       windowMode: data.settings?.windowMode ?? 'standard',
       calendar: {
         ...defaults.calendar,
         ...data.settings?.calendar,
       },
       daily: {
-        ...defaults.daily,
-        ...data.settings?.daily,
+        enabled: data.settings?.daily?.enabled ?? defaults.daily.enabled,
+        days: normalizeDailyDays(data.settings?.daily?.days),
       },
       export: {
         ...defaults.export,

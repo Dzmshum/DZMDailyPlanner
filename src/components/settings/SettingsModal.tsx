@@ -2,18 +2,21 @@ import { useEffect, useState } from 'react'
 import type { JiraSettings } from '../../types'
 import { RECENT_DONE_DAY_OPTIONS } from '../../types'
 import { usePlanStore } from '../../store/planStore'
+import { formatDailyDaysLabel } from '../../lib/dailyLabels'
 import { getPlanFilePath, usesSharedPlanFile } from '../../lib/storage'
 import { isElectron } from '../../lib/electron'
 import { Modal } from '../ui/Modal'
 import { PaletteToggle } from '../layout/PaletteToggle'
 import { CustomThemeSection } from './CustomThemeSection'
+import { DailyDaysPicker } from './DailyDaysPicker'
 import { ThemeToggle } from '../layout/ThemeToggle'
 import { ThemedCheckbox } from '../ui/ThemedCheckbox'
 
-type SettingsTab = 'appearance' | 'data' | 'integrations'
+type SettingsTab = 'appearance' | 'behavior' | 'data' | 'integrations'
 
 const TABS: { id: SettingsTab; label: string }[] = [
   { id: 'appearance', label: 'Оформление' },
+  { id: 'behavior', label: 'Поведение' },
   { id: 'data', label: 'Данные' },
   { id: 'integrations', label: 'Интеграции' },
 ]
@@ -35,6 +38,7 @@ export function SettingsModal() {
   const setVoiceInputEnabled = usePlanStore((s) => s.setVoiceInputEnabled)
   const ambientAnimation = usePlanStore((s) => s.data.settings.ambientAnimation)
   const setAmbientAnimation = usePlanStore((s) => s.setAmbientAnimation)
+  const customThemeEnabled = usePlanStore((s) => s.data.settings.customTheme.enabled)
 
   const [tab, setTab] = useState<SettingsTab>('appearance')
   const [planPath, setPlanPath] = useState<string | null>(null)
@@ -52,6 +56,8 @@ export function SettingsModal() {
 
   const patchJira = (updates: Partial<JiraSettings>) =>
     setJiraSettings({ ...jira, ...updates })
+
+  const dailyDaysLabel = formatDailyDaysLabel(daily.days)
 
   return (
     <Modal open={open} onClose={closeSettings} title="Настройки" size="xl">
@@ -73,25 +79,25 @@ export function SettingsModal() {
           {tab === 'appearance' && (
             <div className="settings-section settings-section-last">
               <h3 className="settings-section-title">Тема интерфейса</h3>
-              <p className="settings-hint">
-                Сохраняется автоматически.
-              </p>
+              <p className="settings-hint">Светлая, тёмная или по системе. Сохраняется автоматически.</p>
               <ThemeToggle />
 
               <h3 className="settings-section-title settings-section-title-spaced">
-                Цветовая палитра
+                Тема оформления
               </h3>
               <p className="settings-hint">
-                Меняет цвета, иконку и фоновую анимацию.
+                Одна активная тема — встроенная палитра или «Моя тема». Цвета своей темы
+                сохраняются при переключении.
               </p>
               <PaletteToggle />
+              <CustomThemeSection />
 
               <h3 className="settings-section-title settings-section-title-spaced">
                 Фоновая анимация
               </h3>
               <p className="settings-hint">
-                Для палитры «Классика» анимация отключена. Для остальных — снежинки,
-                звёзды и т.д.
+                Для «Классика» анимация отключена. Для остальных — снежинки, звёзды и т.д.
+                {customThemeEnabled && ' У «Моей темы» наследуется анимация палитры-основы.'}
               </p>
               <div className="settings-radio-row">
                 {(
@@ -110,11 +116,6 @@ export function SettingsModal() {
                   </button>
                 ))}
               </div>
-
-              <h3 className="settings-section-title settings-section-title-spaced">
-                Своя тема
-              </h3>
-              <CustomThemeSection />
 
               {isElectron() && (
                 <>
@@ -142,10 +143,12 @@ export function SettingsModal() {
                   </div>
                 </>
               )}
+            </div>
+          )}
 
-              <h3 className="settings-section-title settings-section-title-spaced">
-                Календарь
-              </h3>
+          {tab === 'behavior' && (
+            <div className="settings-section settings-section-last">
+              <h3 className="settings-section-title">Календарь</h3>
               <ThemedCheckbox
                 className="settings-check"
                 checked={calendar.showHolidays}
@@ -154,16 +157,23 @@ export function SettingsModal() {
                 Показывать праздники РФ
               </ThemedCheckbox>
 
-              <h3 className="settings-section-title settings-section-title-spaced">
-                Дейлики
-              </h3>
+              <h3 className="settings-section-title settings-section-title-spaced">Дейлики</h3>
               <ThemedCheckbox
                 className="settings-check"
                 checked={daily.enabled}
                 onChange={(v) => setDailySettings({ enabled: v })}
               >
-                Отмечать дни дейликов (пн и чт)
+                Отмечать дни дейликов ({dailyDaysLabel})
               </ThemedCheckbox>
+              {daily.enabled && (
+                <>
+                  <p className="settings-hint">Дни созвонов (минимум один):</p>
+                  <DailyDaysPicker
+                    days={daily.days}
+                    onChange={(days) => setDailySettings({ days })}
+                  />
+                </>
+              )}
 
               <h3 className="settings-section-title settings-section-title-spaced">
                 Экспорт текста

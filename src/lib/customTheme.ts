@@ -1,5 +1,6 @@
 import type { CustomThemeSettings } from '../types'
 import { DEFAULT_CUSTOM_THEME, normalizeBackgroundGallery } from '../types'
+import { isColorPalette } from './palettes'
 
 const CUSTOM_CSS_VARS = [
   '--bg-primary',
@@ -35,6 +36,7 @@ export function normalizeCustomTheme(raw: unknown): CustomThemeSettings {
   const gallery = normalizeBackgroundGallery(o)
   return {
     enabled: Boolean(o.enabled),
+    basedOn: isColorPalette(o.basedOn) ? o.basedOn : null,
     accent: color(o.accent, d.accent),
     background: color(o.background, d.background),
     surface: color(o.surface, d.surface),

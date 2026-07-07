@@ -4,7 +4,7 @@ import { useRef } from 'react'
 import { PRIORITY_LABELS, STATUS_LABELS } from '../../types'
 import { usePlanStore } from '../../store/planStore'
 import { confirmAction } from '../../store/confirmStore'
-import { getProjectById } from '../../lib/selectors'
+import { getProjectById, isCompletedLate } from '../../lib/selectors'
 import { formatDisplayDate, formatShortDate } from '../../lib/dates'
 import { ProjectBadge } from '../projects/ProjectBadge'
 import { TaskCompleteToggle } from './TaskCompleteToggle'
@@ -49,6 +49,7 @@ export function TaskCard({
 
   const project = getProjectById(projects, task.projectId)
   const isDone = task.status === 'done'
+  const completedLate = isDone && isCompletedLate(task)
   const hasNotes = Boolean(task.notes.trim())
   const attachmentCount = task.attachments?.length ?? 0
   const hasMedia = attachmentCount > 0
@@ -146,6 +147,14 @@ export function TaskCard({
             <span className={`task-chip task-chip--priority priority-${task.priority}`}>
               {PRIORITY_LABELS[task.priority]}
             </span>
+            {completedLate && task.deadline && (
+              <span
+                className="task-chip task-chip--late"
+                title={`План: ${formatShortDate(task.deadline)}`}
+              >
+                не в срок
+              </span>
+            )}
           </div>
 
           {(task.time || (showDeadline && task.deadline)) && (
@@ -252,6 +261,14 @@ export function TaskCardHistory({ task }: { task: Task }) {
             {task.completedAt && (
               <span className="task-chip task-chip--muted">
                 {formatDisplayDate(task.completedAt)}
+              </span>
+            )}
+            {isCompletedLate(task) && task.deadline && (
+              <span
+                className="task-chip task-chip--late"
+                title={`План: ${formatShortDate(task.deadline)}`}
+              >
+                не в срок
               </span>
             )}
           </div>

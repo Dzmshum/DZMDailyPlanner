@@ -4,7 +4,6 @@ import {
   endOfQuarter,
   endOfYear,
   format,
-  isSameDay,
   startOfDay,
   startOfMonth,
   startOfQuarter,
@@ -13,7 +12,7 @@ import {
 } from 'date-fns'
 import type { PlanData, Task } from '../types'
 import { parseDate, today } from './dates'
-import { getActiveTasks, getTasksForDay } from './selectors'
+import { getActiveTasks, getDoneTasksForDay, getTasksForDay } from './selectors'
 
 export type ExportPeriod = 'day' | 'week' | 'month' | 'quarter' | 'year'
 
@@ -35,13 +34,7 @@ function formatTelegramDate(d: Date): string {
 function tasksOnDay(tasks: Task[], day: Date, includeDone: boolean): Task[] {
   const active = getTasksForDay(tasks, day)
   if (!includeDone) return active
-
-  const done = tasks.filter((t) => {
-    if (t.status !== 'done' || !t.deadline) return false
-    const dl = parseDate(t.deadline)
-    return isSameDay(dl, day)
-  })
-  return [...active, ...done]
+  return [...active, ...getDoneTasksForDay(tasks, day)]
 }
 
 function getPeriodRange(period: ExportPeriod, anchorDate: Date): { start: Date; end: Date } {

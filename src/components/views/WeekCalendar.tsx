@@ -6,6 +6,7 @@ import {
   getProjectById,
   getTasksForDay,
   getDoneTasksForDay,
+  isCompletedLate,
 } from '../../lib/selectors'
 import {
   formatDate,
@@ -146,7 +147,7 @@ export function WeekCalendar() {
                         style={
                           project ? { borderLeftColor: project.color } : undefined
                         }
-                        title={`${task.title} (выполнено)`}
+                        title={`${task.title} (выполнено${isCompletedLate(task) ? ', не в срок' : ''})`}
                       >
                         {task.title}
                       </div>

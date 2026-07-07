@@ -1316,7 +1316,7 @@ html {
   transition: all var(--transition);
 }
 
-.btn:hover {
+.btn:hover:not(.btn-primary):not(.btn-danger):not(.btn-danger-outline) {
   background: var(--bg-hover);
 }
 
@@ -1333,9 +1333,15 @@ html {
 }
 
 .btn-primary:hover {
+  background: linear-gradient(180deg, var(--accent-hover) 0%, var(--accent) 100%);
+  color: #03060c;
   filter: brightness(1.08);
   box-shadow: 0 0 20px var(--accent-glow);
   transform: translateY(-1px);
+}
+
+[data-theme='light'] .btn-primary:hover {
+  color: #fff;
 }
 
 .btn-primary:active {
@@ -1349,6 +1355,7 @@ html {
 }
 
 .btn-danger:hover {
+  background: var(--danger);
   filter: brightness(1.08);
 }
 
@@ -1746,6 +1753,14 @@ html {
   border: none;
   padding-left: 0;
   padding-right: 0;
+}
+
+.task-chip--late {
+  color: var(--text-muted);
+  border-color: color-mix(in srgb, var(--warning, var(--text-muted)) 25%, var(--border));
+  background: transparent;
+  font-size: 0.72rem;
+  opacity: 0.85;
 }
 
 .task-list .task-card:nth-child(1) { animation-delay: 0ms; }
@@ -2803,6 +2818,157 @@ html.lightbox-open .view-content {
 
 .palette-preview-witcher .palette-card-swatch {
   background: linear-gradient(145deg, #1a1814, #c87533 50%, #6b8c5a);
+}
+
+.palette-preview-witcher .palette-card-swatch {
+  background: linear-gradient(145deg, #1a1814, #c87533 50%, #6b8c5a);
+}
+
+.palette-grid-custom {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.palette-preview-custom .palette-card-swatch-custom {
+  display: block;
+  width: 100%;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 4px;
+}
+
+.settings-label-inline {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  align-self: center;
+}
+
+.daily-days-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.daily-days-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.daily-day-chip {
+  min-width: 40px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition), color var(--transition);
+}
+
+.daily-day-chip:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.daily-day-chip.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.daily-days-presets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.daily-days-presets-label {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.theme-preview-mini {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--preview-bg);
+  min-height: 88px;
+}
+
+.theme-preview-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 52px;
+  padding: 8px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--preview-surface);
+}
+
+.theme-preview-nav {
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--preview-text) 25%, transparent);
+}
+
+.theme-preview-nav.active {
+  background: var(--preview-accent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--preview-accent) 50%, transparent);
+}
+
+.theme-preview-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.theme-preview-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--preview-surface);
+  border: 1px solid color-mix(in srgb, var(--preview-text) 12%, transparent);
+}
+
+.theme-preview-card.muted {
+  opacity: 0.65;
+}
+
+.theme-preview-card-title {
+  font-size: 0.72rem;
+  color: var(--preview-text);
+}
+
+.theme-preview-card-badge {
+  font-size: 0.62rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--preview-accent) 22%, transparent);
+  color: var(--preview-accent);
+}
+
+.custom-theme-empty {
+  padding-top: 4px;
+}
+
+.custom-theme-based-on {
+  margin: 0;
+}
+
+.custom-theme-from-palette {
+  flex-wrap: wrap;
 }
 
 .custom-theme-section {

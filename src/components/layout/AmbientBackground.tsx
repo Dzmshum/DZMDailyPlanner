@@ -266,9 +266,10 @@ export function AmbientBackground() {
     if (!canvas) return
 
     if (ambientAnimation === 'off') return
-    if (customTheme.enabled && !customTheme.ambientEnabled) return
 
-    const profile = ambientProfile(palette, resolvedTheme)
+    const animationPalette =
+      customTheme.enabled && customTheme.basedOn ? customTheme.basedOn : palette
+    const profile = ambientProfile(animationPalette, resolvedTheme)
     if (!profile) return
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -326,7 +327,7 @@ export function AmbientBackground() {
       cancelAnimationFrame(raf)
       window.removeEventListener('resize', resize)
     }
-  }, [palette, resolvedTheme, ambientAnimation, customTheme.enabled, customTheme.ambientEnabled])
+  }, [palette, resolvedTheme, ambientAnimation, customTheme.enabled, customTheme.basedOn])
 
   return <canvas ref={canvasRef} className="ambient-bg" aria-hidden />
 }

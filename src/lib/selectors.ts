@@ -79,6 +79,38 @@ export function getDoneTodayTasks(tasks: Task[]): Task[] {
   return sortTasksForDay(getDoneTasksForDay(tasks, new Date()))
 }
 
+/** День, за который засчитывается выполненная задача (повестка, неделя, календарь). */
+export function getTaskCreditDayKey(task: Task): string | null {
+  if (task.status !== 'done' || !task.deadline) return null
+
+  const completedRaw = task.completedAt ?? task.createdAt
+  const completedDay = startOfDay(parseDate(completedRaw))
+  const deadlineDay = startOfDay(parseDate(task.deadline))
+
+  if (isBefore(deadlineDay, completedDay) && !isSameDay(deadlineDay, completedDay)) {
+    return formatDate(completedDay)
+  }
+
+  return task.deadline
+}
+
+/** Закрыта позже дедлайна — зачёт перенесён на день закрытия. */
+export function isCompletedLate(task: Task): boolean {
+  if (task.status !== 'done' || !task.deadline) return false
+
+  const completedRaw = task.completedAt ?? task.createdAt
+  const completedDay = startOfDay(parseDate(completedRaw))
+  const deadlineDay = startOfDay(parseDate(task.deadline))
+
+  return isBefore(deadlineDay, completedDay) && !isSameDay(deadlineDay, completedDay)
+}
+
+export function isTaskCreditedToDay(task: Task, date: Date): boolean {
+  const credit = getTaskCreditDayKey(task)
+  if (!credit) return false
+  return isSameDaySafe(credit, date)
+}
+
 export function getDoneUpcomingTasks(tasks: Task[], days = 7): Task[] {
   return getDoneTasks(tasks)
     .filter((t) => {
@@ -98,8 +130,8 @@ export function getTasksForDay(tasks: Task[], date: Date): Task[] {
 }
 
 export function getDoneTasksForDay(tasks: Task[], date: Date): Task[] {
-  return getDoneTasks(tasks).filter(
-    (t) => t.deadline && isSameDaySafe(t.deadline, date),
+  return sortTasksForDay(
+    getDoneTasks(tasks).filter((t) => isTaskCreditedToDay(t, date)),
   )
 }
 
