@@ -6,7 +6,7 @@ const DEFAULT_PLAN: &str = r#"{"version":1,"settings":{"theme":"system","default
 fn plan_dir() -> PathBuf {
     dirs::data_dir()
         .unwrap_or_else(|| PathBuf::from("."))
-        .join("DoomPlanner")
+        .join("PlanBoard")
 }
 
 fn plan_path() -> PathBuf {

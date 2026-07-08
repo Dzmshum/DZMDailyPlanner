@@ -7,6 +7,8 @@ import { WindowControls } from './WindowControls'
 import { ImportModal } from '../ui/ImportModal'
 import { ViewIcon } from './ViewIcon'
 import { DropdownMenu } from '../ui/DropdownMenu'
+import { DayProgressBar } from '../ui/DayProgressBar'
+import { parseDate } from '../../lib/dates'
 
 export function Header() {
   const currentView = usePlanStore((s) => s.currentView)
@@ -14,6 +16,9 @@ export function Header() {
   const openExportText = usePlanStore((s) => s.openExportText)
   const saving = usePlanStore((s) => s.saving)
   const data = usePlanStore((s) => s.data)
+  const agendaDate = usePlanStore((s) => s.agendaDate)
+  const showAgendaProgress =
+    currentView === 'agenda' && data.settings.dayProgress.showOnAgenda
 
   const [importOpen, setImportOpen] = useState(false)
   const [importPlan, setImportPlan] = useState<PlanData | null>(null)
@@ -46,6 +51,14 @@ export function Header() {
         <div className="header-leading titlebar-drag">
           <ViewIcon view={currentView} size="sm" />
           <h1 className="header-title">{VIEW_LABELS[currentView]}</h1>
+          {showAgendaProgress && (
+            <DayProgressBar
+              tasks={data.tasks}
+              date={parseDate(agendaDate)}
+              compact
+              className="header-day-progress"
+            />
+          )}
         </div>
         <div className="header-actions titlebar-no-drag">
           {saving && <span className="saving-indicator">Сохранение...</span>}

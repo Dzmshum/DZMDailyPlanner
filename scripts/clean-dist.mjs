@@ -21,7 +21,7 @@ for (let attempt = 1; attempt <= 3; attempt++) {
     if (attempt === 3) {
       console.error(`
 Не удалось удалить dist-electron (EPERM).
-Закройте DoomPlanner.exe и повторите: pnpm clean:dist
+Закройте PlanBoard.exe и повторите: pnpm clean:dist
 `)
       process.exit(1)
     }

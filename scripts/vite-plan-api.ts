@@ -27,7 +27,7 @@ function readBody(req: Connect.IncomingMessage): Promise<string> {
 
 export function planApiPlugin(): Plugin {
   return {
-    name: 'doomplanner-plan-api',
+    name: 'planboard-plan-api',
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         const url = req.url?.split('?')[0]

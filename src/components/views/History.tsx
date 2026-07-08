@@ -26,7 +26,7 @@ export function History() {
   const totalDone = tasks.filter((t) => t.status === 'done').length
 
   return (
-    <div>
+    <div className="history-view">
       <div className="filters-bar">
         <input
           id="global-search"

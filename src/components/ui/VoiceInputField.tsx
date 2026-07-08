@@ -67,8 +67,8 @@ export function VoiceInputField({
       if (!shouldRespondToVoiceHotkey(wrapperRef.current)) return
       handleVoiceToggle()
     }
-    window.addEventListener('doomplanner:voice-toggle', onVoiceHotkey)
-    return () => window.removeEventListener('doomplanner:voice-toggle', onVoiceHotkey)
+    window.addEventListener('planboard:voice-toggle', onVoiceHotkey)
+    return () => window.removeEventListener('planboard:voice-toggle', onVoiceHotkey)
   }, [voiceEnabled, supported, handleVoiceToggle])
 
   const showVoice = voiceEnabled && supported

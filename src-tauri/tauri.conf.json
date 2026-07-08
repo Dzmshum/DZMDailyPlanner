@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "DoomPlanner",
+  "productName": "PlanBoard",
   "version": "0.1.0",
-  "identifier": "com.doomplanner.desktop",
+  "identifier": "com.planboard.desktop",
   "build": {
     "frontendDist": "../build",
     "devUrl": "http://localhost:5173",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "DoomPlanner",
+        "title": "PlanBoard",
         "width": 1200,
         "height": 800,
         "minWidth": 900,

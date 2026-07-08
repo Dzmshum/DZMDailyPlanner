@@ -1,6 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
-contextBridge.exposeInMainWorld('doomPlanner', {
+contextBridge.exposeInMainWorld('planBoard', {
   loadPlan: () => ipcRenderer.invoke('load-plan'),
   savePlan: (data) => ipcRenderer.invoke('save-plan', data),
   exportPlan: (data) => ipcRenderer.invoke('export-plan', data),

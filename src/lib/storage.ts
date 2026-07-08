@@ -3,7 +3,8 @@ import { createDefaultPlan, normalizePlan } from '../types'
 import { mergePlans } from './planMerge'
 import { getElectronApi, isElectron } from './electron'
 
-const STORAGE_KEY = 'doomplanner-plan'
+const STORAGE_KEY = 'planboard-plan'
+const LEGACY_STORAGE_KEYS = ['doomplanner-plan']
 
 let devFileApiAvailable: boolean | null = null
 
@@ -36,14 +37,21 @@ async function saveToDevFileApi(data: PlanData): Promise<void> {
 }
 
 function loadFromLocalStorage(): PlanData | null {
-  const stored = localStorage.getItem(STORAGE_KEY)
-  if (!stored) return null
-  try {
-    return normalizePlan(JSON.parse(stored) as PlanData)
-  } catch {
-    localStorage.removeItem(STORAGE_KEY)
-    return null
+  for (const key of [STORAGE_KEY, ...LEGACY_STORAGE_KEYS]) {
+    const stored = localStorage.getItem(key)
+    if (!stored) continue
+    try {
+      const plan = normalizePlan(JSON.parse(stored) as PlanData)
+      if (key !== STORAGE_KEY) {
+        localStorage.setItem(STORAGE_KEY, stored)
+        localStorage.removeItem(key)
+      }
+      return plan
+    } catch {
+      localStorage.removeItem(key)
+    }
   }
+  return null
 }
 
 /** Перенос старых данных из localStorage в общий файл (один раз). */

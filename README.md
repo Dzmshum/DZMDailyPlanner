@@ -1,7 +1,5 @@
 # PlanBoard
 
-Планировщик задач (ранее DoomPlanner / RuneBoard). Electron + React.
-
 Локальный планировщик с дедлайнами, проектами, календарём и дейликами.  
 Данные — один JSON-файл на компьютере. Интерфейс на русском.
 
@@ -9,7 +7,7 @@
 
 > **История:** изначально Tauri (Rust). Сейчас — **Electron**. Папку `src-tauri/` можно игнорировать.
 
-**Текущая версия:** v0.28.1 (зачёт просроченных при закрытии) — см. [ROADMAP.md](./ROADMAP.md)
+**Текущая версия:** v0.29 (прогресс-бар за день) — см. [ROADMAP.md](./ROADMAP.md)
 
 ---
 
@@ -17,24 +15,24 @@
 
 ### Уже есть собранный .exe
 
-Двойной клик по **`DoomPlanner.cmd`** (ищет `RuneBoard.exe` — имя exe до полного ребренда) или:
+Двойной клик по **`PlanBoard.cmd`** или:
 
 ```
-dist-electron\RuneBoard 0.1.0.exe              ← portable
-dist-electron\win-unpacked\RuneBoard.exe       ← распакованная версия
-dist-electron\RuneBoard Setup 0.1.0.exe        ← установщик
+dist-electron\PlanBoard 0.1.0.exe              ← portable
+dist-electron\win-unpacked\PlanBoard.exe       ← распакованная версия
+dist-electron\PlanBoard Setup 0.1.0.exe        ← установщик
 ```
 
 ### Разработка (окно приложения)
 
 ```powershell
-cd C:\Users\User\Desktop\Projects\Ideas\DoomPlanner
+cd путь\к\PlanBoard
 pnpm install
 pnpm rebuild electron          # первый раз или после обновления electron
 pnpm electron:dev
 ```
 
-Данные: `%APPDATA%\DoomPlanner\plan.json`
+Данные: `%APPDATA%\PlanBoard\plan.json`
 
 ### Только браузер (быстрая проверка UI)
 
@@ -43,7 +41,7 @@ pnpm dev
 ```
 
 → http://127.0.0.1:5173/  
-При `pnpm dev` данные тоже в `%APPDATA%\DoomPlanner\plan.json` (через dev API).
+При `pnpm dev` данные тоже в `%APPDATA%\PlanBoard\plan.json` (через dev API).
 
 ---
 
@@ -59,17 +57,18 @@ pnpm dev
 | `pnpm build` | Фронтенд в `build\` (+ иконки, календарь РФ) |
 | `pnpm icons` | Пересобрать PNG из `*-source.png` |
 | `pnpm calendar` | Обновить производственный календарь РФ |
-| `pnpm test` | Автотесты: календарь РФ + дейлики (49) + вложения (12) + месяц (9) + праздники (22) + проекты (5) + палитры (91) + экспорт TG (3) + настройки UI (41) + зачёт задач (12) |
+| `pnpm test` | Автотесты: календарь РФ + дейлики (49) + … + настройки UI (60) + зачёт (12) + прогресс (11) ≈ **274** |
 | `pnpm test:export` | `verify-export-text.mjs` — выгрузка Telegram |
-| `pnpm test:settings` | `verify-settings-ui.mjs` — модалка настроек, сайдбар, повестка |
+| `pnpm test:settings` | `verify-settings-ui.mjs` — модалка, layout, hover, прогресс |
 | `pnpm test:credit` | `verify-task-credit.mjs` — зачёт просроченных в день закрытия |
+| `pnpm test:progress` | `verify-day-progress.mjs` — прогресс за день |
 | `pnpm lint` | oxlint |
 
 **Файлы для двойного клика (Windows):**
 
 | Файл | Назначение |
 |------|------------|
-| `DoomPlanner.cmd` | Запуск готового .exe |
+| `PlanBoard.cmd` | Запуск готового .exe |
 | `Build-Electron.cmd` | Сборка .exe |
 
 **Терминал:** PowerShell или cmd. Для `electron:build` **не Git Bash** — иначе возможны сбои.
@@ -104,6 +103,8 @@ pnpm dev
 - **Настройки** — модалка **Оформление · Поведение · Данные · Интеграции** (фиксированный размер); кнопка ⚙ по центру внизу сайдбара; дни дейликов — чипы Пн–Вс
 - **Праздники РФ** — производственный календарь **2025–2027** (переносы ПП); **2028+** — приблизительно по ст. 112 ТК РФ (без переносов, пока нет официального ПП)
 - **Завершённые проекты** — кнопка «Завершить» на вкладке «Проекты»; в форме задачи активные по умолчанию, поиск находит архивные
+- **Прогресс дня** — полоса `3/7` на дашборде («Сегодня»), в повестке и компактно в шапке; настройки → Поведение
+- **История** — sticky-заголовки дат (Вчера / …) на всю ширину при прокрутке
 - **Зачёт просроченных** — закрытая после дедлайна задача идёт в выполненные **текущего дня** (не в день плана); приглушённый чип «не в срок»
 - **Импорт / экспорт JSON**, резервная копия `.bak`
 - **Счётчики** в меню — актуальные задачи на вкладке
@@ -139,7 +140,7 @@ pnpm electron:build
 4. `electron-builder` — во временную папку (обход EPERM), копия в `dist-electron\`
 
 **Если `EPERM: operation not permitted`:**
-1. Закройте PlanBoard / RuneBoard, если запущен
+1. Закройте PlanBoard, если запущен
 2. Удалите `dist-electron`
 3. Запустите из **PowerShell**
 4. При необходимости — исключите папку проекта из антивируса
@@ -165,13 +166,13 @@ pnpm electron:build
 
 | Режим | Путь |
 |-------|------|
-| Electron | `%APPDATA%\DoomPlanner\plan.json` |
+| Electron | `%APPDATA%\PlanBoard\plan.json` |
 | `pnpm dev` (с API) | тот же файл |
-| Статический preview | `localStorage` → `doomplanner-plan` |
+| Статический preview | `localStorage` → `planboard-plan` |
 
-**Вложения (фото):** `%APPDATA%\DoomPlanner\attachments\{taskId}\` — файлы JPEG на диске; метаданные в `plan.json`. При импорте JSON только метаданные (файлы нужно копировать вручную или оставить на том же ПК).
+**Вложения (фото):** `%APPDATA%\PlanBoard\attachments\{taskId}\` — файлы JPEG на диске; метаданные в `plan.json`. При импорте JSON только метаданные (файлы нужно копировать вручную или оставить на том же ПК).
 
-Резервная копия: `%APPDATA%\DoomPlanner\plan.json.bak`
+Резервная копия: `%APPDATA%\PlanBoard\plan.json.bak`
 
 Данные **не стираются** при пересборке .exe — они вне папки программы.
 
@@ -242,7 +243,7 @@ pnpm electron:build
 ## Структура проекта
 
 ```
-DoomPlanner/
+PlanBoard/
 ├── electron/              # main.cjs, preload.cjs, IPC
 ├── src/
 │   ├── components/        # views, tasks, layout, ui, settings
@@ -263,7 +264,8 @@ DoomPlanner/
 │   ├── verify-projects.mjs
 │   ├── verify-export-text.mjs
 │   ├── verify-settings-ui.mjs
-│   └── verify-task-credit.mjs
+│   ├── verify-task-credit.mjs
+│   └── verify-day-progress.mjs
 ├── public/icons/          # иконки (views + ui + палитры)
 ├── resources/icon.png     # иконка .exe
 ├── build/                 # собранный фронтенд
@@ -296,16 +298,16 @@ DoomPlanner/
 
 | | |
 |--|--|
-| **Текущая версия** | **v0.28.1** — зачёт просроченных при закрытии; v0.28 — настройки UX 2.0, «Моя тема», дни дейликов |
-| **Тесты** | `pnpm test` — **~244** проверок в **9** verify-скриптах + календарь РФ 2025–2027 |
+| **Текущая версия** | **v0.29** — прогресс дня, sticky-история, hover кнопок; v0.28.1 — зачёт просроченных |
+| **Тесты** | `pnpm test` — verify-скрипты (10) + календарь РФ 2025–2027 |
 | **Чеклист** | [`TESTS.md`](TESTS.md) |
 | **План** | [`ROADMAP.md`](ROADMAP.md) |
 
-**Очередь (см. ROADMAP)** — колонка «Релиз» растёт после v0.28.1; v0.23/v0.26/v0.27 в тексте roadmap — исторические ID эпиков:
+**Очередь (см. ROADMAP)** — колонка «Релиз» растёт после v0.29; v0.23/v0.26/v0.27 в тексте roadmap — исторические ID эпиков:
 
 | Релиз | Суть |
 |--------|------|
-| **v0.29** | Прогресс-бар за день (повестка, дашборд) |
+| **v0.29.1** | Компактное минимальное окно — меньше шрифты, отступы, гибкие компоненты |
 | **v0.30** | Анимации фона 2.0 *(эпик v0.27)* |
 | **v0.31** | Мобильное приложение *(эпик v0.23)* |
 | **v0.32** | Группировка похожих задач в дейлике *(эпик v0.26)* |
@@ -323,8 +325,9 @@ DoomPlanner/
 | `verify-projects.mjs` | 5 |
 | `verify-palettes.mjs` | 91 |
 | `verify-export-text.mjs` | 3 |
-| `verify-settings-ui.mjs` | 41 |
+| `verify-settings-ui.mjs` | 60 |
 | `verify-task-credit.mjs` | 12 |
+| `verify-day-progress.mjs` | 11 |
 
 ---
 

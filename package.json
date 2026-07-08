@@ -1,5 +1,5 @@
 {
-  "name": "doomplanner",
+  "name": "planboard",
   "private": true,
   "version": "0.1.0",
   "packageManager": "pnpm@10.23.0",
@@ -16,7 +16,7 @@
     "build": "node scripts/build-production-calendar.mjs && node scripts/generate-icon.mjs && tsc -b && vite build && node scripts/strip-icon-sources.mjs",
     "icons": "node scripts/generate-icon.mjs",
     "calendar": "node scripts/build-production-calendar.mjs",
-    "test": "node scripts/build-production-calendar.mjs && npx --yes tsx scripts/verify-daily-meetings.mjs && npx --yes tsx scripts/verify-attachments.mjs && npx --yes tsx scripts/verify-month-calendar.mjs && npx --yes tsx scripts/verify-holiday-labels.mjs && npx --yes tsx scripts/verify-projects.mjs && npx --yes tsx scripts/verify-palettes.mjs && npx --yes tsx scripts/verify-export-text.mjs && npx --yes tsx scripts/verify-settings-ui.mjs && npx --yes tsx scripts/verify-task-credit.mjs",
+    "test": "node scripts/build-production-calendar.mjs && npx --yes tsx scripts/verify-daily-meetings.mjs && npx --yes tsx scripts/verify-attachments.mjs && npx --yes tsx scripts/verify-month-calendar.mjs && npx --yes tsx scripts/verify-holiday-labels.mjs && npx --yes tsx scripts/verify-projects.mjs && npx --yes tsx scripts/verify-palettes.mjs && npx --yes tsx scripts/verify-export-text.mjs && npx --yes tsx scripts/verify-settings-ui.mjs && npx --yes tsx scripts/verify-task-credit.mjs && npx --yes tsx scripts/verify-day-progress.mjs",
     "test:daily": "npx --yes tsx scripts/verify-daily-meetings.mjs",
     "test:attachments": "npx --yes tsx scripts/verify-attachments.mjs",
     "test:month": "npx --yes tsx scripts/verify-month-calendar.mjs",
@@ -26,6 +26,7 @@
     "test:export": "npx --yes tsx scripts/verify-export-text.mjs",
     "test:settings": "npx --yes tsx scripts/verify-settings-ui.mjs",
     "test:credit": "npx --yes tsx scripts/verify-task-credit.mjs",
+    "test:progress": "npx --yes tsx scripts/verify-day-progress.mjs",
     "lint": "oxlint",
     "preview": "vite preview",
     "electron:dev": "concurrently -k \"vite\" \"wait-on http://127.0.0.1:5173 && cross-env NODE_ENV=development electron .\"",
@@ -56,8 +57,8 @@
     "wait-on": "^9.0.4"
   },
   "build": {
-    "appId": "com.doomplanner.desktop",
-    "productName": "RuneBoard",
+    "appId": "com.planboard.desktop",
+    "productName": "PlanBoard",
     "icon": "resources/icon.png",
     "directories": {
       "output": "dist-electron"

@@ -135,6 +135,25 @@ export function getDoneTasksForDay(tasks: Task[], date: Date): Task[] {
   )
 }
 
+export interface DayProgress {
+  done: number
+  total: number
+  ratio: number
+}
+
+/** Прогресс дня: активные на дату + выполненные с зачётом на дату (без inbox). */
+export function getDayProgress(tasks: Task[], date: Date): DayProgress {
+  const active = getTasksForDay(tasks, date)
+  const done = getDoneTasksForDay(tasks, date)
+  const doneCount = done.length
+  const total = active.length + doneCount
+  return {
+    done: doneCount,
+    total,
+    ratio: total === 0 ? 0 : doneCount / total,
+  }
+}
+
 function isSameDaySafe(deadline: string, date: Date): boolean {
   const d = parseDate(deadline)
   return (

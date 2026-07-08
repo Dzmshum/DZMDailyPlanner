@@ -13,12 +13,14 @@ import { DoneTasksCollapsible } from '../tasks/DoneTasksCollapsible'
 import { EmptyState } from '../ui/EmptyState'
 import { UiIcon } from '../ui/UiIcon'
 import { PeriodNav } from '../ui/PeriodNav'
+import { DayProgressBar } from '../ui/DayProgressBar'
 
 export function Agenda() {
   const tasks = usePlanStore((s) => s.data.tasks)
   const projects = usePlanStore((s) => s.data.projects)
   const agendaDate = usePlanStore((s) => s.agendaDate)
   const setAgendaDate = usePlanStore((s) => s.setAgendaDate)
+  const showDayProgress = usePlanStore((s) => s.data.settings.dayProgress.showOnAgenda)
 
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
 
@@ -51,6 +53,10 @@ export function Agenda() {
         previousLabel="Предыдущий день"
         nextLabel="Следующий день"
       />
+
+      {showDayProgress && (
+        <DayProgressBar tasks={tasks} date={date} className="day-progress--agenda" />
+      )}
 
       {!hasAny ? (
         <EmptyState

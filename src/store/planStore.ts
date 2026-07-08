@@ -13,6 +13,7 @@ import type {
   WindowMode,
   CalendarSettings,
   DailySettings,
+  DayProgressSettings,
   ExportSettings,
   CustomThemeSettings,
   AmbientAnimation,
@@ -61,6 +62,7 @@ interface PlanState {
   setWindowMode: (mode: WindowMode) => void
   setCalendarSettings: (calendar: Partial<CalendarSettings>) => void
   setDailySettings: (daily: Partial<DailySettings>) => void
+  setDayProgressSettings: (dayProgress: Partial<DayProgressSettings>) => void
   setExportSettings: (exportSettings: Partial<ExportSettings>) => void
   setVoiceInputEnabled: (enabled: boolean) => void
   settingsOpen: boolean
@@ -228,6 +230,15 @@ export const usePlanStore = create<PlanState>((set, get) => ({
     set({
       data: updateSettings(data, {
         daily: { ...data.settings.daily, ...daily },
+      }),
+    })
+  },
+
+  setDayProgressSettings: (dayProgress) => {
+    const { data } = get()
+    set({
+      data: updateSettings(data, {
+        dayProgress: { ...data.settings.dayProgress, ...dayProgress },
       }),
     })
   },

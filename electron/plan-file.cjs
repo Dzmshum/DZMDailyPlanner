@@ -23,6 +23,7 @@ const DEFAULT_PLAN = {
     windowMode: 'standard',
     calendar: { showHolidays: true, calendarView: 'week' },
     daily: { enabled: true, days: [1, 4] },
+    dayProgress: { showOnAgenda: true, showOnDashboard: true },
     export: {
       includeDone: false,
       skipEmptyDays: true,
@@ -57,8 +58,26 @@ function appDataRoot() {
   return process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config')
 }
 
+const APP_DATA_DIR = 'PlanBoard'
+const LEGACY_DATA_DIRS = ['DoomPlanner']
+
 function planDir() {
-  return path.join(appDataRoot(), 'DoomPlanner')
+  return path.join(appDataRoot(), APP_DATA_DIR)
+}
+
+function migrateLegacyDataDirIfNeeded() {
+  const target = planDir()
+  if (fs.existsSync(path.join(target, 'plan.json'))) return
+
+  for (const legacyName of LEGACY_DATA_DIRS) {
+    const legacyDir = path.join(appDataRoot(), legacyName)
+    const legacyPlan = path.join(legacyDir, 'plan.json')
+    if (!fs.existsSync(legacyPlan)) continue
+
+    fs.mkdirSync(target, { recursive: true })
+    fs.cpSync(legacyDir, target, { recursive: true })
+    return
+  }
 }
 
 function planPath() {
@@ -70,6 +89,7 @@ function planBackupPath() {
 }
 
 function ensurePlanDir() {
+  migrateLegacyDataDirIfNeeded()
   const dir = planDir()
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true })

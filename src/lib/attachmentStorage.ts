@@ -3,11 +3,13 @@ import type { TaskAttachment } from '../types'
 import { getElectronApi, isElectron } from './electron'
 import { base64ToBlob, blobToBase64, compressImageFile } from './imageCompress'
 
-const IDB_NAME = 'doomplanner-attachments'
+const IDB_NAME = 'planboard-attachments'
+const LEGACY_IDB_NAME = 'doomplanner-attachments'
 const IDB_STORE = 'blobs'
 
 let devFileApiAvailable: boolean | null = null
 const blobUrlCache = new Map<string, string>()
+let legacyIdbMigrated = false
 
 function cacheKey(taskId: string, fileName: string): string {
   return `${taskId}/${fileName}`
@@ -25,9 +27,9 @@ async function hasDevFileApi(): Promise<boolean> {
   return devFileApiAvailable
 }
 
-function openIdb(): Promise<IDBDatabase> {
+function openIdbByName(name: string): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(IDB_NAME, 1)
+    const request = indexedDB.open(name, 1)
     request.onupgradeneeded = () => {
       const db = request.result
       if (!db.objectStoreNames.contains(IDB_STORE)) {
@@ -37,6 +39,51 @@ function openIdb(): Promise<IDBDatabase> {
     request.onsuccess = () => resolve(request.result)
     request.onerror = () => reject(request.error ?? new Error('IndexedDB error'))
   })
+}
+
+async function migrateLegacyIdbIfNeeded(): Promise<void> {
+  if (legacyIdbMigrated) return
+  legacyIdbMigrated = true
+
+  let legacyDb: IDBDatabase
+  try {
+    legacyDb = await openIdbByName(LEGACY_IDB_NAME)
+  } catch {
+    return
+  }
+
+  const entries = await new Promise<Array<{ key: string; blob: Blob }>>((resolve, reject) => {
+    const items: Array<{ key: string; blob: Blob }> = []
+    const tx = legacyDb.transaction(IDB_STORE, 'readonly')
+    const req = tx.objectStore(IDB_STORE).openCursor()
+    req.onsuccess = () => {
+      const cursor = req.result
+      if (!cursor) return
+      items.push({ key: String(cursor.key), blob: cursor.value as Blob })
+      cursor.continue()
+    }
+    tx.oncomplete = () => resolve(items)
+    tx.onerror = () => reject(tx.error ?? new Error('IndexedDB read error'))
+  })
+  legacyDb.close()
+
+  if (entries.length === 0) return
+
+  const db = await openIdbByName(IDB_NAME)
+  await new Promise<void>((resolve, reject) => {
+    const tx = db.transaction(IDB_STORE, 'readwrite')
+    const store = tx.objectStore(IDB_STORE)
+    for (const { key, blob } of entries) {
+      store.put(blob, key)
+    }
+    tx.oncomplete = () => resolve()
+    tx.onerror = () => reject(tx.error ?? new Error('IndexedDB write error'))
+  })
+  db.close()
+}
+
+function openIdb(): Promise<IDBDatabase> {
+  return migrateLegacyIdbIfNeeded().then(() => openIdbByName(IDB_NAME))
 }
 
 async function idbPut(key: string, blob: Blob): Promise<void> {

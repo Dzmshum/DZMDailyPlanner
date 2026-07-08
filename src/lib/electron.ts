@@ -5,7 +5,7 @@ export interface ImportPlanResult {
   filePath: string
 }
 
-export interface DoomPlannerElectronApi {
+export interface PlanBoardElectronApi {
   loadPlan: () => Promise<string>
   savePlan: (data: string) => Promise<void>
   exportPlan: (data: string) => Promise<void>
@@ -39,19 +39,19 @@ export interface DoomPlannerElectronApi {
 
 declare global {
   interface Window {
-    doomPlanner?: DoomPlannerElectronApi
+    planBoard?: PlanBoardElectronApi
   }
 }
 
 export function isElectron(): boolean {
-  return typeof window !== 'undefined' && window.doomPlanner !== undefined
+  return typeof window !== 'undefined' && window.planBoard !== undefined
 }
 
-export function getElectronApi(): DoomPlannerElectronApi {
-  if (!window.doomPlanner) {
+export function getElectronApi(): PlanBoardElectronApi {
+  if (!window.planBoard) {
     throw new Error('Electron API недоступен')
   }
-  return window.doomPlanner
+  return window.planBoard
 }
 
 export async function applyElectronWindowMode(mode: WindowMode): Promise<void> {
@@ -63,4 +63,3 @@ export async function expandElectronWindow(taskId?: string): Promise<void> {
   if (!isElectron()) return
   await getElectronApi().expandToStandard(taskId ?? null)
 }
-

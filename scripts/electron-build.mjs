@@ -5,7 +5,7 @@ import path from 'node:path'
 
 const projectRoot = process.cwd()
 const localOut = path.join(projectRoot, 'dist-electron')
-const tempOut = path.join(os.tmpdir(), 'doomplanner-electron-build')
+const tempOut = path.join(os.tmpdir(), 'planboard-electron-build')
 
 function sleep(ms) {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms)
@@ -43,7 +43,7 @@ function publishOutput(source, target) {
     fs.cpSync(source, alt, { recursive: true })
     console.error(`
 Не удалось обновить dist-electron — папка занята.
-Закройте DoomPlanner.exe и удалите dist-electron вручную.
+Закройте PlanBoard.exe и удалите dist-electron вручную.
 
 Новая сборка скопирована в:
   ${alt}
@@ -82,7 +82,7 @@ step = spawnSync(
 
 if (step.status !== 0) {
   console.error(`
-Если видите EPERM — закройте RuneBoard, отключите блокировку папки антивирусом
+Если видите EPERM — закройте PlanBoard, отключите блокировку папки антивирусом
 или запустите PowerShell от имени администратора и повторите:
   pnpm electron:build
 `)
@@ -92,5 +92,5 @@ if (step.status !== 0) {
 const outDir = publishOutput(tempOut, localOut)
 console.log(`\nГотово!`)
 console.log(`  ${outDir}`)
-console.log(`  Portable: ${path.join(outDir, 'RuneBoard *.exe')} (см. папку)`)
-console.log(`  Unpacked: ${path.join(outDir, 'win-unpacked', 'RuneBoard.exe')}`)
+console.log(`  Portable: ${path.join(outDir, 'PlanBoard *.exe')} (см. папку)`)
+console.log(`  Unpacked: ${path.join(outDir, 'win-unpacked', 'PlanBoard.exe')}`)

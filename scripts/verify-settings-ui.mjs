@@ -9,6 +9,11 @@ import { formatDailyDaysLabel } from '../src/lib/dailyLabels.ts'
 
 const root = process.cwd()
 const css = readFileSync(join(root, 'src/index.css'), 'utf8')
+const pkg = readFileSync(join(root, 'package.json'), 'utf8')
+const planFile = readFileSync(join(root, 'electron/plan-file.cjs'), 'utf8')
+const preload = readFileSync(join(root, 'electron/preload.cjs'), 'utf8')
+const electronApi = readFileSync(join(root, 'src/lib/electron.ts'), 'utf8')
+const storage = readFileSync(join(root, 'src/lib/storage.ts'), 'utf8')
 const sidebar = readFileSync(join(root, 'src/components/layout/Sidebar.tsx'), 'utf8')
 const settingsModal = readFileSync(join(root, 'src/components/settings/SettingsModal.tsx'), 'utf8')
 const paletteToggle = readFileSync(join(root, 'src/components/layout/PaletteToggle.tsx'), 'utf8')
@@ -29,6 +34,16 @@ function assert(name, condition) {
   }
 }
 
+// --- Branding ---
+assert('package productName PlanBoard', pkg.includes('"productName": "PlanBoard"'))
+assert('package appId planboard', pkg.includes('"appId": "com.planboard.desktop"'))
+assert('plan-file APPDATA PlanBoard', planFile.includes("APP_DATA_DIR = 'PlanBoard'"))
+assert('plan-file legacy migration', planFile.includes("LEGACY_DATA_DIRS = ['DoomPlanner']"))
+assert('preload planBoard API', preload.includes("exposeInMainWorld('planBoard'"))
+assert('electron.ts planBoard window', electronApi.includes('planBoard?: PlanBoardElectronApi'))
+assert('storage planboard-plan key', storage.includes("const STORAGE_KEY = 'planboard-plan'"))
+assert('custom theme export filename', customTheme.includes("'planboard-theme.json'"))
+
 // --- Settings modal ---
 assert('SettingsModal size xl', settingsModal.includes('size="xl"'))
 assert('SettingsModal 4 tabs', (settingsModal.match(/id: '[^']+'/g) ?? []).length >= 4)
@@ -40,6 +55,13 @@ assert('SettingsModal settings-panel', settingsModal.includes('className="settin
 assert('SettingsModal DailyDaysPicker', settingsModal.includes('DailyDaysPicker'))
 assert('SettingsModal formatDailyDaysLabel', settingsModal.includes('formatDailyDaysLabel'))
 assert('SettingsModal calendar in behavior', settingsModal.includes("tab === 'behavior'") && settingsModal.includes('showHolidays'))
+assert('SettingsModal day progress toggles', settingsModal.includes('showOnAgenda') && settingsModal.includes('showOnDashboard'))
+assert('CSS day-progress', css.includes('.day-progress'))
+assert('CSS layout spacing tokens', css.includes('--view-padding-x') && css.includes('--content-indent'))
+assert('history-view zero-padding scrollport', css.includes('.view-content:has(> .history-view)'))
+assert('history-day-title full bleed', /\.history-day-title\s*\{[^}]*width:\s*calc\(100% \+ 2 \* var\(--view-padding-x\)\)/s.test(css))
+assert('history-day-title sticky top', /\.history-day-title\s*\{[^}]*top:\s*0/s.test(css))
+assert('section-title content indent', /\.section-title\s*\{[^}]*padding-left:\s*var\(--content-indent\)/s.test(css))
 
 // --- Fixed modal layout ---
 assert('modal-xl fixed height', /\.modal-xl\s*\{[^}]*height:\s*min\(82vh,\s*780px\)/s.test(css))
@@ -63,6 +85,10 @@ assert('CSS theme-preview-mini', css.includes('.theme-preview-mini'))
 assert('CSS palette-preview-custom', css.includes('.palette-preview-custom'))
 assert('btn-primary hover keeps gradient', /\.btn-primary:hover\s*\{[^}]*background:\s*linear-gradient/s.test(css))
 assert('btn:hover excludes btn-primary', css.includes('.btn:hover:not(.btn-primary)'))
+assert('btn:hover excludes segmented-control-item', css.includes(':not(.segmented-control-item)'))
+assert('segmented-control active hover keeps gradient', /\.segmented-control-item\.is-active:hover\s*\{[^}]*background:\s*linear-gradient/s.test(css))
+assert('nav-item active hover preserves accent', /\.nav-item\.active:hover\s*\{[^}]*color:\s*var\(--accent\)/s.test(css))
+assert('settings-nav active hover preserves accent', /\.settings-nav-item\.active:hover\s*\{[^}]*color:\s*var\(--accent\)/s.test(css))
 
 // --- Sidebar settings button ---
 assert('sidebar-footer centered', /\.sidebar-footer\s*\{[^}]*justify-content:\s*center/s.test(css))

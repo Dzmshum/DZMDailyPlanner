@@ -86,6 +86,11 @@ export interface DailySettings {
   days: number[]
 }
 
+export interface DayProgressSettings {
+  showOnAgenda: boolean
+  showOnDashboard: boolean
+}
+
 export interface ExportSettings {
   includeDone: boolean
   skipEmptyDays: boolean
@@ -123,6 +128,7 @@ export interface Settings {
   windowMode: WindowMode
   calendar: CalendarSettings
   daily: DailySettings
+  dayProgress: DayProgressSettings
   export: ExportSettings
   voiceInputEnabled: boolean
   jira: JiraSettings
@@ -299,6 +305,11 @@ export const DEFAULT_DAILY_SETTINGS: DailySettings = {
   days: [1, 4],
 }
 
+export const DEFAULT_DAY_PROGRESS_SETTINGS: DayProgressSettings = {
+  showOnAgenda: true,
+  showOnDashboard: true,
+}
+
 export const DEFAULT_EXPORT_SETTINGS: ExportSettings = {
   includeDone: false,
   skipEmptyDays: true,
@@ -331,6 +342,7 @@ export function createDefaultPlan(): PlanData {
       windowMode: 'standard',
       calendar: { ...DEFAULT_CALENDAR_SETTINGS },
       daily: { ...DEFAULT_DAILY_SETTINGS },
+      dayProgress: { ...DEFAULT_DAY_PROGRESS_SETTINGS },
       export: { ...DEFAULT_EXPORT_SETTINGS },
       voiceInputEnabled: false,
       jira: { ...DEFAULT_JIRA_SETTINGS },
@@ -393,6 +405,10 @@ export function normalizePlan(data: PlanData): PlanData {
       daily: {
         enabled: data.settings?.daily?.enabled ?? defaults.daily.enabled,
         days: normalizeDailyDays(data.settings?.daily?.days),
+      },
+      dayProgress: {
+        ...defaults.dayProgress,
+        ...data.settings?.dayProgress,
       },
       export: {
         ...defaults.export,

@@ -60,7 +60,7 @@ export function useHotkeys() {
         e.key.toLowerCase() === 'v'
       ) {
         e.preventDefault()
-        window.dispatchEvent(new CustomEvent('doomplanner:voice-toggle'))
+        window.dispatchEvent(new CustomEvent('planboard:voice-toggle'))
         return
       }
 

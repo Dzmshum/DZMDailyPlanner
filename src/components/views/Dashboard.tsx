@@ -8,9 +8,11 @@ import {
 } from '../../lib/selectors'
 import { TaskList } from '../tasks/TaskList'
 import { DoneTasksCollapsible } from '../tasks/DoneTasksCollapsible'
+import { DayProgressBar } from '../ui/DayProgressBar'
 
 export function Dashboard() {
   const tasks = usePlanStore((s) => s.data.tasks)
+  const showDayProgress = usePlanStore((s) => s.data.settings.dayProgress.showOnDashboard)
   const overdue = getOverdueTasks(tasks)
   const today = getTodayTasks(tasks)
   const todayDone = getDoneTodayTasks(tasks)
@@ -34,6 +36,9 @@ export function Dashboard() {
           Сегодня ({today.length}
           {todayDone.length > 0 ? ` + ${todayDone.length} ✓` : ''})
         </h2>
+        {showDayProgress && (
+          <DayProgressBar tasks={tasks} date={new Date()} showLabel className="day-progress--dashboard" />
+        )}
         <TaskList
           tasks={today}
           emptyTitle={

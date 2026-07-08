@@ -2,7 +2,7 @@
 setlocal
 cd /d "%~dp0"
 
-echo Закройте RuneBoard, если он запущен.
+echo Закройте PlanBoard, если он запущен.
 echo.
 
 if exist "dist-electron" (
@@ -17,7 +17,7 @@ if errorlevel 1 (
   exit /b 1
 )
 echo.
-echo Готово! Запускайте DoomPlanner.cmd
-echo Установщик: dist-electron\RuneBoard Setup *.exe
-echo Portable:   dist-electron\RuneBoard *.exe
+echo Готово! Запускайте PlanBoard.cmd
+echo Установщик: dist-electron\PlanBoard Setup *.exe
+echo Portable:   dist-electron\PlanBoard *.exe
 pause

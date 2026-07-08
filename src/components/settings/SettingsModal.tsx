@@ -32,6 +32,8 @@ export function SettingsModal() {
   const setCalendarSettings = usePlanStore((s) => s.setCalendarSettings)
   const daily = usePlanStore((s) => s.data.settings.daily)
   const setDailySettings = usePlanStore((s) => s.setDailySettings)
+  const dayProgress = usePlanStore((s) => s.data.settings.dayProgress)
+  const setDayProgressSettings = usePlanStore((s) => s.setDayProgressSettings)
   const exportSettings = usePlanStore((s) => s.data.settings.export)
   const setExportSettings = usePlanStore((s) => s.setExportSettings)
   const voiceInputEnabled = usePlanStore((s) => s.data.settings.voiceInputEnabled)
@@ -174,6 +176,24 @@ export function SettingsModal() {
                   />
                 </>
               )}
+
+              <h3 className="settings-section-title settings-section-title-spaced">
+                Прогресс дня
+              </h3>
+              <ThemedCheckbox
+                className="settings-check"
+                checked={dayProgress.showOnAgenda}
+                onChange={(v) => setDayProgressSettings({ showOnAgenda: v })}
+              >
+                Показывать в повестке дня
+              </ThemedCheckbox>
+              <ThemedCheckbox
+                className="settings-check"
+                checked={dayProgress.showOnDashboard}
+                onChange={(v) => setDayProgressSettings({ showOnDashboard: v })}
+              >
+                Показывать на дашборде (блок «Сегодня»)
+              </ThemedCheckbox>
 
               <h3 className="settings-section-title settings-section-title-spaced">
                 Экспорт текста

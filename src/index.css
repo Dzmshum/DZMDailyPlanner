@@ -544,6 +544,12 @@ html {
   display: flex;
   height: 100vh;
   overflow: hidden;
+  --view-padding-x: 24px;
+  --view-padding-y: 24px;
+  --content-indent: 11px;
+  --space-title-bottom: 12px;
+  --space-stack: 20px;
+  --space-section: 28px;
 }
 
 .sidebar {
@@ -728,9 +734,15 @@ html {
   text-align: left;
 }
 
-.nav-item:hover {
+.nav-item:hover:not(.active) {
   background: var(--bg-hover);
   color: var(--text-primary);
+}
+
+.nav-item.active:hover {
+  background: linear-gradient(90deg, var(--accent-soft) 0%, transparent 100%);
+  color: var(--accent);
+  filter: brightness(1.06);
 }
 
 .nav-item.active {
@@ -869,9 +881,15 @@ html {
   transition: background var(--transition), color var(--transition);
 }
 
-.settings-nav-item:hover {
+.settings-nav-item:hover:not(.active) {
   background: var(--bg-hover);
   color: var(--text-primary);
+}
+
+.settings-nav-item.active:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  filter: brightness(1.06);
 }
 
 .settings-nav-item.active {
@@ -1295,10 +1313,15 @@ html {
 .view-content {
   flex: 1;
   overflow-y: auto;
-  padding: 24px;
+  padding: var(--view-padding-y) var(--view-padding-x);
   display: flex;
   flex-direction: column;
   min-height: 0;
+}
+
+/* История: скролл без padding — sticky-заголовки прилипают к верху и краям */
+.view-content:has(> .history-view) {
+  padding: 0;
 }
 
 .btn {
@@ -1316,7 +1339,7 @@ html {
   transition: all var(--transition);
 }
 
-.btn:hover:not(.btn-primary):not(.btn-danger):not(.btn-danger-outline) {
+.btn:hover:not(.btn-primary):not(.btn-danger):not(.btn-danger-outline):not(.btn-accent):not(.btn-ghost):not(.segmented-control-item):not(.btn-nav-icon):not(.btn-nav-today):not(.btn-menu-trigger) {
   background: var(--bg-hover);
 }
 
@@ -1356,6 +1379,8 @@ html {
 
 .btn-danger:hover {
   background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
   filter: brightness(1.08);
 }
 
@@ -1445,7 +1470,7 @@ html {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: var(--space-stack);
   padding: 6px 8px 6px 6px;
   border: 1px solid var(--border-ice);
   border-radius: var(--radius);
@@ -1503,9 +1528,21 @@ html {
   white-space: nowrap;
 }
 
-.segmented-control-item:hover {
+.segmented-control-item:hover:not(.is-active) {
   color: var(--text-primary);
   background: var(--bg-hover);
+}
+
+.segmented-control-item.is-active:hover {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, var(--accent-hover) 0%, var(--accent) 100%);
+  color: #03060c;
+  filter: brightness(1.08);
+  box-shadow: 0 0 18px var(--accent-glow);
+}
+
+[data-theme='light'] .segmented-control-item.is-active:hover {
+  color: #fff;
 }
 
 .segmented-control-item.is-active {
@@ -1528,7 +1565,7 @@ html {
 }
 
 .section {
-  margin-bottom: 28px;
+  margin-bottom: var(--space-section);
 }
 
 .section-title {
@@ -1537,7 +1574,8 @@ html {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-muted);
-  margin: 0 0 12px;
+  margin: 0 0 var(--space-title-bottom);
+  padding-left: var(--content-indent);
 }
 
 .section-title.danger {
@@ -2016,6 +2054,84 @@ html {
   min-height: 0;
 }
 
+.day-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.day-progress--agenda {
+  margin-top: 4px;
+}
+
+.day-progress--dashboard {
+  margin-top: -4px;
+  margin-bottom: 12px;
+}
+
+.day-progress--compact {
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.day-progress-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+.day-progress-track {
+  flex: 1;
+  min-width: 72px;
+  height: 8px;
+  background: color-mix(in srgb, var(--border) 85%, transparent);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.day-progress--compact .day-progress-track {
+  flex: 0 1 96px;
+  min-width: 48px;
+  height: 6px;
+}
+
+.day-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width 0.35s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .day-progress-fill {
+    transition: none;
+  }
+}
+
+.day-progress-fraction {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.day-progress--compact .day-progress-fraction {
+  font-size: 0.75rem;
+}
+
+.day-progress--empty:not(.day-progress--compact) .day-progress-fraction {
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.header-day-progress {
+  margin-left: 8px;
+}
+
 .agenda-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
@@ -2054,6 +2170,7 @@ html {
 
 .agenda-sidebar-header .section-title {
   margin: 0;
+  padding-left: 0;
 }
 
 .agenda-section {
@@ -2104,8 +2221,8 @@ html {
   align-items: center;
   gap: 8px;
   width: 100%;
-  padding: 0;
-  margin: 0 0 12px;
+  padding: 0 0 0 var(--content-indent);
+  margin: 0 0 var(--space-title-bottom);
   border: none;
   background: transparent;
   color: inherit;
@@ -2115,6 +2232,7 @@ html {
 
 .agenda-done-header .section-title {
   margin: 0;
+  padding-left: 0;
   flex: 1;
 }
 
@@ -2163,7 +2281,7 @@ html {
   font-weight: 600;
   color: var(--text-muted);
   margin: 0 0 8px;
-  padding-left: 4px;
+  padding-left: var(--content-indent);
 }
 
 .agenda-all-done-hint {
@@ -2675,9 +2793,16 @@ html.lightbox-open .view-content {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
-.chip:hover {
+.chip:hover:not(.active) {
   border-color: var(--accent);
   color: var(--accent);
+}
+
+.chip.active:hover {
+  background: color-mix(in srgb, var(--accent-soft) 75%, var(--accent) 25%);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 14px var(--accent-glow);
 }
 
 .chip.active {
@@ -2697,6 +2822,11 @@ html.lightbox-open .view-content {
 }
 
 @media (max-width: 640px) {
+  .app-layout {
+    --view-padding-x: 16px;
+    --view-padding-y: 16px;
+  }
+
   .task-form-grid,
   .task-form-quick {
     grid-template-columns: 1fr;
@@ -2721,6 +2851,18 @@ html.lightbox-open .view-content {
   font-size: 0.75rem;
   cursor: pointer;
   transition: all var(--transition);
+}
+
+.theme-btn:hover:not(.active) {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.theme-btn.active:hover {
+  background: var(--bg-secondary);
+  color: var(--accent);
+  filter: brightness(1.06);
+  box-shadow: var(--shadow), 0 0 14px var(--accent-glow);
 }
 
 .theme-btn.active {
@@ -2868,9 +3010,16 @@ html.lightbox-open .view-content {
   transition: border-color var(--transition), background var(--transition), color var(--transition);
 }
 
-.daily-day-chip:hover {
+.daily-day-chip:hover:not(.active) {
   border-color: var(--accent);
   color: var(--text-primary);
+}
+
+.daily-day-chip.active:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent-soft) 75%, var(--accent) 25%);
+  color: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
 }
 
 .daily-day-chip.active {
@@ -3140,7 +3289,7 @@ html.lightbox-open .view-content {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 0;
+  padding: 8px 0 8px var(--content-indent);
   cursor: pointer;
   user-select: none;
 }
@@ -3261,7 +3410,7 @@ html.lightbox-open .view-content {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: var(--space-stack);
   align-items: center;
 }
 
@@ -3347,6 +3496,7 @@ html.lightbox-open .view-content {
 .btn-accent:hover {
   background: color-mix(in srgb, var(--accent) 18%, transparent);
   border-color: var(--accent);
+  color: var(--accent);
   box-shadow: 0 0 14px var(--accent-glow);
   filter: none;
   transform: none;
@@ -3613,6 +3763,7 @@ html.lightbox-open .view-content {
   letter-spacing: 0.06em;
   color: var(--text-muted);
   margin: 0 0 8px;
+  padding-left: var(--content-indent);
 }
 
 .minimal-list {
@@ -4045,22 +4196,48 @@ html.lightbox-open .view-content {
   min-height: 0;
 }
 
+.history-view .filters-bar {
+  margin-bottom: var(--space-stack);
+}
+
+.history-view {
+  padding: var(--view-padding-y) var(--view-padding-x);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: min-content;
+}
+
 .history-groups {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
+}
+
+.history-day-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .history-day-title {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   color: var(--text-muted);
-  margin: 0 0 8px;
   position: sticky;
   top: 0;
-  background: var(--bg-primary);
-  padding: 4px 0;
+  z-index: 3;
+  box-sizing: border-box;
+  width: calc(100% + 2 * var(--view-padding-x));
+  max-width: calc(100% + 2 * var(--view-padding-x));
+  margin: 0 calc(-1 * var(--view-padding-x)) var(--space-title-bottom);
+  padding: 10px var(--view-padding-x) 10px calc(var(--view-padding-x) + var(--content-indent));
+  background: color-mix(in srgb, var(--bg-primary) 97%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
 }
 
 .quick-capture-form,
@@ -4288,7 +4465,7 @@ html.lightbox-open .view-content {
 }
 
 .daily-history-section {
-  margin-bottom: 24px;
+  margin-bottom: var(--space-section);
   padding-bottom: 16px;
   border-bottom: 1px dashed var(--border);
 }
@@ -4300,6 +4477,7 @@ html.lightbox-open .view-content {
   font-weight: 500;
   color: var(--text-muted);
   user-select: none;
+  padding-left: var(--content-indent);
 }
 
 .daily-history-summary::-webkit-details-marker {
@@ -4328,10 +4506,10 @@ html.lightbox-open .view-content {
 .daily-history-list {
   list-style: none;
   margin: 10px 0 0;
-  padding: 0;
+  padding: 0 0 0 var(--content-indent);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .daily-history-item {
@@ -4381,6 +4559,7 @@ html.lightbox-open .view-content {
   font-weight: 500;
   color: var(--text-muted);
   user-select: none;
+  padding-left: var(--content-indent);
 }
 
 .daily-deferred-summary::-webkit-details-marker {
@@ -4404,6 +4583,7 @@ html.lightbox-open .view-content {
 
 .daily-deferred-hint {
   margin: 8px 0 10px;
+  padding-left: var(--content-indent);
 }
 
 .daily-undone-section {
@@ -4419,6 +4599,7 @@ html.lightbox-open .view-content {
   font-weight: 500;
   color: var(--text-muted);
   user-select: none;
+  padding-left: var(--content-indent);
 }
 
 .daily-undone-summary::-webkit-details-marker {
