@@ -210,7 +210,9 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 | 8.5 | Данные переживают пересборку | [ ] |
 | 8.6 | Минималистичный режим окна — компактная вёрстка v0.29.1 | [x] |
 | 8.6a | Окно 280px: чекбоксы compact, line-clamp задач, короткий футер | [ ] |
-| 8.6b | `npx tsx scripts/verify-minimal-window.mjs` — 21 проверка | [x] |
+| 8.6b | `pnpm test:minimal` / `verify-minimal-window.mjs` — 30 проверок | [x] |
+| 8.6c | Позиция окна запоминается отдельно для standard / minimal (`window-layouts.json`) | [x] |
+| 8.6d | В minimal-шапке: обычное окно + полный экран + закрыть | [x] |
 
 ---
 

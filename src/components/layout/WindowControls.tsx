@@ -28,8 +28,12 @@ export function WindowControls({ compact = false }: { compact?: boolean }) {
     setWindowMode('minimal')
   }
 
-  const handleRestore = () => {
+  const handleStandard = () => {
     setWindowMode('standard')
+  }
+
+  const handleMaximizedMode = () => {
+    setWindowMode('maximized')
   }
 
   return (
@@ -46,15 +50,26 @@ export function WindowControls({ compact = false }: { compact?: boolean }) {
         </button>
       )}
       {compact && (
-        <button
-          type="button"
-          className="window-control-btn"
-          onClick={handleRestore}
-          title="Развернуть"
-          aria-label="Развернуть"
-        >
-          <UiIcon icon="window-expand" size="xs" />
-        </button>
+        <>
+          <button
+            type="button"
+            className="window-control-btn"
+            onClick={handleStandard}
+            title="Обычное окно"
+            aria-label="Обычное окно"
+          >
+            <UiIcon icon="window-expand" size="xs" />
+          </button>
+          <button
+            type="button"
+            className="window-control-btn"
+            onClick={handleMaximizedMode}
+            title="На весь экран"
+            aria-label="На весь экран"
+          >
+            <UiIcon icon="window-maximize" size="xs" />
+          </button>
+        </>
       )}
       {!compact && (
         <button

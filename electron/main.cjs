@@ -11,6 +11,7 @@ const {
   deleteAttachmentFile,
   deleteTaskAttachments,
 } = require('./attachments-file.cjs')
+const { loadWindowLayouts, saveWindowLayout } = require('./window-layouts.cjs')
 
 const isDev =
   process.env.NODE_ENV === 'development' || !app.isPackaged
@@ -21,43 +22,171 @@ let mainWindow = null
 /** @type {'standard' | 'maximized' | 'minimal'} */
 let currentWindowMode = 'standard'
 
-function applyWindowMode(mode) {
-  if (!mainWindow) return
-  currentWindowMode = mode
+/** @type {{ standard?: import('./window-layouts.cjs').WindowLayout, minimal?: import('./window-layouts.cjs').WindowLayout }} */
+let windowLayouts = loadWindowLayouts()
+
+let suppressLayoutCapture = false
+/** @type {ReturnType<typeof setTimeout> | null} */
+let layoutSaveTimer = null
+
+const MINIMAL_SIZE = { minWidth: 260, minHeight: 280, maxWidth: 380, maxHeight: 640 }
+const STANDARD_SIZE = { minWidth: 900, minHeight: 600, maxWidth: 10000, maxHeight: 10000 }
+
+function defaultStandardLayout() {
+  const { workArea } = screen.getPrimaryDisplay()
+  const width = 1200
+  const height = 800
+  return {
+    x: workArea.x + Math.round((workArea.width - width) / 2),
+    y: workArea.y + Math.round((workArea.height - height) / 2),
+    width,
+    height,
+  }
+}
+
+function defaultMinimalLayout() {
+  const { workArea } = screen.getPrimaryDisplay()
+  const width = 280
+  const height = 380
+  return {
+    x: workArea.x + workArea.width - width - 12,
+    y: workArea.y + 12,
+    width,
+    height,
+  }
+}
+
+/** @param {import('./window-layouts.cjs').WindowLayout} layout @param {'standard' | 'minimal'} mode */
+function clampLayout(layout, mode) {
+  const display = screen.getDisplayMatching(layout)
+  const { workArea } = display
+  let { x, y, width, height } = layout
 
   if (mode === 'minimal') {
-    const { workArea } = screen.getPrimaryDisplay()
-    mainWindow.setMinimumSize(260, 280)
-    mainWindow.setMaximumSize(380, 640)
-    mainWindow.setSize(280, 380)
-    mainWindow.setAlwaysOnTop(true, 'floating')
-    mainWindow.setPosition(workArea.x + workArea.width - 280 - 12, workArea.y + 12)
-    if (mainWindow.isMaximized()) mainWindow.unmaximize()
-    return
-  }
-
-  mainWindow.setAlwaysOnTop(false)
-  mainWindow.setMinimumSize(900, 600)
-  mainWindow.setMaximumSize(10000, 10000)
-
-  if (mode === 'maximized') {
-    mainWindow.maximize()
+    width = Math.min(MINIMAL_SIZE.maxWidth, Math.max(MINIMAL_SIZE.minWidth, width))
+    height = Math.min(MINIMAL_SIZE.maxHeight, Math.max(MINIMAL_SIZE.minHeight, height))
   } else {
-    if (mainWindow.isMaximized()) mainWindow.unmaximize()
-    mainWindow.setSize(1200, 800)
-    mainWindow.center()
+    width = Math.max(STANDARD_SIZE.minWidth, Math.min(width, workArea.width))
+    height = Math.max(STANDARD_SIZE.minHeight, Math.min(height, workArea.height))
   }
+
+  const minVisibleX = 80
+  const minVisibleY = 48
+  x = Math.min(
+    Math.max(x, workArea.x - width + minVisibleX),
+    workArea.x + workArea.width - minVisibleX,
+  )
+  y = Math.min(
+    Math.max(y, workArea.y),
+    workArea.y + workArea.height - minVisibleY,
+  )
+
+  return {
+    x: Math.round(x),
+    y: Math.round(y),
+    width: Math.round(width),
+    height: Math.round(height),
+  }
+}
+
+function captureCurrentLayout(mode = currentWindowMode) {
+  if (!mainWindow || suppressLayoutCapture || mode === 'maximized') return
+  if (mainWindow.isMaximized()) return
+
+  const bounds = mainWindow.getBounds()
+  const layout = {
+    x: bounds.x,
+    y: bounds.y,
+    width: bounds.width,
+    height: bounds.height,
+  }
+
+  if (mode === 'standard' || mode === 'minimal') {
+    const clamped = clampLayout(layout, mode)
+    windowLayouts = saveWindowLayout(mode, clamped, windowLayouts)
+  }
+}
+
+function scheduleLayoutSave() {
+  if (layoutSaveTimer) clearTimeout(layoutSaveTimer)
+  layoutSaveTimer = setTimeout(() => {
+    layoutSaveTimer = null
+    captureCurrentLayout(currentWindowMode)
+  }, 250)
+}
+
+function runWithoutLayoutCapture(fn) {
+  suppressLayoutCapture = true
+  try {
+    fn()
+  } finally {
+    setTimeout(() => {
+      suppressLayoutCapture = false
+    }, 150)
+  }
+}
+
+/** @param {import('./window-layouts.cjs').WindowLayout} layout @param {'standard' | 'minimal'} mode */
+function applyLayout(layout, mode) {
+  if (!mainWindow) return
+  mainWindow.setBounds(clampLayout(layout, mode))
+}
+
+function applyWindowMode(mode) {
+  if (!mainWindow) return
+
+  if (currentWindowMode !== mode) {
+    captureCurrentLayout(currentWindowMode)
+  }
+
+  currentWindowMode = mode
+
+  runWithoutLayoutCapture(() => {
+    if (mode === 'minimal') {
+      mainWindow.setMinimumSize(MINIMAL_SIZE.minWidth, MINIMAL_SIZE.minHeight)
+      mainWindow.setMaximumSize(MINIMAL_SIZE.maxWidth, MINIMAL_SIZE.maxHeight)
+      mainWindow.setAlwaysOnTop(true, 'floating')
+      if (mainWindow.isMaximized()) mainWindow.unmaximize()
+      applyLayout(windowLayouts.minimal ?? defaultMinimalLayout(), 'minimal')
+      return
+    }
+
+    mainWindow.setAlwaysOnTop(false)
+    mainWindow.setMinimumSize(STANDARD_SIZE.minWidth, STANDARD_SIZE.minHeight)
+    mainWindow.setMaximumSize(STANDARD_SIZE.maxWidth, STANDARD_SIZE.maxHeight)
+
+    if (mode === 'maximized') {
+      if (mainWindow.isMaximized()) return
+      mainWindow.maximize()
+      return
+    }
+
+    if (mainWindow.isMaximized()) mainWindow.unmaximize()
+    applyLayout(windowLayouts.standard ?? defaultStandardLayout(), 'standard')
+  })
+}
+
+function attachWindowLayoutListeners() {
+  if (!mainWindow) return
+  mainWindow.on('moved', scheduleLayoutSave)
+  mainWindow.on('resized', scheduleLayoutSave)
+  mainWindow.on('close', () => {
+    captureCurrentLayout(currentWindowMode)
+  })
 }
 
 function createWindow() {
   const iconPath = path.join(__dirname, '..', 'resources', 'icon.png')
   const fallbackIcon = path.join(__dirname, '..', 'build', 'icon.png')
   const windowIcon = require('fs').existsSync(iconPath) ? iconPath : fallbackIcon
+  const initialStandard = windowLayouts.standard ?? defaultStandardLayout()
   const windowOptions = {
-    width: 1200,
-    height: 800,
-    minWidth: 900,
-    minHeight: 600,
+    width: initialStandard.width,
+    height: initialStandard.height,
+    x: initialStandard.x,
+    y: initialStandard.y,
+    minWidth: STANDARD_SIZE.minWidth,
+    minHeight: STANDARD_SIZE.minHeight,
     title: 'PlanBoard',
     frame: false,
     autoHideMenuBar: true,
@@ -73,6 +202,7 @@ function createWindow() {
   }
 
   mainWindow = new BrowserWindow(windowOptions)
+  attachWindowLayoutListeners()
 
   if (isDev) {
     mainWindow.loadURL('http://127.0.0.1:5173')
@@ -145,7 +275,15 @@ ipcMain.handle('window-toggle-maximize', () => {
   if (!mainWindow) return false
   if (mainWindow.isMaximized()) {
     mainWindow.unmaximize()
+    if (currentWindowMode === 'standard') {
+      runWithoutLayoutCapture(() => {
+        applyLayout(windowLayouts.standard ?? defaultStandardLayout(), 'standard')
+      })
+    }
   } else {
+    if (currentWindowMode === 'standard') {
+      captureCurrentLayout('standard')
+    }
     mainWindow.maximize()
   }
   return mainWindow.isMaximized()
@@ -240,6 +378,10 @@ app.whenReady().then(() => {
       createWindow()
     }
   })
+})
+
+app.on('before-quit', () => {
+  captureCurrentLayout(currentWindowMode)
 })
 
 app.on('window-all-closed', () => {

@@ -41,7 +41,9 @@
   - заголовки задач: `line-clamp: 2`, ellipsis
 - [x] **Electron:** `setMinimumSize(260, 280)`, дефолт `280×380`, max `380×640`
 - [x] **Адаптив:** `@container minimal` — плавное ужатие при ресайзе
-- [x] `verify-minimal-window.mjs` — 21 проверка; в `pnpm test`
+- [x] **Позиция окна по режимам** — `window-layouts.json`: отдельно `standard` / `minimal`; restore при переключении, debounce при drag/resize
+- [x] **Шапка minimal** — кнопки «Обычное окно» + «На весь экран» + закрыть
+- [x] `verify-minimal-window.mjs` — 30 проверок; в `pnpm test`
 
 **Критерии:**
 - [x] Окно 280px шириной читаемо: больше задач на экране за счёт компактной вёрстки
@@ -464,10 +466,10 @@ apps/
 **Чеклист перед закрытием версии:**
 - [x] `pnpm build` успешен
 - [x] `pnpm electron:build` успешен *(v0.22.2)*
-- [x] `pnpm test` — calendar + 10 verify (settings-ui 52, day-progress 11, …) *(v0.29)*
+- [x] `pnpm test` — calendar + 11 verify (…, minimal-window 30) ≈ **304** *(v0.29.1)*
 - [ ] `pnpm lint` без новых предупреждений *(есть warnings в scripts)*
 - [ ] Ручной прогон пунктов из `TESTS.md` для изменённых областей
-- [ ] В `TESTS.md` добавлены строки под новые фичи
+- [x] В `TESTS.md` добавлены строки под новые фичи
 - [x] Краткая заметка в ROADMAP
 
 > Список тестов живой — **обновлять `TESTS.md` при каждой новой фиче**, не только в конце версии.
@@ -486,7 +488,7 @@ apps/
 | `dailyMeetings.ts`, `DailyReportView` | ✅ дейлики + read-only отчёт + UI дней (v0.25.4); **v0.26** — группировка похожих |
 | `verify-daily-meetings.mjs` | ✅ проверка логики (без Vitest) |
 | `ProjectsView` | ✅ отдельная вкладка |
-| `MinimalView`, IPC `window-mode` | ✅ минимальное окно; **v0.29.1** — компактная вёрстка, container queries |
+| `MinimalView`, IPC `window-mode` | ✅ minimal; **v0.29.1** — компактная вёрстка, `window-layouts.json`, кнопки режимов в шапке |
 | `UiIcon`, `ThemedCheckbox`, `public/icons/ui/` | ✅ окно, закрыть, шевроны, чекбоксы, настройки |
 | `useSpeechRecognition`, `VoiceInputField` | ⚠️ голос — UI готов, в Electron нестабильно |
 | `getDoneTasksGroupedByDate` | ✅ группировка истории |
@@ -518,7 +520,9 @@ apps/
 - [x] `TaskCompleteToggle size="compact"`; `BrandMark xs` + wordmark с `@container` swap
 - [x] Футер: `flex-wrap`, короткие подписи на узкой ширине; `line-clamp: 2` у задач
 - [x] Electron: min `260×280`, дефолт `280×380`, max `380×640`
-- [x] `verify-minimal-window.mjs` — 21 проверка
+- [x] `window-layouts.json` — позиция/размер отдельно для `standard` и `minimal`
+- [x] Шапка minimal: обычное окно, полный экран, закрыть
+- [x] `verify-minimal-window.mjs` — 30 проверок
 
 ---
 

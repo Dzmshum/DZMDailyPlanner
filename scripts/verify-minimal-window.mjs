@@ -11,6 +11,8 @@ const minimalView = readFileSync(join(root, 'src/components/layout/MinimalView.t
 const taskToggle = readFileSync(join(root, 'src/components/tasks/TaskCompleteToggle.tsx'), 'utf8')
 const brandMark = readFileSync(join(root, 'src/components/layout/BrandMark.tsx'), 'utf8')
 const mainCjs = readFileSync(join(root, 'electron/main.cjs'), 'utf8')
+const windowLayouts = readFileSync(join(root, 'electron/window-layouts.cjs'), 'utf8')
+const windowControls = readFileSync(join(root, 'src/components/layout/WindowControls.tsx'), 'utf8')
 
 let failed = 0
 let passed = 0
@@ -48,9 +50,20 @@ assert('TaskCompleteToggle compact class', taskToggle.includes('task-complete-wr
 assert('BrandMark xs size', brandMark.includes("'xs'"))
 
 // --- Electron IPC limits ---
-assert('electron minimal min width 260', mainCjs.includes('setMinimumSize(260, 280)'))
-assert('electron minimal max width 380', mainCjs.includes('setMaximumSize(380, 640)'))
-assert('electron minimal default 280x380', mainCjs.includes('setSize(280, 380)'))
+assert('electron minimal min width 260', mainCjs.includes('minWidth: 260'))
+assert('electron minimal max width 380', mainCjs.includes('maxWidth: 380'))
+assert('electron minimal default 280x380', mainCjs.includes('defaultMinimalLayout()'))
+
+// --- Window layout memory ---
+assert('window-layouts module', windowLayouts.includes('loadWindowLayouts') && windowLayouts.includes('saveWindowLayout'))
+assert('window-layouts writes cache', windowLayouts.includes('writeWindowLayouts'))
+assert('window-layouts json file', windowLayouts.includes('window-layouts.json'))
+assert('main loads window layouts', mainCjs.includes('loadWindowLayouts'))
+assert('main captures layout on mode switch', mainCjs.includes('captureCurrentLayout'))
+assert('main restores saved layout', mainCjs.includes('applyLayout(windowLayouts'))
+assert('main moved/resized listeners', mainCjs.includes("mainWindow.on('moved'") && mainCjs.includes("mainWindow.on('resized'"))
+assert('compact controls standard mode', windowControls.includes("setWindowMode('standard')"))
+assert('compact controls maximized mode', windowControls.includes("setWindowMode('maximized')"))
 
 if (failed > 0) {
   console.error(`\n${failed} failed, ${passed} passed`)

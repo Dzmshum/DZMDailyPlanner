@@ -57,7 +57,7 @@ pnpm dev
 | `pnpm build` | Фронтенд в `build\` (+ иконки, календарь РФ) |
 | `pnpm icons` | Пересобрать PNG из `*-source.png` |
 | `pnpm calendar` | Обновить производственный календарь РФ |
-| `pnpm test` | Автотесты: календарь РФ + дейлики (49) + … + настройки UI (60) + зачёт (12) + прогресс (11) + minimal (21) ≈ **295** |
+| `pnpm test` | Автотесты: календарь РФ + дейлики (49) + … + minimal (30) ≈ **304** |
 | `pnpm test:export` | `verify-export-text.mjs` — выгрузка Telegram |
 | `pnpm test:settings` | `verify-settings-ui.mjs` — модалка, layout, hover, прогресс |
 | `pnpm test:credit` | `verify-task-credit.mjs` — зачёт просроченных в день закрытия |
@@ -95,7 +95,7 @@ pnpm dev
 
 - **Быстрый захват** — `Q` / `Й`, задача без даты во входящие (можно только фото)
 - **Фото к задачам** — вложения в форме и быстром захвате: `Ctrl+V`, drag-and-drop, файл; лайтбокс из списка
-- **Минимальное окно** — компактный режим Electron (⚙ → Режим окна); v0.29.1 — плотная вёрстка, узкий дефолт 280px
+- **Минимальное окно** — компактный режим Electron (⚙ → Режим окна); v0.29.1 — плотная вёрстка, запоминание позиции по режимам, кнопки «обычное» / «полный экран» в шапке
 - **Jira** — экспорт задачи в Jira Cloud (только Electron)
 - **Текст TG** — выгрузка плана для Telegram (`Ctrl+Shift+C`): период, сделанное за N дней (кратко), задачи без срока — по чекбоксам
 - **Голосовой ввод** — микрофон в полях текста (`Ctrl+Shift+V`, ⚙ → включить)
@@ -174,6 +174,8 @@ pnpm electron:build
 **Вложения (фото):** `%APPDATA%\PlanBoard\attachments\{taskId}\` — файлы JPEG на диске; метаданные в `plan.json`. При импорте JSON только метаданные (файлы нужно копировать вручную или оставить на том же ПК).
 
 Резервная копия: `%APPDATA%\PlanBoard\plan.json.bak`
+
+Позиция окна по режимам (standard / minimal): `%APPDATA%\PlanBoard\window-layouts.json`
 
 Данные **не стираются** при пересборке .exe — они вне папки программы.
 
@@ -329,7 +331,7 @@ PlanBoard/
 | `verify-settings-ui.mjs` | 60 |
 | `verify-task-credit.mjs` | 12 |
 | `verify-day-progress.mjs` | 11 |
-| `verify-minimal-window.mjs` | 21 |
+| `verify-minimal-window.mjs` | 30 |
 
 ---
 
