@@ -5,6 +5,7 @@ interface TaskCompleteToggleProps {
   onToggle: () => void
   taskTitle: string
   status?: TaskStatus
+  size?: 'default' | 'compact'
 }
 
 export function TaskCompleteToggle({
@@ -12,12 +13,14 @@ export function TaskCompleteToggle({
   onToggle,
   taskTitle,
   status = 'todo',
+  size = 'default',
 }: TaskCompleteToggleProps) {
   const label = checked ? 'Вернуть' : 'Готово'
+  const compact = size === 'compact'
 
   return (
     <div
-      className={`task-complete-wrap ${checked ? 'is-done' : ''} status-${status}`}
+      className={`task-complete-wrap ${checked ? 'is-done' : ''} status-${status}${compact ? ' task-complete-wrap--compact' : ''}`}
       onClick={(e) => e.stopPropagation()}
     >
       <button

@@ -3,7 +3,7 @@ import { usePlanStore } from '../../store/planStore'
 import { assetUrl } from '../../lib/assetUrl'
 
 interface BrandMarkProps {
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'xs' | 'sm' | 'md' | 'lg'
   variant?: 'icon' | 'wordmark'
   palette?: ColorPalette
 }

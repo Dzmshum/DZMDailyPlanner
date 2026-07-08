@@ -32,7 +32,8 @@ export function MinimalView() {
   return (
     <div className="minimal-layout">
       <header className="minimal-header titlebar">
-        <div className="titlebar-drag">
+        <div className="titlebar-drag minimal-brand">
+          <BrandMark variant="icon" size="xs" />
           <BrandMark variant="wordmark" size="sm" />
         </div>
         <div className="titlebar-no-drag">
@@ -53,6 +54,7 @@ export function MinimalView() {
                     checked={false}
                     taskTitle={task.title}
                     onToggle={() => toggleTaskDone(task.id)}
+                    size="compact"
                   />
                   <button
                     type="button"
@@ -77,6 +79,7 @@ export function MinimalView() {
                     checked={false}
                     taskTitle={task.title}
                     onToggle={() => toggleTaskDone(task.id)}
+                    size="compact"
                   />
                   <button
                     type="button"
@@ -93,14 +96,33 @@ export function MinimalView() {
       </div>
 
       <footer className="minimal-footer">
-        <button type="button" className="btn btn-sm" onClick={openQuickCapture}>
-          Быстро (Q / Й)
+        <button
+          type="button"
+          className="btn btn-sm minimal-footer-btn"
+          onClick={openQuickCapture}
+          aria-label="Быстрый захват (Q / Й)"
+        >
+          <span className="minimal-btn-label">Быстро (Q / Й)</span>
+          <span className="minimal-btn-label-short">Быстро</span>
         </button>
-        <button type="button" className="btn btn-sm btn-primary" onClick={openNewTask}>
+        <button
+          type="button"
+          className="btn btn-sm btn-primary minimal-footer-btn"
+          onClick={openNewTask}
+          aria-label="Новая задача"
+        >
           +
         </button>
-        <button type="button" className="btn btn-sm" onClick={() => void handleExpand()}>
-          Развернуть
+        <button
+          type="button"
+          className="btn btn-sm minimal-footer-btn"
+          onClick={() => void handleExpand()}
+          aria-label="Развернуть окно"
+        >
+          <span className="minimal-btn-label">Развернуть</span>
+          <span className="minimal-btn-label-short" aria-hidden>
+            ↗
+          </span>
         </button>
       </footer>
     </div>

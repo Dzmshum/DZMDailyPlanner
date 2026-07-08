@@ -27,11 +27,11 @@ function applyWindowMode(mode) {
 
   if (mode === 'minimal') {
     const { workArea } = screen.getPrimaryDisplay()
-    mainWindow.setMinimumSize(280, 360)
-    mainWindow.setMaximumSize(420, 720)
-    mainWindow.setSize(320, 480)
+    mainWindow.setMinimumSize(260, 280)
+    mainWindow.setMaximumSize(380, 640)
+    mainWindow.setSize(280, 380)
     mainWindow.setAlwaysOnTop(true, 'floating')
-    mainWindow.setPosition(workArea.x + workArea.width - 320 - 12, workArea.y + 12)
+    mainWindow.setPosition(workArea.x + workArea.width - 280 - 12, workArea.y + 12)
     if (mainWindow.isMaximized()) mainWindow.unmaximize()
     return
   }

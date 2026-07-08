@@ -605,6 +605,11 @@ html {
   height: 28px;
 }
 
+.brand-mark-xs {
+  width: 18px;
+  height: 18px;
+}
+
 .sidebar-brand .brand-mark-md {
   filter: drop-shadow(0 0 8px var(--accent-glow));
 }
@@ -2023,6 +2028,32 @@ html {
 
 .task-complete-toggle:active .task-complete-plate {
   transform: scale(0.92);
+}
+
+.task-complete-wrap--compact {
+  width: 28px;
+}
+
+.task-complete-wrap--compact .task-complete-toggle {
+  width: 28px;
+  height: 28px;
+}
+
+.task-complete-wrap--compact .task-complete-aura {
+  inset: -4px;
+}
+
+.task-complete-wrap--compact .task-complete-plate {
+  inset: 2px;
+  border-width: 1.5px;
+}
+
+.task-complete-wrap--compact .task-complete-rune {
+  padding: 5px;
+}
+
+.task-complete-wrap--compact .task-complete-slide {
+  display: none;
 }
 
 @keyframes runeIgnite {
@@ -3725,8 +3756,22 @@ html.lightbox-open .view-content {
   font-size: 0.95rem;
 }
 
-/* v0.17 minimal window */
+/* v0.17 minimal window — v0.29.1 compact layout */
 .minimal-layout {
+  --minimal-font-title: 0.68rem;
+  --minimal-font-body: 0.78rem;
+  --minimal-font-empty: 0.72rem;
+  --minimal-line-height: 1.25;
+  --minimal-gap-item: 5px;
+  --minimal-gap-section: 10px;
+  --minimal-gap-footer: 4px;
+  --minimal-pad-header: 5px 7px;
+  --minimal-pad-body: 6px 7px;
+  --minimal-pad-footer: 6px 7px;
+  --minimal-pad-item: 3px 0;
+  --minimal-content-indent: 0;
+  container-type: inline-size;
+  container-name: minimal;
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -3738,32 +3783,56 @@ html.lightbox-open .view-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 10px;
+  padding: var(--minimal-pad-header);
   border-bottom: 1px solid var(--border);
+  gap: 4px;
+  min-height: 0;
+}
+
+.minimal-brand {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.minimal-brand .brand-mark-wordmark {
+  display: block;
+  flex-shrink: 1;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.minimal-brand .brand-mark-xs {
+  display: none;
+  flex-shrink: 0;
 }
 
 .minimal-title {
-  font-size: 0.85rem;
+  font-size: var(--minimal-font-body);
   font-weight: 600;
+  line-height: var(--minimal-line-height);
 }
 
 .minimal-body {
   flex: 1;
   overflow: auto;
-  padding: 10px;
+  padding: var(--minimal-pad-body);
+  min-height: 0;
 }
 
 .minimal-section + .minimal-section {
-  margin-top: 14px;
+  margin-top: var(--minimal-gap-section);
 }
 
 .minimal-section-title {
-  font-size: 0.75rem;
+  font-size: var(--minimal-font-title);
+  line-height: var(--minimal-line-height);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   color: var(--text-muted);
-  margin: 0 0 8px;
-  padding-left: var(--content-indent);
+  margin: 0 0 5px;
+  padding-left: var(--minimal-content-indent);
 }
 
 .minimal-list {
@@ -3774,37 +3843,82 @@ html.lightbox-open .view-content {
 
 .minimal-item {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 0;
+  align-items: flex-start;
+  gap: var(--minimal-gap-item);
+  padding: var(--minimal-pad-item);
   border-bottom: 1px solid var(--border);
 }
 
 .minimal-item-title {
   flex: 1;
+  min-width: 0;
   text-align: left;
   background: none;
   border: none;
   color: var(--text-primary);
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: var(--minimal-font-body);
+  line-height: var(--minimal-line-height);
+  padding: 1px 0 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .minimal-footer {
   display: flex;
-  gap: 6px;
-  padding: 10px;
+  flex-wrap: wrap;
+  gap: var(--minimal-gap-footer);
+  padding: var(--minimal-pad-footer);
   border-top: 1px solid var(--border);
 }
 
+.minimal-footer-btn {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 4px 6px;
+  font-size: var(--minimal-font-body);
+  line-height: var(--minimal-line-height);
+}
+
+.minimal-btn-label-short {
+  display: none;
+}
+
 .minimal-empty {
-  font-size: 0.8rem;
+  font-size: var(--minimal-font-empty);
+  line-height: var(--minimal-line-height);
   color: var(--text-muted);
+  margin: 0;
+}
+
+@container minimal (max-width: 300px) {
+  .minimal-brand .brand-mark-wordmark {
+    display: none;
+  }
+
+  .minimal-brand .brand-mark-xs {
+    display: block;
+  }
+
+  .minimal-btn-label {
+    display: none;
+  }
+
+  .minimal-btn-label-short {
+    display: inline;
+  }
+
+  .minimal-footer-btn:not(.btn-primary) {
+    flex: 0 1 auto;
+    padding-inline: 8px;
+  }
 }
 
 .window-controls-compact .window-control-btn {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
 }
 
 /* calendar views */

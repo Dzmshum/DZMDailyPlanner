@@ -8,7 +8,9 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "electron",
-      "electron-winstaller"
+      "electron-winstaller",
+      "esbuild",
+      "sharp"
     ]
   },
   "scripts": {
@@ -16,17 +18,18 @@
     "build": "node scripts/build-production-calendar.mjs && node scripts/generate-icon.mjs && tsc -b && vite build && node scripts/strip-icon-sources.mjs",
     "icons": "node scripts/generate-icon.mjs",
     "calendar": "node scripts/build-production-calendar.mjs",
-    "test": "node scripts/build-production-calendar.mjs && npx --yes tsx scripts/verify-daily-meetings.mjs && npx --yes tsx scripts/verify-attachments.mjs && npx --yes tsx scripts/verify-month-calendar.mjs && npx --yes tsx scripts/verify-holiday-labels.mjs && npx --yes tsx scripts/verify-projects.mjs && npx --yes tsx scripts/verify-palettes.mjs && npx --yes tsx scripts/verify-export-text.mjs && npx --yes tsx scripts/verify-settings-ui.mjs && npx --yes tsx scripts/verify-task-credit.mjs && npx --yes tsx scripts/verify-day-progress.mjs",
-    "test:daily": "npx --yes tsx scripts/verify-daily-meetings.mjs",
-    "test:attachments": "npx --yes tsx scripts/verify-attachments.mjs",
-    "test:month": "npx --yes tsx scripts/verify-month-calendar.mjs",
-    "test:holidays": "npx --yes tsx scripts/verify-holiday-labels.mjs",
-    "test:projects": "npx --yes tsx scripts/verify-projects.mjs",
-    "test:palettes": "npx --yes tsx scripts/verify-palettes.mjs",
-    "test:export": "npx --yes tsx scripts/verify-export-text.mjs",
-    "test:settings": "npx --yes tsx scripts/verify-settings-ui.mjs",
-    "test:credit": "npx --yes tsx scripts/verify-task-credit.mjs",
-    "test:progress": "npx --yes tsx scripts/verify-day-progress.mjs",
+    "test": "node scripts/build-production-calendar.mjs && tsx scripts/verify-daily-meetings.mjs && tsx scripts/verify-attachments.mjs && tsx scripts/verify-month-calendar.mjs && tsx scripts/verify-holiday-labels.mjs && tsx scripts/verify-projects.mjs && tsx scripts/verify-palettes.mjs && tsx scripts/verify-export-text.mjs && tsx scripts/verify-settings-ui.mjs && tsx scripts/verify-task-credit.mjs && tsx scripts/verify-day-progress.mjs && tsx scripts/verify-minimal-window.mjs",
+    "test:daily": "tsx scripts/verify-daily-meetings.mjs",
+    "test:attachments": "tsx scripts/verify-attachments.mjs",
+    "test:month": "tsx scripts/verify-month-calendar.mjs",
+    "test:holidays": "tsx scripts/verify-holiday-labels.mjs",
+    "test:projects": "tsx scripts/verify-projects.mjs",
+    "test:palettes": "tsx scripts/verify-palettes.mjs",
+    "test:export": "tsx scripts/verify-export-text.mjs",
+    "test:settings": "tsx scripts/verify-settings-ui.mjs",
+    "test:credit": "tsx scripts/verify-task-credit.mjs",
+    "test:progress": "tsx scripts/verify-day-progress.mjs",
+    "test:minimal": "tsx scripts/verify-minimal-window.mjs",
     "lint": "oxlint",
     "preview": "vite preview",
     "electron:dev": "concurrently -k \"vite\" \"wait-on http://127.0.0.1:5173 && cross-env NODE_ENV=development electron .\"",
@@ -51,7 +54,9 @@
     "electron": "^39.2.7",
     "electron-builder": "^26.7.0",
     "oxlint": "^1.71.0",
+    "rolldown": "~1.1.3",
     "sharp": "^0.35.3",
+    "tsx": "^4.21.0",
     "typescript": "~6.0.2",
     "vite": "^8.1.1",
     "wait-on": "^9.0.4"

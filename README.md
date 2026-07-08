@@ -7,7 +7,7 @@
 
 > **История:** изначально Tauri (Rust). Сейчас — **Electron**. Папку `src-tauri/` можно игнорировать.
 
-**Текущая версия:** v0.29 (прогресс-бар за день) — см. [ROADMAP.md](./ROADMAP.md)
+**Текущая версия:** v0.29.1 (компактное минимальное окно) — см. [ROADMAP.md](./ROADMAP.md)
 
 ---
 
@@ -27,8 +27,8 @@ dist-electron\PlanBoard Setup 0.1.0.exe        ← установщик
 
 ```powershell
 cd путь\к\PlanBoard
-pnpm install
-pnpm rebuild electron          # первый раз или после обновления electron
+pnpm install          # обязательно после clone / смены ветки
+pnpm rebuild electron # первый раз или после обновления electron
 pnpm electron:dev
 ```
 
@@ -49,7 +49,7 @@ pnpm dev
 
 | Команда | Что делает |
 |---------|------------|
-| `pnpm install` | Установить зависимости |
+| `pnpm install` | Установить зависимости (нужно после clone) |
 | `pnpm rebuild electron` | Скачать бинарник Electron |
 | `pnpm electron:dev` | Окно приложения + hot reload |
 | `pnpm dev` | Только Vite в браузере |
@@ -57,11 +57,12 @@ pnpm dev
 | `pnpm build` | Фронтенд в `build\` (+ иконки, календарь РФ) |
 | `pnpm icons` | Пересобрать PNG из `*-source.png` |
 | `pnpm calendar` | Обновить производственный календарь РФ |
-| `pnpm test` | Автотесты: календарь РФ + дейлики (49) + … + настройки UI (60) + зачёт (12) + прогресс (11) ≈ **274** |
+| `pnpm test` | Автотесты: календарь РФ + дейлики (49) + … + настройки UI (60) + зачёт (12) + прогресс (11) + minimal (21) ≈ **295** |
 | `pnpm test:export` | `verify-export-text.mjs` — выгрузка Telegram |
 | `pnpm test:settings` | `verify-settings-ui.mjs` — модалка, layout, hover, прогресс |
 | `pnpm test:credit` | `verify-task-credit.mjs` — зачёт просроченных в день закрытия |
 | `pnpm test:progress` | `verify-day-progress.mjs` — прогресс за день |
+| `pnpm test:minimal` | `verify-minimal-window.mjs` — компактное минимальное окно |
 | `pnpm lint` | oxlint |
 
 **Файлы для двойного клика (Windows):**
@@ -94,7 +95,7 @@ pnpm dev
 
 - **Быстрый захват** — `Q` / `Й`, задача без даты во входящие (можно только фото)
 - **Фото к задачам** — вложения в форме и быстром захвате: `Ctrl+V`, drag-and-drop, файл; лайтбокс из списка
-- **Минимальное окно** — компактный режим Electron (⚙ → Режим окна)
+- **Минимальное окно** — компактный режим Electron (⚙ → Режим окна); v0.29.1 — плотная вёрстка, узкий дефолт 280px
 - **Jira** — экспорт задачи в Jira Cloud (только Electron)
 - **Текст TG** — выгрузка плана для Telegram (`Ctrl+Shift+C`): период, сделанное за N дней (кратко), задачи без срока — по чекбоксам
 - **Голосовой ввод** — микрофон в полях текста (`Ctrl+Shift+V`, ⚙ → включить)
@@ -288,6 +289,7 @@ PlanBoard/
 | `cargo` / `tauri:build` | Tauri не используется → `pnpm electron:build` |
 | Git Bash / EPERM | PowerShell + закрыть приложение |
 | Порт 5173 занят | Закройте старый `pnpm dev` |
+| `Cannot find package 'rolldown'` / `sharp` | `pnpm install` (зависимости не установлены) |
 | Electron не стартует | `pnpm rebuild electron` |
 | Голос не работает | F12 → `[Voice]`, разрешите микрофон; в Electron нестабильно (см. ROADMAP) |
 | Иконки не в .exe | `pnpm icons` → `pnpm electron:build` |
@@ -298,7 +300,7 @@ PlanBoard/
 
 | | |
 |--|--|
-| **Текущая версия** | **v0.29** — прогресс дня, sticky-история, hover кнопок; v0.28.1 — зачёт просроченных |
+| **Текущая версия** | **v0.29.1** — компактное минимальное окно; v0.29 — прогресс дня |
 | **Тесты** | `pnpm test` — verify-скрипты (10) + календарь РФ 2025–2027 |
 | **Чеклист** | [`TESTS.md`](TESTS.md) |
 | **План** | [`ROADMAP.md`](ROADMAP.md) |
@@ -307,7 +309,6 @@ PlanBoard/
 
 | Релиз | Суть |
 |--------|------|
-| **v0.29.1** | Компактное минимальное окно — меньше шрифты, отступы, гибкие компоненты |
 | **v0.30** | Анимации фона 2.0 *(эпик v0.27)* |
 | **v0.31** | Мобильное приложение *(эпик v0.23)* |
 | **v0.32** | Группировка похожих задач в дейлике *(эпик v0.26)* |
@@ -328,6 +329,7 @@ PlanBoard/
 | `verify-settings-ui.mjs` | 60 |
 | `verify-task-credit.mjs` | 12 |
 | `verify-day-progress.mjs` | 11 |
+| `verify-minimal-window.mjs` | 21 |
 
 ---
 
