@@ -189,6 +189,7 @@
 - [ ] Запоминать последний таб (`sessionStorage` / `settings.lastTab`)
 - [ ] Вынести `windowMode` из блока палитр
 - [ ] Сжать hints; интенсивность ambient рядом с «Фон»
+- [ ] **File picker в теме** — без системных «Выберите файл» (см. [backlog](#backlog)); если ещё не сделано раньше
 - [ ] `customPresets[]` — если влезает, иначе backlog
 - [ ] Панели (`AppearancePanel`, …) + обновить `verify-settings-ui`
 
@@ -291,6 +292,11 @@
 
 Не в очереди релизов (или «если успеем» внутри соседнего патча):
 
+- [ ] **Стилизовать file picker («Выберите файл»)** — нативные `<input type="file">` ломают тёмную тему в «Моя тема»
+  - **Баг сейчас:** в `CustomThemeSection` у скрытых input класс `visually-hidden`, а в CSS есть только `.hidden-file-input` (как в `TaskAttachments`) → системные кнопки «Выбрать файлы» / «Файл не выбран» видны поверх UI
+  - **Сделать:** единый паттерн — кнопка `.btn` + скрытый input (класс один); при необходимости компонент `FilePickerButton` (label, accept, multiple, onFiles)
+  - Места: фоны темы, импорт темы JSON; проверить вложения задач
+  - Можно вкатить сразу или вместе с [v0.30.3](#v0303--реструктуризация-настроек)
 - [ ] **Голосовой ввод в Electron** — UI есть (v0.21); нестабильно; `[Voice]` в F12 / native fallback
 - [ ] Vitest для `exportPlanText` / `dailyMeetings` *(частично: verify-скрипты)*
 - [ ] Импорт/экспорт JSON **с файлами вложений** (bundle); превью в дейлике / TG
@@ -336,7 +342,7 @@
 | `AmbientBackground` | Базовые частицы v0.24 | **v0.30** |
 | TaskForm / QuickCapture drafts | Нет | **v0.30.1** |
 | `DayProgressBar` | Дробь, % в логике | **v0.30.2** UI |
-| `SettingsModal` | 4 таба, свалки внутри | **v0.30.3** |
+| `SettingsModal` / `CustomThemeSection` | 4 таба; file input без стиля (баг `visually-hidden`) | **v0.30.3** / [backlog file picker](#backlog) |
 | `Sidebar` (8 пунктов, 240px) | Фикс. ширина | **v0.31** / **v0.31.1** |
 | `useSpeechRecognition` | UI ✅, Electron ⚠️ | backlog |
 | `dailyMeetings` / export / attachments / palettes | ✅ | — |
