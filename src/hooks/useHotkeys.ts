@@ -21,15 +21,12 @@ export function useHotkeys() {
   const openNewTask = usePlanStore((s) => s.openNewTask)
   const openQuickCapture = usePlanStore((s) => s.openQuickCapture)
   const openExportText = usePlanStore((s) => s.openExportText)
-  const closeTaskForm = usePlanStore((s) => s.closeTaskForm)
-  const closeQuickCapture = usePlanStore((s) => s.closeQuickCapture)
   const taskFormOpen = usePlanStore((s) => s.taskFormOpen)
   const quickCaptureOpen = usePlanStore((s) => s.quickCaptureOpen)
   const voiceInputEnabled = usePlanStore((s) => s.data.settings.voiceInputEnabled)
   const selectedTaskId = usePlanStore((s) => s.selectedTaskId)
   const toggleTaskDone = usePlanStore((s) => s.toggleTaskDone)
   const persist = usePlanStore((s) => s.persist)
-  const data = usePlanStore((s) => s.data)
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -43,12 +40,12 @@ export function useHotkeys() {
       if (e.key === 'Escape') {
         if (quickCaptureOpen) {
           e.preventDefault()
-          closeQuickCapture()
+          window.dispatchEvent(new CustomEvent('planboard:cancel-quick-capture'))
           return
         }
         if (taskFormOpen) {
           e.preventDefault()
-          closeTaskForm()
+          window.dispatchEvent(new CustomEvent('planboard:cancel-task-form'))
         }
         return
       }
@@ -94,7 +91,7 @@ export function useHotkeys() {
 
       if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
         e.preventDefault()
-        void exportPlanToFile(data)
+        void exportPlanToFile(usePlanStore.getState().data)
         return
       }
 
@@ -125,14 +122,11 @@ export function useHotkeys() {
     openNewTask,
     openQuickCapture,
     openExportText,
-    closeTaskForm,
-    closeQuickCapture,
     taskFormOpen,
     quickCaptureOpen,
     voiceInputEnabled,
     selectedTaskId,
     toggleTaskDone,
     persist,
-    data,
   ])
 }

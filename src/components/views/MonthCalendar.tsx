@@ -14,7 +14,7 @@ import {
 import { usePlanStore } from '../../store/planStore'
 import { useMonthCellPreviewLimit } from '../../hooks/useMonthCellPreviewLimit'
 import { resolveMonthCellTaskPreview } from '../../lib/monthCalendarLayout'
-import { getProjectById } from '../../lib/selectors'
+import { buildMonthDayTaskIndex, getProjectById } from '../../lib/selectors'
 import {
   formatDate,
   formatDisplayDate,
@@ -47,6 +47,7 @@ export function MonthCalendar() {
   const weekRowCount = days.length / 7
   const previewLimit = useMonthCellPreviewLimit(gridRef, weekRowCount)
   const now = today()
+  const dayIndex = buildMonthDayTaskIndex(tasks)
 
   return (
     <div className="calendar-panel-fill">
@@ -69,7 +70,12 @@ export function MonthCalendar() {
         {days.map((day) => {
           const dateStr = formatDate(day)
           const inMonth = isSameMonth(day, anchor)
-          const preview = resolveMonthCellTaskPreview(tasks, day, previewLimit)
+          const preview = resolveMonthCellTaskPreview(
+            tasks,
+            day,
+            previewLimit,
+            dayIndex,
+          )
           const holiday = calendar.showHolidays ? getHolidayForDate(day) : null
           const isDaily =
             daily.enabled && isDailyMeetingDay(day, daily.days)

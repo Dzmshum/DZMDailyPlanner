@@ -37,6 +37,36 @@ function AppShell({ children }: { children: ReactNode }) {
   )
 }
 
+function PersistenceBanners() {
+  const loadError = usePlanStore((s) => s.loadError)
+  const saveError = usePlanStore((s) => s.saveError)
+  const clearLoadError = usePlanStore((s) => s.clearLoadError)
+  const clearSaveError = usePlanStore((s) => s.clearSaveError)
+
+  if (!loadError && !saveError) return null
+
+  return (
+    <div className="persistence-banners" role="alert">
+      {loadError && (
+        <div className="persistence-banner persistence-banner--warn">
+          <span>План не загрузился ({loadError}). Открыт пустой. Проверьте файл.</span>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={clearLoadError}>
+            Скрыть
+          </button>
+        </div>
+      )}
+      {saveError && (
+        <div className="persistence-banner persistence-banner--error">
+          <span>Не удалось сохранить: {saveError}</span>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={clearSaveError}>
+            Скрыть
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function App() {
   const loaded = usePlanStore((s) => s.loaded)
   const currentView = usePlanStore((s) => s.currentView)
@@ -59,6 +89,7 @@ function App() {
   if (isElectron() && windowMode === 'minimal') {
     return (
       <AppShell>
+        <PersistenceBanners />
         <MinimalView />
       </AppShell>
     )
@@ -89,6 +120,7 @@ function App() {
 
   return (
     <AppShell>
+      <PersistenceBanners />
       <AppLayout>{renderView()}</AppLayout>
     </AppShell>
   )

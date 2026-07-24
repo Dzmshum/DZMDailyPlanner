@@ -207,10 +207,27 @@ assert('normalizeColorPalette: fallback', normalizeColorPalette('x') === 'plain'
 
 // --- electron + index.html ---
 const planFile = readFileSync(join(root, 'electron/plan-file.cjs'), 'utf8')
-assert('electron DEFAULT_PLAN plain', planFile.includes("colorPalette: 'plain'"))
-assert('electron customTheme block', planFile.includes('customTheme:'))
-assert('electron customTheme basedOn', planFile.includes('basedOn: null'))
-assert('electron customTheme gallery', planFile.includes('backgroundImages:'))
+assert(
+  'electron loads default-plan.json',
+  planFile.includes('default-plan.json'),
+)
+const electronDefault = JSON.parse(
+  readFileSync(join(root, 'electron/default-plan.json'), 'utf8'),
+)
+assert('electron DEFAULT_PLAN plain', electronDefault.settings?.colorPalette === 'plain')
+assert(
+  'electron customTheme block',
+  electronDefault.settings?.customTheme &&
+    typeof electronDefault.settings.customTheme === 'object',
+)
+assert(
+  'electron customTheme basedOn',
+  electronDefault.settings.customTheme.basedOn === null,
+)
+assert(
+  'electron customTheme gallery',
+  Array.isArray(electronDefault.settings.customTheme.backgroundImages),
+)
 
 const indexHtml = readFileSync(join(root, 'index.html'), 'utf8')
 assert('index.html pre-hydration plain', indexHtml.includes("data-palette', 'plain'"))

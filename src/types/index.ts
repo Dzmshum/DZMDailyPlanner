@@ -188,6 +188,9 @@ export const DEFAULT_CUSTOM_THEME: CustomThemeSettings = {
 }
 
 const DATA_IMAGE = /^data:image\//
+/** Cap theme backgrounds in plan.json (keep in sync with CustomThemeSection). */
+export const MAX_THEME_BG_IMAGES = 8
+export const MAX_THEME_BG_DATA_URL_CHARS = 2_000_000
 
 export function normalizeBackgroundGallery(raw: unknown): {
   backgroundImages: CustomBackgroundImage[]
@@ -198,13 +201,15 @@ export function normalizeBackgroundGallery(raw: unknown): {
 
   if (o && Array.isArray(o.backgroundImages)) {
     for (const item of o.backgroundImages) {
+      if (images.length >= MAX_THEME_BG_IMAGES) break
       if (!item || typeof item !== 'object') continue
       const entry = item as Partial<CustomBackgroundImage>
       if (
         typeof entry.id === 'string' &&
         entry.id.length > 0 &&
         typeof entry.dataUrl === 'string' &&
-        DATA_IMAGE.test(entry.dataUrl)
+        DATA_IMAGE.test(entry.dataUrl) &&
+        entry.dataUrl.length <= MAX_THEME_BG_DATA_URL_CHARS
       ) {
         images.push({ id: entry.id, dataUrl: entry.dataUrl })
       }
@@ -243,7 +248,7 @@ export function normalizeBackgroundGallery(raw: unknown): {
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/
 
-function normalizeCustomThemeSettings(raw: unknown): CustomThemeSettings {
+export function normalizeCustomTheme(raw: unknown): CustomThemeSettings {
   const d = DEFAULT_CUSTOM_THEME
   if (!raw || typeof raw !== 'object') return { ...d }
   const o = raw as Partial<CustomThemeSettings>
@@ -358,8 +363,51 @@ function normalizeRecentDoneDays(value: unknown): number {
   return Math.min(90, Math.max(1, Math.round(n)))
 }
 
-export function normalizePlan(data: PlanData): PlanData {
-  const defaults = createDefaultPlan().settings
+function asString(value: unknown, fallback = ''): string {
+  return typeof value === 'string' ? value : fallback
+}
+
+function normalizeTask(raw: unknown, index: number): Task {
+  const t = raw && typeof raw === 'object' ? (raw as Partial<Task>) : {}
+  const status: TaskStatus =
+    t.status === 'done' || t.status === 'in_progress' || t.status === 'todo'
+      ? t.status
+      : 'todo'
+  const priority: Priority =
+    t.priority === 'low' || t.priority === 'high' || t.priority === 'medium'
+      ? t.priority
+      : 'medium'
+  return {
+    id: asString(t.id, `task-${index}`),
+    title: asString(t.title, 'Без названия'),
+    projectId: typeof t.projectId === 'string' ? t.projectId : null,
+    deadline: typeof t.deadline === 'string' ? t.deadline : null,
+    time:
+      t.time &&
+      typeof t.time === 'object' &&
+      typeof t.time.start === 'string' &&
+      typeof t.time.end === 'string'
+        ? { start: t.time.start, end: t.time.end }
+        : null,
+    priority,
+    status,
+    notes: asString(t.notes),
+    attachments: Array.isArray(t.attachments) ? t.attachments : [],
+    createdAt: asString(t.createdAt, new Date(0).toISOString()),
+    completedAt: typeof t.completedAt === 'string' ? t.completedAt : null,
+    jiraKey: typeof t.jiraKey === 'string' ? t.jiraKey : null,
+  }
+}
+
+export function normalizePlan(data: unknown): PlanData {
+  const empty = createDefaultPlan()
+  if (!data || typeof data !== 'object') return empty
+
+  const raw = data as Partial<PlanData>
+  const defaults = empty.settings
+  const settingsIn =
+    raw.settings && typeof raw.settings === 'object' ? raw.settings : undefined
+
   const validPalettes: ColorPalette[] = [
     'plain',
     'northrend',
@@ -369,15 +417,15 @@ export function normalizePlan(data: PlanData): PlanData {
     'got',
     'witcher',
   ]
-  const rawPalette = data.settings?.colorPalette
+  const rawPalette = settingsIn?.colorPalette
   const colorPalette = validPalettes.includes(rawPalette as ColorPalette)
     ? (rawPalette as ColorPalette)
     : 'plain'
-  const ambientRaw = data.settings?.ambientAnimation
+  const ambientRaw = settingsIn?.ambientAnimation
   let ambientAnimation: AmbientAnimation =
     ambientRaw === 'off' ? 'off' : 'auto'
-  const customTheme = normalizeCustomThemeSettings(data.settings?.customTheme)
-  const rawCustom = data.settings?.customTheme
+  const customTheme = normalizeCustomTheme(settingsIn?.customTheme)
+  const rawCustom = settingsIn?.customTheme
   if (
     customTheme.enabled &&
     rawCustom &&
@@ -389,49 +437,87 @@ export function normalizePlan(data: PlanData): PlanData {
     ambientAnimation = 'off'
   }
 
+  const windowMode: WindowMode =
+    settingsIn?.windowMode === 'maximized' ||
+    settingsIn?.windowMode === 'minimal' ||
+    settingsIn?.windowMode === 'standard'
+      ? settingsIn.windowMode
+      : 'standard'
+
+  const defaultView: ViewId =
+    settingsIn?.defaultView && settingsIn.defaultView in VIEW_LABELS
+      ? settingsIn.defaultView
+      : 'dashboard'
+
+  const theme: ThemeMode =
+    settingsIn?.theme === 'light' ||
+    settingsIn?.theme === 'dark' ||
+    settingsIn?.theme === 'system'
+      ? settingsIn.theme
+      : 'system'
+
   return {
-    ...data,
+    version: 1,
     settings: {
       ...defaults,
-      ...data.settings,
+      ...settingsIn,
+      theme,
       colorPalette,
       ambientAnimation,
       customTheme,
-      windowMode: data.settings?.windowMode ?? 'standard',
+      defaultView,
+      windowMode,
       calendar: {
         ...defaults.calendar,
-        ...data.settings?.calendar,
+        ...settingsIn?.calendar,
       },
       daily: {
-        enabled: data.settings?.daily?.enabled ?? defaults.daily.enabled,
-        days: normalizeDailyDays(data.settings?.daily?.days),
+        enabled: settingsIn?.daily?.enabled ?? defaults.daily.enabled,
+        days: normalizeDailyDays(settingsIn?.daily?.days),
       },
       dayProgress: {
         ...defaults.dayProgress,
-        ...data.settings?.dayProgress,
+        ...settingsIn?.dayProgress,
       },
       export: {
         ...defaults.export,
-        ...data.settings?.export,
-        includeRecentDone: data.settings?.export?.includeRecentDone ?? false,
-        recentDoneDays: normalizeRecentDoneDays(data.settings?.export?.recentDoneDays),
-        includeInbox: data.settings?.export?.includeInbox ?? false,
+        ...settingsIn?.export,
+        includeRecentDone: settingsIn?.export?.includeRecentDone ?? false,
+        recentDoneDays: normalizeRecentDoneDays(settingsIn?.export?.recentDoneDays),
+        includeInbox: settingsIn?.export?.includeInbox ?? false,
+        exportTitle: asString(
+          settingsIn?.export?.exportTitle,
+          defaults.export.exportTitle,
+        ),
       },
-      voiceInputEnabled: data.settings?.voiceInputEnabled ?? false,
+      voiceInputEnabled: settingsIn?.voiceInputEnabled ?? false,
       jira: {
         ...DEFAULT_JIRA_SETTINGS,
-        ...data.settings?.jira,
+        ...settingsIn?.jira,
+        baseUrl: asString(settingsIn?.jira?.baseUrl),
+        email: asString(settingsIn?.jira?.email),
+        apiToken: asString(settingsIn?.jira?.apiToken),
+        projectKey: asString(settingsIn?.jira?.projectKey),
+        issueType: asString(settingsIn?.jira?.issueType, 'Task'),
       },
     },
-    tasks: data.tasks.map((t) => ({
-      ...t,
-      jiraKey: t.jiraKey ?? null,
-      attachments: Array.isArray(t.attachments) ? t.attachments : [],
-    })),
-    projects: (data.projects ?? []).map((p) => ({
-      ...p,
-      completed: Boolean(p.completed),
-      completedAt: p.completed ? (p.completedAt ?? null) : null,
-    })),
+    tasks: Array.isArray(raw.tasks)
+      ? raw.tasks.map((t, i) => normalizeTask(t, i))
+      : [],
+    projects: (Array.isArray(raw.projects) ? raw.projects : []).map((p, i) => {
+      const proj = p && typeof p === 'object' ? (p as Partial<Project>) : {}
+      const completed = Boolean(proj.completed)
+      return {
+        id: asString(proj.id, `project-${i}`),
+        name: asString(proj.name, 'Проект'),
+        color: asString(proj.color, DEFAULT_PROJECT_COLORS[0]),
+        completed,
+        completedAt: completed
+          ? typeof proj.completedAt === 'string'
+            ? proj.completedAt
+            : null
+          : null,
+      }
+    }),
   }
 }

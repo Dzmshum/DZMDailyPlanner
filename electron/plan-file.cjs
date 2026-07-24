@@ -2,51 +2,11 @@ const path = require('path')
 const fs = require('fs')
 const os = require('os')
 
-const DEFAULT_PLAN = {
-  version: 1,
-  settings: {
-    theme: 'system',
-    colorPalette: 'plain',
-    ambientAnimation: 'auto',
-    customTheme: {
-      enabled: false,
-      basedOn: null,
-      accent: '#6b8cff',
-      background: '#121418',
-      surface: '#1a1d24',
-      text: '#e8eaed',
-      backgroundImages: [],
-      backgroundImageId: null,
-      ambientEnabled: false,
-    },
-    defaultView: 'dashboard',
-    windowMode: 'standard',
-    calendar: { showHolidays: true, calendarView: 'week' },
-    daily: { enabled: true, days: [1, 4] },
-    dayProgress: { showOnAgenda: true, showOnDashboard: true },
-    export: {
-      includeDone: false,
-      skipEmptyDays: true,
-      exportTitle: 'Текущий план.',
-      includeRecentDone: false,
-      recentDoneDays: 7,
-      includeInbox: false,
-    },
-    voiceInputEnabled: false,
-    jira: {
-      enabled: false,
-      baseUrl: '',
-      email: '',
-      apiToken: '',
-      projectKey: '',
-      issueType: 'Task',
-    },
-  },
-  projects: [],
-  tasks: [],
-}
-
-const DEFAULT_PLAN_JSON = JSON.stringify(DEFAULT_PLAN, null, 2)
+/** Synced from src createDefaultPlan via scripts/sync-default-plan.mjs */
+const DEFAULT_PLAN_JSON = fs.readFileSync(
+  path.join(__dirname, 'default-plan.json'),
+  'utf8',
+)
 
 function appDataRoot() {
   if (process.platform === 'win32') {

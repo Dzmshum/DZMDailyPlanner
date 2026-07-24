@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, useId, useRef, type ReactNode } from 'react'
 import { UiIcon } from './UiIcon'
 
 interface ModalProps {
@@ -11,6 +11,32 @@ interface ModalProps {
 }
 
 export function Modal({ open, onClose, title, children, footer, size = 'md' }: ModalProps) {
+  const titleId = useId()
+  const dialogRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+
+    const previouslyFocused = document.activeElement as HTMLElement | null
+    const dialog = dialogRef.current
+    const focusable = dialog?.querySelector<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    )
+    focusable?.focus()
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        onClose()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      previouslyFocused?.focus?.()
+    }
+  }, [open, onClose])
+
   if (!open) return null
 
   const sizeClass =
@@ -19,14 +45,15 @@ export function Modal({ open, onClose, title, children, footer, size = 'md' }: M
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
+        ref={dialogRef}
         className={`modal ${sizeClass}`}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-labelledby="modal-title"
+        aria-labelledby={titleId}
       >
         <div className="modal-header">
-          <h2 className="modal-title" id="modal-title">
+          <h2 className="modal-title" id={titleId}>
             {title}
           </h2>
           <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label="Закрыть">

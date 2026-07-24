@@ -1,4 +1,4 @@
-import type { MonthCellTaskPreview } from './selectors'
+import type { MonthCellTaskPreview, MonthDayTaskIndex } from './selectors'
 import { getMonthCellTaskPreview } from './selectors'
 
 /** Размеры ячейки месяца (px) — должны совпадать с CSS */
@@ -39,10 +39,11 @@ export function resolveMonthCellTaskPreview(
   tasks: Parameters<typeof getMonthCellTaskPreview>[0],
   day: Date,
   maxSlots: number,
+  index?: MonthDayTaskIndex,
 ): MonthCellTaskPreview {
-  const preview = getMonthCellTaskPreview(tasks, day, maxSlots)
+  const preview = getMonthCellTaskPreview(tasks, day, maxSlots, index)
   if (preview.overflow > 0 && maxSlots > 1) {
-    return getMonthCellTaskPreview(tasks, day, maxSlots - 1)
+    return getMonthCellTaskPreview(tasks, day, maxSlots - 1, index)
   }
   return preview
 }

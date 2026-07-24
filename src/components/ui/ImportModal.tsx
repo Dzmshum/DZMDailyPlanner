@@ -61,6 +61,11 @@ export function ImportModal({ open, plan, fileName, onClose }: ImportModalProps)
           <strong>Заменить всё</strong> — текущий план будет полностью заменён
           содержимым файла.
         </li>
+        <li>
+          Импорт переносит только <strong>метаданные</strong> вложений (имена/id).
+          Файлы фото с другого компьютера не копируются — превью могут быть
+          пустыми, пока не сделан bundle-экспорт.
+        </li>
       </ul>
     </Modal>
   )

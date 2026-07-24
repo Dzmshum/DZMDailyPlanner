@@ -1,5 +1,6 @@
 import type { JiraSettings, Task } from '../types'
 import { getElectronApi, isElectron } from './electron'
+import { assertAllowedJiraBaseUrl } from './jiraUrl'
 
 function buildDescription(task: Task): string {
   const parts = [task.notes].filter(Boolean)
@@ -32,7 +33,7 @@ export async function exportTaskToJira(
     )
   }
 
-  const baseUrl = settings.baseUrl.replace(/\/$/, '')
+  const baseUrl = assertAllowedJiraBaseUrl(settings.baseUrl)
 
   return getElectronApi().createJiraIssue({
     baseUrl,

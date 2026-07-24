@@ -15,10 +15,10 @@ export function Header() {
   const openNewTask = usePlanStore((s) => s.openNewTask)
   const openExportText = usePlanStore((s) => s.openExportText)
   const saving = usePlanStore((s) => s.saving)
-  const data = usePlanStore((s) => s.data)
+  const tasks = usePlanStore((s) => s.data.tasks)
+  const showOnAgenda = usePlanStore((s) => s.data.settings.dayProgress.showOnAgenda)
   const agendaDate = usePlanStore((s) => s.agendaDate)
-  const showAgendaProgress =
-    currentView === 'agenda' && data.settings.dayProgress.showOnAgenda
+  const showAgendaProgress = currentView === 'agenda' && showOnAgenda
 
   const [importOpen, setImportOpen] = useState(false)
   const [importPlan, setImportPlan] = useState<PlanData | null>(null)
@@ -53,7 +53,7 @@ export function Header() {
           <h1 className="header-title">{VIEW_LABELS[currentView]}</h1>
           {showAgendaProgress && (
             <DayProgressBar
-              tasks={data.tasks}
+              tasks={tasks}
               date={parseDate(agendaDate)}
               compact
               className="header-day-progress"
@@ -83,7 +83,9 @@ export function Header() {
                 id: 'export-json',
                 label: 'Экспорт JSON',
                 hint: 'Ctrl+E',
-                onClick: () => void exportPlanToFile(data),
+                onClick: () => {
+                  void exportPlanToFile(usePlanStore.getState().data)
+                },
               },
               {
                 id: 'import-json',

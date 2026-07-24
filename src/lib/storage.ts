@@ -2,6 +2,7 @@ import type { PlanData } from '../types'
 import { createDefaultPlan, normalizePlan } from '../types'
 import { mergePlans } from './planMerge'
 import { getElectronApi, isElectron } from './electron'
+import { redactPlanForExport } from './planExport'
 
 const STORAGE_KEY = 'planboard-plan'
 const LEGACY_STORAGE_KEYS = ['doomplanner-plan']
@@ -104,7 +105,7 @@ export async function savePlanToDisk(data: PlanData): Promise<void> {
 }
 
 export async function exportPlanToFile(data: PlanData): Promise<void> {
-  const json = JSON.stringify(data, null, 2)
+  const json = JSON.stringify(redactPlanForExport(data), null, 2)
 
   if (isElectron()) {
     await getElectronApi().exportPlan(json)

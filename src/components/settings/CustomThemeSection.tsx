@@ -72,7 +72,8 @@ function ThemeColorInput({
 }
 
 const MAX_BG_BYTES = 1_500_000
-const MAX_BG_IMAGES = 24
+/** Align with types.MAX_THEME_BG_IMAGES — keep plan.json smaller. */
+const MAX_BG_IMAGES = 8
 
 function readFileAsDataUrl(file: File): Promise<string | null> {
   return new Promise((resolve) => {

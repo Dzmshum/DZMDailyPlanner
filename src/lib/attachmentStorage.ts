@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid'
 import type { TaskAttachment } from '../types'
 import { getElectronApi, isElectron } from './electron'
 import { base64ToBlob, blobToBase64, compressImageFile } from './imageCompress'
+import { assertAttachmentSize } from './attachmentLimits'
 
 const IDB_NAME = 'planboard-attachments'
 const LEGACY_IDB_NAME = 'doomplanner-attachments'
@@ -146,6 +147,9 @@ async function persistBlob(
   fileName: string,
   base64: string,
 ): Promise<void> {
+  const approxBytes = Math.floor((base64.length * 3) / 4)
+  assertAttachmentSize(approxBytes)
+
   if (isElectron()) {
     await getElectronApi().saveAttachment(taskId, fileName, base64)
     return

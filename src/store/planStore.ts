@@ -34,6 +34,9 @@ interface PlanState {
   data: PlanData
   loaded: boolean
   saving: boolean
+  persistQueued: boolean
+  loadError: string | null
+  saveError: string | null
   currentView: ViewId
   selectedTaskId: string | null
   taskFormOpen: boolean
@@ -46,6 +49,8 @@ interface PlanState {
 
   init: () => Promise<void>
   persist: () => Promise<void>
+  clearSaveError: () => void
+  clearLoadError: () => void
   setView: (view: ViewId) => void
   setTheme: (theme: ThemeMode) => void
   setColorPalette: (palette: ColorPalette) => void
@@ -99,6 +104,9 @@ export const usePlanStore = create<PlanState>((set, get) => ({
   data: createDefaultPlan(),
   loaded: false,
   saving: false,
+  persistQueued: false,
+  loadError: null,
+  saveError: null,
   currentView: 'dashboard',
   selectedTaskId: null,
   taskFormOpen: false,
@@ -111,27 +119,55 @@ export const usePlanStore = create<PlanState>((set, get) => ({
   settingsOpen: false,
 
   init: async () => {
-    const raw = await loadPlanFromDisk()
-    const data = normalizePlan(raw)
-    set({
-      data,
-      loaded: true,
-      currentView: data.settings.defaultView,
-      agendaDate: formatDate(new Date()),
-      weekAnchor: formatDate(new Date()),
-    })
+    try {
+      const raw = await loadPlanFromDisk()
+      const data = normalizePlan(raw)
+      set({
+        data,
+        loaded: true,
+        loadError: null,
+        currentView: data.settings.defaultView,
+        agendaDate: formatDate(new Date()),
+        weekAnchor: formatDate(new Date()),
+      })
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Не удалось загрузить план'
+      set({
+        data: createDefaultPlan(),
+        loaded: true,
+        loadError: message,
+        agendaDate: formatDate(new Date()),
+        weekAnchor: formatDate(new Date()),
+      })
+    }
   },
 
   persist: async () => {
-    const { data, saving } = get()
-    if (saving) return
-    set({ saving: true })
+    const { saving } = get()
+    if (saving) {
+      set({ persistQueued: true })
+      return
+    }
+    set({ saving: true, persistQueued: false })
     try {
-      await savePlanToDisk(data)
+      await savePlanToDisk(get().data)
+      set({ saveError: null })
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Не удалось сохранить план'
+      set({ saveError: message })
     } finally {
       set({ saving: false })
+      if (get().persistQueued) {
+        set({ persistQueued: false })
+        void get().persist()
+      }
     }
   },
+
+  clearSaveError: () => set({ saveError: null }),
+  clearLoadError: () => set({ loadError: null }),
 
   setView: (view) => {
     set({ currentView: view })
@@ -372,7 +408,8 @@ export const usePlanStore = create<PlanState>((set, get) => ({
   },
 
   reorderInboxTask: (taskId, targetTaskId) => {
-    const inbox = getInboxTasks(get().data.tasks)
+    const { data } = get()
+    const inbox = getInboxTasks(data.tasks)
     const fromIndex = inbox.findIndex((t) => t.id === taskId)
     const toIndex = inbox.findIndex((t) => t.id === targetTaskId)
     if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) return
@@ -382,10 +419,21 @@ export const usePlanStore = create<PlanState>((set, get) => ({
     reordered.splice(toIndex, 0, item)
 
     const base = Date.now()
-    reordered.forEach((task, index) => {
-      get().updateTask(task.id, {
-        createdAt: new Date(base - index * 1000).toISOString(),
-      })
+    const createdAtById = new Map(
+      reordered.map((task, index) => [
+        task.id,
+        new Date(base - index * 1000).toISOString(),
+      ]),
+    )
+
+    set({
+      data: {
+        ...data,
+        tasks: data.tasks.map((t) => {
+          const createdAt = createdAtById.get(t.id)
+          return createdAt ? { ...t, createdAt } : t
+        }),
+      },
     })
   },
 

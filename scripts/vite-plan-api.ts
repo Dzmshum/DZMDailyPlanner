@@ -25,10 +25,21 @@ function readBody(req: Connect.IncomingMessage): Promise<string> {
   })
 }
 
+/**
+ * Dev-only FS API for plan.json + attachments.
+ * Must stay bound to 127.0.0.1 (see vite.config server.host) —
+ * any local process can R/W while `pnpm dev` runs.
+ */
 export function planApiPlugin(): Plugin {
   return {
     name: 'planboard-plan-api',
     configureServer(server) {
+      const host = server.config.server.host
+      if (host !== '127.0.0.1' && host !== 'localhost' && host !== false) {
+        console.warn(
+          `[planboard-plan-api] server.host=${String(host)} — API доступен не только на loopback`,
+        )
+      }
       server.middlewares.use(async (req, res, next) => {
         const url = req.url?.split('?')[0]
 

@@ -12,6 +12,7 @@ const {
   deleteTaskAttachments,
 } = require('./attachments-file.cjs')
 const { loadWindowLayouts, saveWindowLayout } = require('./window-layouts.cjs')
+const { assertAllowedJiraBaseUrl } = require('./jira-url.cjs')
 
 const isDev =
   process.env.NODE_ENV === 'development' || !app.isPackaged
@@ -194,6 +195,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
       nodeIntegration: false,
+      sandbox: true,
     },
   }
 
@@ -203,6 +205,18 @@ function createWindow() {
 
   mainWindow = new BrowserWindow(windowOptions)
   attachWindowLayoutListeners()
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    try {
+      const parsed = new URL(url)
+      if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+        require('electron').shell.openExternal(url)
+      }
+    } catch {
+      /* ignore invalid */
+    }
+    return { action: 'deny' }
+  })
 
   if (isDev) {
     mainWindow.loadURL('http://127.0.0.1:5173')
@@ -318,8 +332,9 @@ ipcMain.handle(
       deadline,
     },
   ) => {
+    const safeBase = assertAllowedJiraBaseUrl(baseUrl)
     const auth = Buffer.from(`${email}:${apiToken}`).toString('base64')
-    const url = `${baseUrl.replace(/\/$/, '')}/rest/api/3/issue`
+    const url = `${safeBase}/rest/api/3/issue`
 
     const fields = {
       project: { key: projectKey },
@@ -364,7 +379,7 @@ ipcMain.handle(
 
     return {
       issueKey,
-      issueUrl: `${baseUrl.replace(/\/$/, '')}/browse/${issueKey}`,
+      issueUrl: `${safeBase}/browse/${issueKey}`,
     }
   },
 )

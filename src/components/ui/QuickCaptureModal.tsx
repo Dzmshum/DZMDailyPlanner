@@ -45,6 +45,14 @@ export function QuickCaptureModal() {
     closeQuickCapture()
   }
 
+  useEffect(() => {
+    if (!open) return
+    const onEscCancel = () => handleClose()
+    window.addEventListener('planboard:cancel-quick-capture', onEscCancel)
+    return () =>
+      window.removeEventListener('planboard:cancel-quick-capture', onEscCancel)
+  })
+
   const handleSubmit = (e?: FormEvent) => {
     e?.preventDefault()
     if (!canSaveTask(title, attachments)) return

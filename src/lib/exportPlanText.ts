@@ -104,8 +104,9 @@ function appendRecentDoneSection(
   lines: string[],
   tasks: Task[],
   daysBack: number,
+  referenceDate: Date,
 ): void {
-  const byDay = getRecentlyDoneByDay(tasks, daysBack)
+  const byDay = getRecentlyDoneByDay(tasks, daysBack, referenceDate)
   if (byDay.size === 0) return
 
   lines.push(`Сделано за ${daysBack} дн.:`)
@@ -151,7 +152,7 @@ export function exportPlanText(data: PlanData, options: ExportTextOptions): stri
   }
 
   if (includeRecentDone) {
-    appendRecentDoneSection(lines, data.tasks, recentDoneDays)
+    appendRecentDoneSection(lines, data.tasks, recentDoneDays, anchorDate)
   }
 
   const inbox = includeInbox ? inboxTasks(data.tasks, includeDone) : []

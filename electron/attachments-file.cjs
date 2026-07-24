@@ -32,10 +32,18 @@ function ensureTaskAttachmentsDir(taskId) {
   return dir
 }
 
+/** Keep in sync with src/lib/attachmentLimits.ts */
+const MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024
+
 function saveAttachmentFile(taskId, fileName, base64Data) {
   const file = attachmentPath(taskId, fileName)
   ensureTaskAttachmentsDir(taskId)
   const buf = Buffer.from(base64Data, 'base64')
+  if (buf.length > MAX_ATTACHMENT_BYTES) {
+    throw new Error(
+      `Файл слишком большой (макс. ${Math.round(MAX_ATTACHMENT_BYTES / (1024 * 1024))} МБ)`,
+    )
+  }
   fs.writeFileSync(file, buf)
 }
 

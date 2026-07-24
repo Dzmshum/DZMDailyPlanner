@@ -46,8 +46,10 @@ export function Sidebar() {
           {NAV_ITEMS.map((id) => (
             <li key={id}>
               <button
+                type="button"
                 className={`nav-item ${currentView === id ? 'active' : ''}`}
                 onClick={() => setView(id)}
+                aria-current={currentView === id ? 'page' : undefined}
               >
                 <ViewIcon view={id} size="xs" />
                 {VIEW_LABELS[id]}

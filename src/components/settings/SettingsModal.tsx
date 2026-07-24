@@ -305,6 +305,11 @@ export function SettingsModal() {
                 </a>
                 . Сохраняется автоматически. Работает в Electron.
               </p>
+              <p className="settings-hint">
+                API token хранится локально в plan.json. В файл экспорта плана
+                токен <strong>не попадает</strong>. URL — только https с публичным
+                hostname (не localhost).
+              </p>
 
               <ThemedCheckbox
                 className="settings-check"

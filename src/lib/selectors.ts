@@ -280,14 +280,55 @@ export interface MonthCellTaskPreview {
   total: number
 }
 
+/** Индекс задач по дню для месячной сетки (один проход вместо O(days×tasks)). */
+export interface MonthDayTaskIndex {
+  activeByDay: Map<string, Task[]>
+  doneByDay: Map<string, Task[]>
+}
+
+export function buildMonthDayTaskIndex(tasks: Task[]): MonthDayTaskIndex {
+  const activeByDay = new Map<string, Task[]>()
+  const doneByDay = new Map<string, Task[]>()
+
+  for (const t of tasks) {
+    if (t.status === 'done') {
+      const key = getTaskCreditDayKey(t)
+      if (!key) continue
+      const list = doneByDay.get(key)
+      if (list) list.push(t)
+      else doneByDay.set(key, [t])
+    } else if (t.deadline) {
+      const key = t.deadline.slice(0, 10)
+      const list = activeByDay.get(key)
+      if (list) list.push(t)
+      else activeByDay.set(key, [t])
+    }
+  }
+
+  for (const [key, list] of activeByDay) {
+    activeByDay.set(key, sortTasksForDay(list))
+  }
+  for (const [key, list] of doneByDay) {
+    doneByDay.set(key, sortTasksForDay(list))
+  }
+
+  return { activeByDay, doneByDay }
+}
+
 /** Превью задач в ячейке месячного календаря: сначала активные, затем выполненные */
 export function getMonthCellTaskPreview(
   tasks: Task[],
   day: Date,
   limit = MONTH_CELL_TASK_PREVIEW_LIMIT,
+  index?: MonthDayTaskIndex,
 ): MonthCellTaskPreview {
-  const active = getTasksForDay(tasks, day)
-  const done = getDoneTasksForDay(tasks, day)
+  const dayKey = formatDate(day)
+  const active = index
+    ? (index.activeByDay.get(dayKey) ?? [])
+    : getTasksForDay(tasks, day)
+  const done = index
+    ? (index.doneByDay.get(dayKey) ?? [])
+    : getDoneTasksForDay(tasks, day)
   const all: MonthCellTaskItem[] = [
     ...active.map((task) => ({ task, done: false })),
     ...done.map((task) => ({ task, done: true })),

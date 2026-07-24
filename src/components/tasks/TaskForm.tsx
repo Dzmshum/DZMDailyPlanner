@@ -128,6 +128,14 @@ export function TaskForm() {
     closeTaskForm()
   }
 
+  useEffect(() => {
+    if (!open) return
+    const onEscCancel = () => handleCancel()
+    window.addEventListener('planboard:cancel-task-form', onEscCancel)
+    return () =>
+      window.removeEventListener('planboard:cancel-task-form', onEscCancel)
+  })
+
   const handleSave = async () => {
     if (!canSaveTask(title, attachments)) {
       setError('Введите название или добавьте фото')

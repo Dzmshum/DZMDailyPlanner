@@ -9,9 +9,10 @@
 **PlanBoard** — локальный планировщик для Windows. Дедлайны, проекты, календарь и дейлики живут в одном `plan.json` на вашем компьютере. Интерфейс на русском. Облако не требуется.
 
 **Стек:** React 19 · TypeScript · Vite · Zustand · **Electron**  
-**Версия:** v0.29.1 — см. [ROADMAP.md](./ROADMAP.md)
+**Версия:** v0.29.3 — см. [ROADMAP.md](./ROADMAP.md)  
+**Следующий релиз:** [v0.30](./ROADMAP.md#v030--анимации-фона-20) — анимации фона 2.0.
 
-> Раньше был Tauri (Rust). Сейчас — Electron. Папку `src-tauri/` можно игнорировать.
+> Десктоп на **Electron**. Legacy Tauri (`src-tauri/`) удалён в v0.29.3.
 
 <p align="center">
   <img src="./assets/readme/workflow.png" width="100%" alt="Поток: захват → план по календарю → дейлик → выгрузка в TG или Jira через plan.json">
@@ -28,9 +29,9 @@
 Двойной клик по **`PlanBoard.cmd`** или:
 
 ```
-dist-electron\PlanBoard 0.1.0.exe              ← portable
+dist-electron\PlanBoard 0.29.3.exe              ← portable
 dist-electron\win-unpacked\PlanBoard.exe       ← распакованная версия
-dist-electron\PlanBoard Setup 0.1.0.exe        ← установщик
+dist-electron\PlanBoard Setup 0.29.3.exe        ← установщик
 ```
 
 ### Разработка (окно приложения)
@@ -51,7 +52,8 @@ pnpm dev
 ```
 
 → http://127.0.0.1:5173/  
-При `pnpm dev` данные тоже в `%APPDATA%\PlanBoard\plan.json` (через dev API).
+При `pnpm dev` данные тоже в `%APPDATA%\PlanBoard\plan.json` (через dev API на `127.0.0.1`).  
+Любой локальный процесс может читать/писать план, пока крутится Vite — не оставляйте `pnpm dev` на чужой машине.
 
 ### Команды
 
@@ -63,7 +65,7 @@ pnpm dev
 | `pnpm dev` | Только Vite в браузере |
 | `pnpm electron:build` | Собрать .exe → `dist-electron\` |
 | `pnpm build` | Фронтенд в `build\` |
-| `pnpm test` | Автотесты ≈ **304** |
+| `pnpm test` | Автотесты ≈ **330** (+ stabilize) |
 | `pnpm lint` | oxlint |
 
 **Двойной клик (Windows):** `PlanBoard.cmd` · `Build-Electron.cmd`  
@@ -193,7 +195,8 @@ pnpm electron:build
 2. URL, email, [API Token](https://id.atlassian.com/manage-profile/security/api-tokens), ключ проекта  
 3. В форме задачи — **→ Создать в Jira**
 
-Только Electron (CORS в браузере).
+Только Electron (CORS в браузере).  
+API token хранится в `plan.json` локально; в JSON-экспорт токен **не попадает** (redact с v0.29.2).
 
 ---
 
@@ -220,7 +223,7 @@ PlanBoard/
 
 | Проблема | Решение |
 |----------|---------|
-| `cargo` / `tauri:build` | Tauri не используется → `pnpm electron:build` |
+| `cargo` / `tauri:build` | Tauri удалён → `pnpm electron:build` |
 | Git Bash / EPERM | PowerShell + закрыть приложение |
 | Порт 5173 занят | Закройте старый `pnpm dev` |
 | `Cannot find package 'rolldown'` / `sharp` | `pnpm install` |
@@ -232,7 +235,8 @@ PlanBoard/
 
 | | |
 |--|--|
-| **Версия** | **v0.29.1** — компактное минимальное окно |
+| **Версия** | **v0.29.3** — perf + гигиена |
+| **Дальше** | фичи с **v0.30** (ambient 2.0) |
 | **Тесты** | `pnpm test` — verify-скрипты + календарь РФ |
 | **Чеклист** | [`TESTS.md`](TESTS.md) |
 | **План** | [`ROADMAP.md`](ROADMAP.md) |
@@ -242,14 +246,17 @@ PlanBoard/
 
 | Релиз | Суть |
 |--------|------|
+| **v0.29.2** ✅ | Стабилизация (данные, Jira, normalize, Electron) |
+| **v0.29.3** ✅ | Perf + гигиена (`src-tauri/` удалён, CI) |
 | **v0.30** | Анимации фона 2.0 |
 | **v0.30.1** | Черновики форм |
 | **v0.30.2** | Прогресс дня — явные % |
+| **v0.30.3** | Реструктуризация настроек |
 | **v0.31** | Оптимизация меню |
 | **v0.31.1** | Скрываемое меню |
 | **v0.32** | Мобильное приложение |
 | **v0.33** | Группировка в дейлике |
-| **v0.3** | Ollama |
+| **v0.34** | Ollama |
 
 | Скрипт | Проверок |
 |--------|----------|
@@ -264,6 +271,7 @@ PlanBoard/
 | `verify-task-credit.mjs` | 12 |
 | `verify-day-progress.mjs` | 11 |
 | `verify-minimal-window.mjs` | 30 |
+| `verify-stabilize.mjs` | ~20 |
 
 </details>
 
