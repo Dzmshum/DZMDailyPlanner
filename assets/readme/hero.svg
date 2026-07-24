@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="380" viewBox="0 0 1200 380" role="img" aria-labelledby="title desc">
+  <title id="title">PlanBoard</title>
+  <desc id="desc">Локальный планировщик с дедлайнами, проектами, календарём и дейликами. Данные — один JSON на диске.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0c0e14"/>
+      <stop offset="55%" stop-color="#12161f"/>
+      <stop offset="100%" stop-color="#0a0c12"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1d24"/>
+      <stop offset="100%" stop-color="#14171e"/>
+    </linearGradient>
+    <linearGradient id="accentBar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#6b8cff"/>
+      <stop offset="100%" stop-color="#30cfea"/>
+    </linearGradient>
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="1200" height="380" rx="26" fill="url(#bg)"/>
+  <rect x="1" y="1" width="1198" height="378" rx="25" fill="none" stroke="#2a3140" stroke-width="1"/>
+  <g transform="translate(56 48)">
+    <text x="0" y="22" fill="#6b8cff" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" letter-spacing="2">DESKTOP / LOCAL JSON</text>
+    <text x="0" y="96" fill="#e8eaed" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="64" font-weight="700">PlanBoard</text>
+    <text x="0" y="148" fill="#a8adb8" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="24">Дедлайны, проекты, календарь и дейлики</text>
+    <text x="0" y="182" fill="#a8adb8" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="24">в одном файле на вашем ПК</text>
+    <rect x="0" y="220" width="280" height="4" rx="2" fill="url(#accentBar)"/>
+    <g transform="translate(0 252)" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18">
+      <rect x="0" y="0" width="118" height="36" rx="8" fill="#1a1d24" stroke="#2a3140"/>
+      <text x="16" y="24" fill="#9cb4c8">v0.29.1</text>
+      <rect x="130" y="0" width="150" height="36" rx="8" fill="#1a1d24" stroke="#2a3140"/>
+      <text x="146" y="24" fill="#9cb4c8">Electron</text>
+      <rect x="292" y="0" width="120" height="36" rx="8" fill="#1a1d24" stroke="#2a3140"/>
+      <text x="308" y="24" fill="#9cb4c8">RU UI</text>
+    </g>
+  </g>
+  <g transform="translate(640 40)">
+    <rect x="0" y="0" width="504" height="300" rx="18" fill="url(#panel)" stroke="#2a3140"/>
+    <rect x="0" y="0" width="56" height="300" rx="18" fill="#101218"/>
+    <rect x="38" y="0" width="18" height="300" fill="#101218"/>
+    <g transform="translate(14 28)">
+      <rect x="0" y="0" width="28" height="28" rx="6" fill="#6b8cff" opacity="0.9"/>
+      <text x="8" y="20" fill="#0c0e14" font-family="Segoe UI, sans-serif" font-size="16" font-weight="700">1</text>
+      <rect x="0" y="42" width="28" height="28" rx="6" fill="#22262f"/>
+      <text x="8" y="62" fill="#a8adb8" font-family="Segoe UI, sans-serif" font-size="16">2</text>
+      <rect x="0" y="84" width="28" height="28" rx="6" fill="#22262f"/>
+      <text x="8" y="104" fill="#a8adb8" font-family="Segoe UI, sans-serif" font-size="16">3</text>
+      <rect x="0" y="126" width="28" height="28" rx="6" fill="#22262f"/>
+      <text x="8" y="146" fill="#a8adb8" font-family="Segoe UI, sans-serif" font-size="16">4</text>
+      <rect x="0" y="168" width="28" height="28" rx="6" fill="#22262f"/>
+      <text x="8" y="188" fill="#a8adb8" font-family="Segoe UI, sans-serif" font-size="16">5</text>
+    </g>
+    <text x="78" y="36" fill="#e8eaed" font-family="Segoe UI, sans-serif" font-size="20" font-weight="600">Дашборд</text>
+    <text x="78" y="62" fill="#6e7380" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">сегодня / 2 из 6</text>
+    <rect x="78" y="78" width="390" height="8" rx="4" fill="#22262f"/>
+    <rect x="78" y="78" width="130" height="8" rx="4" fill="#6b8cff"/>
+    <g transform="translate(78 110)" font-family="Segoe UI, sans-serif" font-size="18">
+      <rect x="0" y="0" width="390" height="44" rx="10" fill="#121418" stroke="#2a3140"/>
+      <circle cx="24" cy="22" r="10" fill="none" stroke="#58b888" stroke-width="2.5" filter="url(#softGlow)"/>
+      <path d="M18 22 l4 4 l8 -9" fill="none" stroke="#58b888" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="46" y="28" fill="#6e7380">Закрыть отчёт</text>
+      <text x="300" y="28" fill="#58b888" font-size="16">готово</text>
+      <rect x="0" y="56" width="390" height="44" rx="10" fill="#121418" stroke="#2a3140"/>
+      <circle cx="24" cy="78" r="10" fill="none" stroke="#6b8cff" stroke-width="2.5"/>
+      <text x="46" y="84" fill="#e8eaed">Сверстать макет</text>
+      <text x="300" y="84" fill="#d0a848" font-size="16">сегодня</text>
+      <rect x="0" y="112" width="390" height="44" rx="10" fill="#121418" stroke="#2a3140"/>
+      <circle cx="24" cy="134" r="10" fill="none" stroke="#e07070" stroke-width="2.5"/>
+      <text x="46" y="140" fill="#e8eaed">Ответ клиенту</text>
+      <text x="300" y="140" fill="#e07070" font-size="16">просроч.</text>
+    </g>
+    <g transform="translate(78 258)" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14">
+      <rect x="0" y="0" width="40" height="28" rx="6" fill="#22262f"/>
+      <text x="12" y="19" fill="#6e7380">Пн</text>
+      <rect x="48" y="0" width="40" height="28" rx="6" fill="#6b8cff"/>
+      <text x="60" y="19" fill="#0c0e14" font-weight="700">Вт</text>
+      <rect x="96" y="0" width="40" height="28" rx="6" fill="#22262f"/>
+      <text x="108" y="19" fill="#6e7380">Ср</text>
+      <rect x="144" y="0" width="40" height="28" rx="6" fill="#22262f"/>
+      <text x="156" y="19" fill="#6e7380">Чт</text>
+      <rect x="192" y="0" width="40" height="28" rx="6" fill="#22262f"/>
+      <text x="204" y="19" fill="#6e7380">Пт</text>
+    </g>
+  </g>
+</svg>
