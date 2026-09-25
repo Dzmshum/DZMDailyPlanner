@@ -4,6 +4,13 @@ import type { TaskAttachment } from '../../types'
 import { usePlanStore } from '../../store/planStore'
 import { canSaveTask, resolveTaskTitle } from '../../lib/taskTitle'
 import { cleanupDraftAttachments } from '../../lib/attachmentCleanup'
+import { confirmAction } from '../../store/confirmStore'
+import {
+  QUICK_CAPTURE_DRAFT_KEY,
+  clearTaskDraft,
+  loadTaskDraft,
+  saveTaskDraft,
+} from '../../lib/taskDraft'
 import { Modal } from '../ui/Modal'
 import { VoiceInputField } from '../ui/VoiceInputField'
 import { TaskAttachments } from '../tasks/TaskAttachments'
@@ -26,20 +33,55 @@ export function QuickCaptureModal() {
   useEffect(() => {
     if (!open) return
     savedRef.current = false
+    const saved = loadTaskDraft<{ title: string; attachments: TaskAttachment[]; storageTaskId: string }>(
+      QUICK_CAPTURE_DRAFT_KEY,
+    )
+    if (saved?.storageTaskId) {
+      setTitle(saved.title ?? '')
+      setAttachments(saved.attachments ?? [])
+      setStorageTaskId(saved.storageTaskId)
+      return
+    }
     setTitle('')
     setAttachments([])
     setStorageTaskId(uuidv4())
   }, [open])
 
-  const handleClose = () => {
-    if (!savedRef.current) {
-      void cleanupDraftAttachments(
-        storageTaskIdRef.current,
-        [],
-        attachmentsRef.current,
-        true,
-      )
+  useEffect(() => {
+    if (!open || !storageTaskId || savedRef.current) return
+    const timer = window.setTimeout(() => {
+      saveTaskDraft(QUICK_CAPTURE_DRAFT_KEY, {
+        title,
+        attachments,
+        storageTaskId,
+      })
+    }, 300)
+    return () => window.clearTimeout(timer)
+  }, [open, title, attachments, storageTaskId])
+
+  const keepAndClose = () => {
+    saveTaskDraft(QUICK_CAPTURE_DRAFT_KEY, {
+      title,
+      attachments: attachmentsRef.current,
+      storageTaskId: storageTaskIdRef.current,
+    })
+    closeQuickCapture()
+  }
+
+  const discardAndClose = async () => {
+    if (
+      (title.trim() || attachmentsRef.current.length > 0) &&
+      !(await confirmAction({
+        title: 'Сбросить черновик?',
+        message: 'Текст и черновые фото будут удалены.',
+        confirmLabel: 'Сбросить',
+        danger: true,
+      }))
+    ) {
+      return
     }
+    void cleanupDraftAttachments(storageTaskIdRef.current, [], attachmentsRef.current, true)
+    clearTaskDraft(QUICK_CAPTURE_DRAFT_KEY)
     setTitle('')
     setAttachments([])
     closeQuickCapture()
@@ -47,7 +89,7 @@ export function QuickCaptureModal() {
 
   useEffect(() => {
     if (!open) return
-    const onEscCancel = () => handleClose()
+    const onEscCancel = () => keepAndClose()
     window.addEventListener('planboard:cancel-quick-capture', onEscCancel)
     return () =>
       window.removeEventListener('planboard:cancel-quick-capture', onEscCancel)
@@ -58,6 +100,7 @@ export function QuickCaptureModal() {
     if (!canSaveTask(title, attachments)) return
 
     savedRef.current = true
+    clearTaskDraft(QUICK_CAPTURE_DRAFT_KEY)
     addTask({
       id: storageTaskId,
       title: resolveTaskTitle(title, attachments),
@@ -87,7 +130,7 @@ export function QuickCaptureModal() {
   return (
     <Modal
       open={open}
-      onClose={handleClose}
+      onClose={keepAndClose}
       title="Быстрый захват"
       size="md"
     >
@@ -112,6 +155,9 @@ export function QuickCaptureModal() {
         )}
 
         <div className="quick-capture-actions">
+          <button type="button" className="btn" onClick={() => void discardAndClose()}>
+            Сбросить
+          </button>
           <button type="submit" className="btn btn-primary" disabled={!canSubmit}>
             Во входящие
           </button>

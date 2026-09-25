@@ -12,6 +12,13 @@ import {
   cleanupDraftAttachments,
 } from '../../lib/attachmentCleanup'
 import { confirmAction } from '../../store/confirmStore'
+import {
+  TASK_DRAFT_NEW_KEY,
+  clearTaskDraft,
+  loadTaskDraft,
+  saveTaskDraft,
+  taskEditDraftKey,
+} from '../../lib/taskDraft'
 import { VoiceInputField } from '../ui/VoiceInputField'
 import { Modal } from '../ui/Modal'
 import { DatePicker } from '../ui/DatePicker'
@@ -60,9 +67,67 @@ export function TaskForm() {
   const [jiraMessage, setJiraMessage] = useState('')
   const [showDetails, setShowDetails] = useState(false)
   const initialAttachmentsRef = useRef<TaskAttachment[]>([])
+  const sessionRef = useRef<string | null>(null)
+
+  const draftKey = editingId ? taskEditDraftKey(editingId) : TASK_DRAFT_NEW_KEY
+
+  const snapshot = () =>
+    JSON.stringify({
+      title,
+      projectId,
+      deadline,
+      timeStart,
+      timeEnd,
+      priority,
+      status,
+      notes,
+      attachments,
+      storageTaskId,
+      jiraKey,
+    })
 
   useEffect(() => {
-    if (!open) return
+    if (!open) {
+      sessionRef.current = null
+      return
+    }
+    const session = editingId ?? 'new'
+    if (sessionRef.current === session) return
+    sessionRef.current = session
+
+    const saved = loadTaskDraft<{
+      title: string
+      projectId: string
+      deadline: string
+      timeStart: string
+      timeEnd: string
+      priority: Priority
+      status: TaskStatus
+      notes: string
+      attachments: TaskAttachment[]
+      storageTaskId: string
+      jiraKey: string | null
+    }>(draftKey)
+
+    if (saved) {
+      initialAttachmentsRef.current = editingTask?.attachments ?? []
+      setTitle(saved.title)
+      setProjectId(saved.projectId)
+      setDeadline(saved.deadline)
+      setDeadlinePreset(getDeadlinePreset(saved.deadline))
+      setTimeStart(saved.timeStart)
+      setTimeEnd(saved.timeEnd)
+      setPriority(saved.priority)
+      setStatus(saved.status)
+      setNotes(saved.notes)
+      setAttachments(saved.attachments ?? [])
+      setStorageTaskId(saved.storageTaskId || editingTask?.id || uuidv4())
+      setJiraKey(saved.jiraKey)
+      setShowDetails(Boolean(editingTask) || Boolean(saved.notes))
+      setError('')
+      setJiraMessage('')
+      return
+    }
 
     if (editingTask) {
       const initial = editingTask.attachments ?? []
@@ -99,7 +164,15 @@ export function TaskForm() {
     }
     setError('')
     setJiraMessage('')
-  }, [editingTask, open])
+  }, [open, editingId, editingTask, draftKey])
+
+  useEffect(() => {
+    if (!open || !storageTaskId) return
+    const timer = window.setTimeout(() => {
+      saveTaskDraft(draftKey, JSON.parse(snapshot()))
+    }, 300)
+    return () => window.clearTimeout(timer)
+  }, [open, draftKey, title, projectId, deadline, timeStart, timeEnd, priority, status, notes, attachments, storageTaskId, jiraKey])
 
   const buildPayload = () => {
     const time =
@@ -118,19 +191,37 @@ export function TaskForm() {
     }
   }
 
-  const handleCancel = () => {
+  const keepAndClose = () => {
+    saveTaskDraft(draftKey, JSON.parse(snapshot()))
+    closeTaskForm()
+  }
+
+  const discardAndClose = async () => {
+    const dirty = title.trim() !== '' || notes.trim() !== '' || attachments.length > 0
+    if (
+      dirty &&
+      !(await confirmAction({
+        title: 'Сбросить черновик?',
+        message: 'Ввод и черновые фото будут удалены.',
+        confirmLabel: 'Сбросить',
+        danger: true,
+      }))
+    ) {
+      return
+    }
     void cleanupDraftAttachments(
       storageTaskId,
       initialAttachmentsRef.current,
       attachments,
       !isEditing,
     )
+    clearTaskDraft(draftKey)
     closeTaskForm()
   }
 
   useEffect(() => {
     if (!open) return
-    const onEscCancel = () => handleCancel()
+    const onEscCancel = () => keepAndClose()
     window.addEventListener('planboard:cancel-task-form', onEscCancel)
     return () =>
       window.removeEventListener('planboard:cancel-task-form', onEscCancel)
@@ -154,6 +245,7 @@ export function TaskForm() {
     } else {
       addTask({ ...payload, id: storageTaskId })
     }
+    clearTaskDraft(draftKey)
     closeTaskForm()
   }
 
@@ -222,7 +314,7 @@ export function TaskForm() {
   return (
     <Modal
       open={open}
-      onClose={handleCancel}
+      onClose={keepAndClose}
       title={isEditing ? 'Редактировать задачу' : 'Новая задача'}
       size="lg"
       footer={
@@ -236,7 +328,7 @@ export function TaskForm() {
               Удалить
             </button>
           )}
-          <button className="btn" onClick={handleCancel}>
+          <button className="btn" onClick={() => void discardAndClose()}>
             Отмена
           </button>
           <button className="btn btn-primary" onClick={() => void handleSave()}>
