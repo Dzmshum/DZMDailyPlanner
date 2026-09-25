@@ -13,21 +13,35 @@ interface ModalProps {
 export function Modal({ open, onClose, title, children, footer, size = 'md' }: ModalProps) {
   const titleId = useId()
   const dialogRef = useRef<HTMLDivElement>(null)
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
 
   useEffect(() => {
     if (!open) return
 
     const previouslyFocused = document.activeElement as HTMLElement | null
     const dialog = dialogRef.current
-    const focusable = dialog?.querySelector<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-    )
-    focusable?.focus()
+    const active = document.activeElement
+    const alreadyInside =
+      !!dialog &&
+      active instanceof HTMLElement &&
+      dialog.contains(active) &&
+      active !== dialog
+    if (!alreadyInside) {
+      const focusable =
+        dialog?.querySelector<HTMLElement>(
+          'textarea, select, input:not([type="hidden"]):not([type="file"]):not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):not([readonly])',
+        ) ??
+        dialog?.querySelector<HTMLElement>(
+          'button, [href], [tabindex]:not([tabindex="-1"])',
+        )
+      focusable?.focus()
+    }
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault()
-        onClose()
+        onCloseRef.current()
       }
     }
     window.addEventListener('keydown', onKeyDown)
@@ -35,7 +49,7 @@ export function Modal({ open, onClose, title, children, footer, size = 'md' }: M
       window.removeEventListener('keydown', onKeyDown)
       previouslyFocused?.focus?.()
     }
-  }, [open, onClose])
+  }, [open])
 
   if (!open) return null
 
