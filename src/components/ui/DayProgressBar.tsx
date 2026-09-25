@@ -2,12 +2,15 @@ import { isSameDay } from 'date-fns'
 import type { Task } from '../../types'
 import { formatDisplayDate, today } from '../../lib/dates'
 import { getDayProgress } from '../../lib/selectors'
+import { usePlanStore } from '../../store/planStore'
 
 interface DayProgressBarProps {
   tasks: Task[]
   date: Date
   compact?: boolean
   showLabel?: boolean
+  showPercent?: boolean
+  showFraction?: boolean
   className?: string
 }
 
@@ -16,8 +19,13 @@ export function DayProgressBar({
   date,
   compact = false,
   showLabel = false,
+  showPercent = true,
+  showFraction = true,
   className,
 }: DayProgressBarProps) {
+  const prefs = usePlanStore((s) => s.data.settings.dayProgress)
+  const percentOn = showPercent && prefs.showPercent !== false
+  const fractionOn = showFraction && prefs.showFraction !== false
   const { done, total, ratio } = getDayProgress(tasks, date)
   const empty = total === 0
   const percent = Math.round(ratio * 100)
@@ -27,7 +35,8 @@ export function DayProgressBar({
   const label = isSameDay(date, today()) ? 'Сегодня' : formatDisplayDate(date)
   const ariaLabel = empty
     ? 'Нет задач на день'
-    : `Выполнено ${done} из ${total} задач`
+    : `${percent} процентов, ${done} из ${total} задач`
+  const fractionText = compact ? `${done}/${total}` : `${done} из ${total}`
 
   return (
     <div
@@ -44,9 +53,10 @@ export function DayProgressBar({
       <div
         className="day-progress-track"
         role="progressbar"
-        aria-valuenow={done}
+        aria-valuenow={empty ? 0 : percent}
         aria-valuemin={0}
-        aria-valuemax={Math.max(total, 1)}
+        aria-valuemax={100}
+        aria-valuetext={ariaLabel}
         aria-label={ariaLabel}
       >
         <div
@@ -54,9 +64,14 @@ export function DayProgressBar({
           style={{ width: empty ? '0%' : `${percent}%` }}
         />
       </div>
-      <span className="day-progress-fraction">
-        {empty ? (compact ? '—' : 'Нет задач на день') : `${done}/${total}`}
-      </span>
+      {percentOn && (
+        <span className="day-progress-percent">{empty ? '—' : `${percent}%`}</span>
+      )}
+      {fractionOn && (
+        <span className="day-progress-fraction">
+          {empty ? (compact ? '—' : 'Нет задач на день') : fractionText}
+        </span>
+      )}
     </div>
   )
 }

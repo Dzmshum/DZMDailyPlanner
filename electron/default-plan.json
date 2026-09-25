@@ -30,7 +30,9 @@
     },
     "dayProgress": {
       "showOnAgenda": true,
-      "showOnDashboard": true
+      "showOnDashboard": true,
+      "showPercent": true,
+      "showFraction": true
     },
     "export": {
       "includeDone": false,

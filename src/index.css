@@ -2141,6 +2141,18 @@ html {
   }
 }
 
+.day-progress-percent {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.day-progress--compact .day-progress-percent {
+  font-size: 0.75rem;
+}
+
 .day-progress-fraction {
   font-size: 0.8125rem;
   font-weight: 600;

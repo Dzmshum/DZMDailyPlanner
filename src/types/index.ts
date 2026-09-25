@@ -89,6 +89,8 @@ export interface DailySettings {
 export interface DayProgressSettings {
   showOnAgenda: boolean
   showOnDashboard: boolean
+  showPercent: boolean
+  showFraction: boolean
 }
 
 export interface ExportSettings {
@@ -313,6 +315,8 @@ export const DEFAULT_DAILY_SETTINGS: DailySettings = {
 export const DEFAULT_DAY_PROGRESS_SETTINGS: DayProgressSettings = {
   showOnAgenda: true,
   showOnDashboard: true,
+  showPercent: true,
+  showFraction: true,
 }
 
 export const DEFAULT_EXPORT_SETTINGS: ExportSettings = {
@@ -478,6 +482,8 @@ export function normalizePlan(data: unknown): PlanData {
       dayProgress: {
         ...defaults.dayProgress,
         ...settingsIn?.dayProgress,
+        showPercent: settingsIn?.dayProgress?.showPercent ?? true,
+        showFraction: settingsIn?.dayProgress?.showFraction ?? true,
       },
       export: {
         ...defaults.export,

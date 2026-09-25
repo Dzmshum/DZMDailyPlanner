@@ -110,8 +110,14 @@ const legacy = normalizePlan({
 assert(
   'normalizePlan: dayProgress defaults',
   legacy.settings.dayProgress.showOnAgenda === true &&
-    legacy.settings.dayProgress.showOnDashboard === true,
+    legacy.settings.dayProgress.showOnDashboard === true &&
+    legacy.settings.dayProgress.showPercent === true &&
+    legacy.settings.dayProgress.showFraction === true,
 )
+assert('процент 50', getDayProgress([
+  task('a', '2026-07-07', 'done', '2026-07-07T10:00:00'),
+  task('b', '2026-07-07', 'active'),
+], today).ratio === 0.5)
 
 if (!process.exitCode) {
   console.log('\nПроверка прогресса дня: все тесты пройдены')

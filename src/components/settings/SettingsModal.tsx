@@ -194,6 +194,20 @@ export function SettingsModal() {
               >
                 Показывать на дашборде (блок «Сегодня»)
               </ThemedCheckbox>
+              <ThemedCheckbox
+                className="settings-check"
+                checked={dayProgress.showPercent}
+                onChange={(v) => setDayProgressSettings({ showPercent: v })}
+              >
+                Показывать процент
+              </ThemedCheckbox>
+              <ThemedCheckbox
+                className="settings-check"
+                checked={dayProgress.showFraction}
+                onChange={(v) => setDayProgressSettings({ showFraction: v })}
+              >
+                Показывать счётчик задач
+              </ThemedCheckbox>
 
               <h3 className="settings-section-title settings-section-title-spaced">
                 Экспорт текста
