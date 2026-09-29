@@ -91,6 +91,20 @@ export function useHotkeys() {
         return
       }
 
+      if (
+        !isInput &&
+        !e.repeat &&
+        !e.ctrlKey &&
+        !e.metaKey &&
+        !e.altKey &&
+        !e.shiftKey &&
+        e.code === 'BracketLeft'
+      ) {
+        e.preventDefault()
+        usePlanStore.getState().toggleSidebarMode()
+        return
+      }
+
       const navKeyMax = String(NAV_VIEW_ORDER.length)
       if (!isInput && e.key >= '1' && e.key <= navKeyMax) {
         e.preventDefault()

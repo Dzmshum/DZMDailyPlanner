@@ -5,6 +5,7 @@ import { SettingsSection } from '../SettingsSection'
 
 const HOTKEYS: { keys: string; action: string }[] = [
   { keys: '1–6', action: 'Пункты меню сверху вниз' },
+  { keys: '[', action: 'Скрыть или показать меню' },
   { keys: 'Q', action: 'Быстрый захват' },
   { keys: 'N', action: 'Новая задача' },
   { keys: 'Пробел', action: 'Отметить выбранную задачу' },
@@ -19,6 +20,8 @@ const HOTKEYS: { keys: string; action: string }[] = [
 export function WindowPanel({ query }: { query: string }) {
   const windowMode = usePlanStore((s) => s.data.settings.windowMode)
   const setWindowMode = usePlanStore((s) => s.setWindowMode)
+  const sidebarMode = usePlanStore((s) => s.data.settings.navigation.sidebarMode)
+  const setSidebarMode = usePlanStore((s) => s.setSidebarMode)
   const voiceInputEnabled = usePlanStore((s) => s.data.settings.voiceInputEnabled)
   const setVoiceInputEnabled = usePlanStore((s) => s.setVoiceInputEnabled)
 
@@ -49,6 +52,30 @@ export function WindowPanel({ query }: { query: string }) {
             ))}
           </div>
         )}
+      </SettingsSection>
+
+      <SettingsSection
+        id="sidebar"
+        hint="[ — скрыть или закрепить. Скрытое меню — полоска слева, панель поверх окна."
+        query={query}
+      >
+        <div className="settings-radio-row">
+          {(
+            [
+              ['expanded', 'На экране'],
+              ['peek', 'Скрыто'],
+            ] as const
+          ).map(([mode, label]) => (
+            <button
+              key={mode}
+              type="button"
+              className={`btn btn-sm ${sidebarMode === mode ? 'btn-primary' : ''}`}
+              onClick={() => setSidebarMode(mode)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </SettingsSection>
 
       <SettingsSection id="voice" hint="Ctrl+Shift+V" query={query}>

@@ -11,6 +11,7 @@ import type {
   ThemeMode,
   ViewId,
   WindowMode,
+  SidebarMode,
   CalendarSettings,
   DailySettings,
   DayProgressSettings,
@@ -65,6 +66,8 @@ interface PlanState {
   setSearchQuery: (query: string) => void
   setJiraSettings: (jira: Partial<JiraSettings>) => void
   setWindowMode: (mode: WindowMode) => void
+  setSidebarMode: (mode: SidebarMode) => void
+  toggleSidebarMode: () => void
   setCalendarSettings: (calendar: Partial<CalendarSettings>) => void
   setDailySettings: (daily: Partial<DailySettings>) => void
   setDayProgressSettings: (dayProgress: Partial<DayProgressSettings>) => void
@@ -250,6 +253,31 @@ export const usePlanStore = create<PlanState>((set, get) => ({
   setWindowMode: (windowMode) => {
     const { data } = get()
     set({ data: updateSettings(data, { windowMode }) })
+  },
+
+  setSidebarMode: (sidebarMode) => {
+    const { data } = get()
+    set({
+      data: updateSettings(data, {
+        navigation: {
+          ...(data.settings.navigation ?? { sidebarMode: 'expanded' }),
+          sidebarMode,
+        },
+      }),
+    })
+  },
+
+  toggleSidebarMode: () => {
+    const { data } = get()
+    const sidebarMode = data.settings.navigation.sidebarMode === 'peek' ? 'expanded' : 'peek'
+    set({
+      data: updateSettings(data, {
+        navigation: {
+          ...(data.settings.navigation ?? { sidebarMode: 'expanded' }),
+          sidebarMode,
+        },
+      }),
+    })
   },
 
   setCalendarSettings: (calendar) => {

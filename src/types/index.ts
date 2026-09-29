@@ -121,6 +121,16 @@ export interface CustomThemeSettings {
   ambientEnabled: boolean
 }
 
+export type SidebarMode = 'expanded' | 'peek'
+
+export interface NavigationSettings {
+  sidebarMode: SidebarMode
+}
+
+export const DEFAULT_NAVIGATION_SETTINGS: NavigationSettings = {
+  sidebarMode: 'expanded',
+}
+
 export interface Settings {
   theme: ThemeMode
   colorPalette: ColorPalette
@@ -128,6 +138,7 @@ export interface Settings {
   customTheme: CustomThemeSettings
   defaultView: ViewId
   windowMode: WindowMode
+  navigation: NavigationSettings
   calendar: CalendarSettings
   daily: DailySettings
   dayProgress: DayProgressSettings
@@ -349,6 +360,7 @@ export function createDefaultPlan(): PlanData {
       customTheme: { ...DEFAULT_CUSTOM_THEME },
       defaultView: 'dashboard',
       windowMode: 'standard',
+      navigation: { ...DEFAULT_NAVIGATION_SETTINGS },
       calendar: { ...DEFAULT_CALENDAR_SETTINGS },
       daily: { ...DEFAULT_DAILY_SETTINGS },
       dayProgress: { ...DEFAULT_DAY_PROGRESS_SETTINGS },
@@ -441,6 +453,9 @@ export function normalizePlan(data: unknown): PlanData {
     ambientAnimation = 'off'
   }
 
+  const sidebarMode: SidebarMode =
+    settingsIn?.navigation?.sidebarMode === 'peek' ? 'peek' : 'expanded'
+
   const windowMode: WindowMode =
     settingsIn?.windowMode === 'maximized' ||
     settingsIn?.windowMode === 'minimal' ||
@@ -471,6 +486,7 @@ export function normalizePlan(data: unknown): PlanData {
       customTheme,
       defaultView,
       windowMode,
+      navigation: { sidebarMode },
       calendar: {
         ...defaults.calendar,
         ...settingsIn?.calendar,

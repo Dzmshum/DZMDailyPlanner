@@ -17,6 +17,9 @@
     },
     "defaultView": "dashboard",
     "windowMode": "standard",
+    "navigation": {
+      "sidebarMode": "expanded"
+    },
     "calendar": {
       "showHolidays": true,
       "calendarView": "week"

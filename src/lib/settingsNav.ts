@@ -62,6 +62,12 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     keywords: 'минимальный развёрнутый electron desktop',
   },
   {
+    id: 'sidebar',
+    tab: 'window',
+    title: 'Меню',
+    keywords: 'сайдбар скрыть peek закрепить полоска',
+  },
+  {
     id: 'voice',
     tab: 'window',
     title: 'Голосовой ввод',

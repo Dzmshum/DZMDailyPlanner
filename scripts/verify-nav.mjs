@@ -1,5 +1,6 @@
 /**
  * Меню v0.31: 6 пунктов, режимы внутри, hotkeys 1–N, старые defaultView живы.
+ * v0.31.1: sidebarMode peek, клавиша `[`, полоска 4px без сдвига main.
  * Запуск: npx tsx scripts/verify-nav.mjs
  */
 import { readFileSync } from 'node:fs'
@@ -71,6 +72,37 @@ assert('sidebar has no inbox label', !sidebar.includes('Входящие'))
 assert('hotkeys use NAV_VIEW_ORDER', hotkeys.includes('NAV_VIEW_ORDER'))
 assert('hotkeys not capped at 8', !hotkeys.includes("<= '8'"))
 assert('header switches modes', header.includes('header-view-switch'))
+
+const layout = readFileSync(join(root, 'src/components/layout/AppLayout.tsx'), 'utf8')
+const css = readFileSync(join(root, 'src/index.css'), 'utf8')
+const fresh = createDefaultPlan()
+assert('default sidebar expanded', fresh.settings.navigation.sidebarMode === 'expanded')
+const keptPeek = normalizePlan({
+  ...fresh,
+  settings: { ...fresh.settings, navigation: { sidebarMode: 'peek' } },
+})
+const droppedMode = normalizePlan({
+  ...fresh,
+  settings: { ...fresh.settings, navigation: { sidebarMode: 'rail' } },
+})
+assert('sidebar peek kept', keptPeek.settings.navigation.sidebarMode === 'peek')
+assert('bad sidebar mode falls back', droppedMode.settings.navigation.sidebarMode === 'expanded')
+assert('hotkey bracket toggles sidebar', hotkeys.includes("e.code === 'BracketLeft'") && hotkeys.includes('toggleSidebarMode'))
+assert('view hotkeys ignore sidebar mode', !/NAV_VIEW_ORDER[\s\S]{0,180}sidebarMode/.test(hotkeys))
+assert('layout uses sidebar mode', layout.includes('app-layout--peek') && layout.includes('sidebarMode'))
+assert('peek does not reserve sidebar width', css.includes('.app-layout--peek .sidebar') && css.includes('position: absolute'))
+assert(
+  'peek strip is 4px',
+  css.includes('--sidebar-peek: 4px') &&
+    css.includes('translateX(calc(-1 * var(--sidebar-shift)))') &&
+    css.includes('width: 4px'),
+)
+assert('sidebar is not a drag region', sidebar.includes('titlebar-no-drag'))
+assert(
+  'collapsed menu is inert',
+  sidebar.includes('const menuHidden = sidebarMode === \'peek\' && !revealed') &&
+    (sidebar.match(/inert=\{menuHidden\}/g) ?? []).length >= 3,
+)
 
 if (failed > 0) {
   console.error(`\n${failed} failed, ${passed} passed`)

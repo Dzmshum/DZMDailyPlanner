@@ -144,7 +144,7 @@ assert('nav-item active hover preserves accent', /\.nav-item\.active:hover\s*\{[
 assert('settings-nav active hover preserves accent', /\.settings-nav-item\.active:hover\s*\{[^}]*color:\s*var\(--accent\)/s.test(css))
 
 // --- Sidebar settings button ---
-assert('sidebar-footer centered', /\.sidebar-footer\s*\{[^}]*justify-content:\s*center/s.test(css))
+assert('sidebar-footer starts at left', /\.sidebar-footer\s*\{[^}]*justify-content:\s*flex-start/s.test(css))
 assert('settings-btn width auto', /\.nav-item\.settings-btn\s*\{[^}]*width:\s*auto/s.test(css))
 assert('Sidebar settings UiIcon', sidebar.includes('icon="settings"'))
 assert('Sidebar nav-item settings-btn', sidebar.includes('className="nav-item settings-btn"'))
