@@ -1,6 +1,7 @@
 :root {
   --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
   --font-display: 'Cinzel', Georgia, 'Times New Roman', serif;
+  --surface: color-mix(in srgb, var(--bg-secondary) 92%, var(--bg-primary));
   --radius: 6px;
   --radius-sm: 3px;
   --shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
@@ -549,7 +550,7 @@ html {
   --content-indent: 11px;
   --space-title-bottom: 12px;
   --space-stack: 20px;
-  --space-section: 28px;
+  --space-section: 20px;
 }
 
 .sidebar {
@@ -1094,7 +1095,6 @@ html {
 .date-picker-month {
   flex: 1;
   min-width: 0;
-  font-family: var(--font-display);
   font-size: 0.9rem;
   font-weight: 600;
   text-align: center;
@@ -1228,6 +1228,12 @@ html {
   min-width: 0;
 }
 
+.header-view-switch .segmented-control-item {
+  height: 28px;
+  min-height: 28px;
+  padding: 0 10px;
+}
+
 .header-error {
   font-size: 0.8rem;
   color: var(--danger);
@@ -1277,7 +1283,6 @@ html {
 }
 
 .header-title {
-  font-family: var(--font-display);
   font-size: 1.25rem;
   font-weight: 700;
   margin: 0;
@@ -1550,14 +1555,9 @@ html {
   gap: 10px;
   margin-bottom: var(--space-stack);
   padding: 6px 8px 6px 6px;
-  border: 1px solid var(--border-ice);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--bg-secondary) 92%, transparent) 0%,
-    color-mix(in srgb, var(--bg-primary) 88%, transparent) 100%
-  );
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), var(--shadow);
+  background: var(--surface);
 }
 
 .period-nav-controls {
@@ -1572,7 +1572,6 @@ html {
   flex: 1;
   min-width: 0;
   padding: 0 10px;
-  font-family: var(--font-display);
   font-size: 1rem;
   font-weight: 600;
   line-height: 1.2;
@@ -1647,10 +1646,10 @@ html {
 }
 
 .section-title {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   color: var(--text-muted);
   margin: 0 0 var(--space-title-bottom);
   padding-left: var(--content-indent);
@@ -1670,14 +1669,9 @@ html {
   align-items: flex-start;
   gap: 10px;
   padding: 0;
-  border-radius: calc(var(--radius) + 2px);
-  border: 1px solid color-mix(in srgb, var(--border-ice) 70%, var(--border));
-  background:
-    linear-gradient(165deg, color-mix(in srgb, var(--bg-secondary) 92%, white 8%) 0%, var(--bg-tertiary) 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 1px 0 rgba(0, 0, 0, 0.18),
-    var(--shadow);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
   cursor: pointer;
   overflow: hidden;
   transition:
@@ -1886,11 +1880,7 @@ html {
 .task-list .task-card:nth-child(n+5) { animation-delay: 140ms; }
 
 .task-card:hover {
-  border-color: color-mix(in srgb, var(--accent) 55%, var(--border-ice));
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 0 0 1px color-mix(in srgb, var(--accent) 15%, transparent),
-    0 8px 24px color-mix(in srgb, var(--accent-glow) 25%, rgba(0, 0, 0, 0.35));
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
 }
 
 .task-card .btn-sm {
@@ -1932,12 +1922,7 @@ html {
 
 .task-card.selected {
   border-color: var(--accent);
-  background:
-    linear-gradient(165deg, color-mix(in srgb, var(--accent-soft) 80%, var(--bg-secondary)) 0%, var(--bg-tertiary) 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent),
-    0 10px 28px color-mix(in srgb, var(--accent-glow) 35%, rgba(0, 0, 0, 0.4));
+  background: color-mix(in srgb, var(--accent-soft) 65%, var(--surface));
 }
 
 .task-card.overdue .task-card-rail {
@@ -2272,8 +2257,7 @@ html {
   padding: 14px 14px 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: color-mix(in srgb, var(--bg-secondary) 72%, transparent);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  background: var(--surface);
 }
 
 .agenda-sidebar-header {
@@ -2490,7 +2474,7 @@ html {
 
 .empty-state {
   text-align: center;
-  padding: 48px 24px;
+  padding: 28px 16px;
   color: var(--text-muted);
 }
 
@@ -2562,7 +2546,6 @@ html {
 }
 
 .modal-title {
-  font-family: var(--font-display);
   font-size: 1.05rem;
   font-weight: 700;
   margin: 0;
@@ -3001,7 +2984,7 @@ html.lightbox-open .view-content {
   font-size: 0.78rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   color: var(--text-muted);
 }
 
@@ -3426,7 +3409,7 @@ html.lightbox-open .view-content {
 }
 
 .week-day {
-  background: var(--bg-secondary);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   display: flex;
@@ -3560,22 +3543,11 @@ html.lightbox-open .view-content {
 }
 
 .project-manager {
-  margin-top: 28px;
-  padding: 18px 20px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-ice);
-  background: linear-gradient(155deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), var(--shadow);
-}
-
-.project-manager-title {
-  font-family: var(--font-display);
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin: 0 0 16px;
+  margin-top: 0;
+  padding: 14px 14px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
 }
 
 .project-add-row {
@@ -3757,7 +3729,7 @@ html.lightbox-open .view-content {
   margin: 0 0 10px;
   font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
 }
@@ -3808,18 +3780,115 @@ html.lightbox-open .view-content {
   color: var(--text-muted);
 }
 
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
-@media (min-width: 900px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr 1fr;
+.dashboard-calm {
+  margin: 0;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--success) 10%, var(--bg-secondary));
+  border: 1px solid color-mix(in srgb, var(--success) 38%, var(--border));
+  border-radius: var(--radius);
+  box-shadow: inset 3px 0 0 var(--success);
+}
+
+.dashboard-board {
+  display: grid;
+  gap: 16px;
+  align-items: start;
+}
+
+.dashboard-card {
+  min-width: 0;
+  padding: 14px 14px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.dashboard-card--danger {
+  background: color-mix(in srgb, var(--danger) 8%, var(--bg-secondary));
+  border-color: color-mix(in srgb, var(--danger) 42%, var(--border));
+  box-shadow: inset 3px 0 0 var(--danger);
+}
+
+.dashboard-card--accent {
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.dashboard-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.dashboard-card-heading {
+  min-width: 0;
+}
+
+.dashboard-card-title {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.dashboard-card--danger .dashboard-card-title {
+  color: var(--danger);
+}
+
+.dashboard-card--accent .dashboard-card-title {
+  color: var(--accent);
+}
+
+.dashboard-card-meta {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.dashboard-card-count {
+  font-variant-numeric: tabular-nums;
+  font-size: 1.45rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.dashboard-card .empty-state {
+  padding: 8px 2px 10px;
+  text-align: left;
+}
+
+.dashboard-card .empty-state-icon {
+  display: none;
+}
+
+.dashboard-card .empty-state-title {
+  font-size: 0.9rem;
+}
+
+.dashboard-card .day-progress--dashboard {
+  margin-top: 0;
+}
+
+@media (min-width: 980px) {
+  .dashboard-board {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) minmax(0, 1fr);
   }
-  .dashboard-grid .section:first-child {
-    grid-column: 1 / -1;
+
+  .dashboard-board--calm {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 
@@ -4196,7 +4265,7 @@ html.lightbox-open .view-content {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 6px;
-  background: var(--bg-secondary);
+  background: var(--surface);
   text-align: left;
   cursor: pointer;
   color: var(--text-primary);
@@ -4452,10 +4521,10 @@ html.lightbox-open .view-content {
 }
 
 .history-day-title {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   color: var(--text-muted);
   position: sticky;
   top: 0;
@@ -4611,7 +4680,7 @@ html.lightbox-open .view-content {
   padding: 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: var(--bg-secondary);
+  background: var(--surface);
 }
 
 .inbox-week-strip-label {

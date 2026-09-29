@@ -54,7 +54,7 @@ export function Agenda() {
         nextLabel="Следующий день"
       />
 
-      {showDayProgress && (
+      {showDayProgress && activeTasks.length + doneTasks.length > 0 && (
         <DayProgressBar tasks={tasks} date={date} className="day-progress--agenda" />
       )}
 

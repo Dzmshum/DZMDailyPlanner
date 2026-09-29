@@ -94,8 +94,6 @@ export function ProjectManager() {
 
   return (
     <div className="project-manager">
-      <h3 className="project-manager-title">Проекты</h3>
-
       <div className="project-add-row">
         <VoiceInputField
           value={newName}
