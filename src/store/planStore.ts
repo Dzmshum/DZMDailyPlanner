@@ -25,6 +25,7 @@ import {
   DEFAULT_CUSTOM_THEME,
   normalizePlan,
 } from '../types'
+import { nextSidebarNavigation, toggledSidebarMode } from '../lib/sidebarMode'
 import { loadPlanFromDisk, savePlanToDisk } from '../lib/storage'
 import { mergePlans, replacePlan } from '../lib/planMerge'
 import { deleteTaskAttachments } from '../lib/attachmentStorage'
@@ -259,25 +260,14 @@ export const usePlanStore = create<PlanState>((set, get) => ({
     const { data } = get()
     set({
       data: updateSettings(data, {
-        navigation: {
-          ...(data.settings.navigation ?? { sidebarMode: 'expanded' }),
-          sidebarMode,
-        },
+        navigation: nextSidebarNavigation(data.settings.navigation, sidebarMode),
       }),
     })
   },
 
   toggleSidebarMode: () => {
     const { data } = get()
-    const sidebarMode = data.settings.navigation.sidebarMode === 'peek' ? 'expanded' : 'peek'
-    set({
-      data: updateSettings(data, {
-        navigation: {
-          ...(data.settings.navigation ?? { sidebarMode: 'expanded' }),
-          sidebarMode,
-        },
-      }),
-    })
+    get().setSidebarMode(toggledSidebarMode(data.settings.navigation))
   },
 
   setCalendarSettings: (calendar) => {

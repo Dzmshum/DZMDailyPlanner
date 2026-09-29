@@ -66,7 +66,7 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     id: 'sidebar',
     tab: 'window',
     title: 'Меню',
-    keywords: 'сайдбар скрыть peek закрепить полоска',
+    keywords: 'сайдбар скрыть peek rail рейка закрепить полоска круговое',
   },
   {
     id: 'voice',

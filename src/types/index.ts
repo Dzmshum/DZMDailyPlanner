@@ -121,14 +121,18 @@ export interface CustomThemeSettings {
   ambientEnabled: boolean
 }
 
-export type SidebarMode = 'expanded' | 'peek'
+export type SidebarOpenMode = 'expanded' | 'rail'
+export type SidebarMode = SidebarOpenMode | 'peek'
 
 export interface NavigationSettings {
   sidebarMode: SidebarMode
+  /** Куда `[` возвращает меню из peek. */
+  sidebarOpenMode: SidebarOpenMode
 }
 
 export const DEFAULT_NAVIGATION_SETTINGS: NavigationSettings = {
   sidebarMode: 'expanded',
+  sidebarOpenMode: 'expanded',
 }
 
 export interface Settings {
@@ -453,8 +457,18 @@ export function normalizePlan(data: unknown): PlanData {
     ambientAnimation = 'off'
   }
 
+  const rawSidebar = settingsIn?.navigation?.sidebarMode
   const sidebarMode: SidebarMode =
-    settingsIn?.navigation?.sidebarMode === 'peek' ? 'peek' : 'expanded'
+    rawSidebar === 'peek' || rawSidebar === 'rail' || rawSidebar === 'expanded'
+      ? rawSidebar
+      : 'expanded'
+  const rawOpen = settingsIn?.navigation?.sidebarOpenMode
+  const sidebarOpenMode: SidebarOpenMode =
+    rawOpen === 'rail' || rawOpen === 'expanded'
+      ? rawOpen
+      : sidebarMode === 'rail'
+        ? 'rail'
+        : 'expanded'
 
   const windowMode: WindowMode =
     settingsIn?.windowMode === 'maximized' ||
@@ -486,7 +500,7 @@ export function normalizePlan(data: unknown): PlanData {
       customTheme,
       defaultView,
       windowMode,
-      navigation: { sidebarMode },
+      navigation: { sidebarMode, sidebarOpenMode },
       calendar: {
         ...defaults.calendar,
         ...settingsIn?.calendar,

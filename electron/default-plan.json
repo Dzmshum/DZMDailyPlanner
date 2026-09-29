@@ -18,7 +18,8 @@
     "defaultView": "dashboard",
     "windowMode": "standard",
     "navigation": {
-      "sidebarMode": "expanded"
+      "sidebarMode": "expanded",
+      "sidebarOpenMode": "expanded"
     },
     "calendar": {
       "showHolidays": true,

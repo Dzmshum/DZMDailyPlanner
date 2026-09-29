@@ -5,6 +5,7 @@ import { NAV_ENTRIES, rememberNavView, viewForNavEntry } from '../../lib/nav'
 import { BrandMark } from './BrandMark'
 import { ViewIcon } from './ViewIcon'
 import { UiIcon } from '../ui/UiIcon'
+import { SidebarRadialMenu } from './SidebarRadialMenu'
 
 export function Sidebar() {
   const currentView = usePlanStore((s) => s.currentView)
@@ -16,9 +17,12 @@ export function Sidebar() {
   const weekAnchor = usePlanStore((s) => s.weekAnchor)
   const dailyDays = usePlanStore((s) => s.data.settings.daily.days)
   const sidebarMode = usePlanStore((s) => s.data.settings.navigation?.sidebarMode ?? 'expanded')
-  const setSidebarMode = usePlanStore((s) => s.setSidebarMode)
+  const toggleSidebarMode = usePlanStore((s) => s.toggleSidebarMode)
   const [revealed, setRevealed] = useState(false)
+  const [radialOpen, setRadialOpen] = useState(false)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const hovering = useRef(false)
+  const logoRef = useRef<HTMLButtonElement>(null)
 
   const clearCloseTimer = () => {
     if (closeTimer.current) {
@@ -28,15 +32,26 @@ export function Sidebar() {
   }
 
   const reveal = () => {
+    hovering.current = true
     if (sidebarMode !== 'peek') return
     clearCloseTimer()
     setRevealed(true)
   }
 
   const scheduleHide = () => {
-    if (sidebarMode !== 'peek') return
+    hovering.current = false
+    if (sidebarMode !== 'peek' || radialOpen) return
     clearCloseTimer()
     closeTimer.current = setTimeout(() => setRevealed(false), 400)
+  }
+
+  const closeRadial = () => {
+    setRadialOpen(false)
+    logoRef.current?.focus()
+    if (sidebarMode === 'peek' && !hovering.current) {
+      clearCloseTimer()
+      closeTimer.current = setTimeout(() => setRevealed(false), 400)
+    }
   }
 
   const counts = getViewCounts(
@@ -52,15 +67,22 @@ export function Sidebar() {
   }, [currentView])
 
   useEffect(() => {
+    setRadialOpen(false)
+  }, [currentView])
+
+  useEffect(() => {
     if (sidebarMode !== 'peek') {
       clearCloseTimer()
       setRevealed(false)
     }
+    setRadialOpen(false)
   }, [sidebarMode])
 
   useEffect(() => () => clearCloseTimer(), [])
 
   const menuHidden = sidebarMode === 'peek' && !revealed
+  const toggleLabel =
+    sidebarMode === 'peek' ? 'Полное меню' : sidebarMode === 'rail' ? 'Скрыть меню' : 'Меню из иконок'
 
   return (
     <aside
@@ -69,8 +91,38 @@ export function Sidebar() {
       onMouseLeave={scheduleHide}
     >
       <div className="sidebar-brand" inert={menuHidden}>
-        <BrandMark variant="wordmark" size="lg" />
+        <button
+          ref={logoRef}
+          type="button"
+          className="sidebar-logo"
+          aria-label="Разделы"
+          aria-haspopup="menu"
+          aria-expanded={radialOpen}
+          aria-controls="sidebar-radial-menu"
+          title="Разделы"
+          onClick={() => {
+            if (radialOpen) {
+              closeRadial()
+              return
+            }
+            clearCloseTimer()
+            setRadialOpen(true)
+          }}
+        >
+          {sidebarMode === 'rail' ? (
+            <BrandMark variant="icon" size="sm" />
+          ) : (
+            <BrandMark variant="wordmark" size="lg" />
+          )}
+        </button>
       </div>
+
+      <SidebarRadialMenu
+        open={radialOpen && !menuHidden}
+        compact={sidebarMode === 'rail'}
+        anchorRef={logoRef}
+        onClose={closeRadial}
+      />
 
       <nav inert={menuHidden}>
         <ul className="nav-list">
@@ -83,6 +135,7 @@ export function Sidebar() {
                 <button
                   type="button"
                   className={`nav-item ${active ? 'active' : ''}`}
+                  title={sidebarMode === 'rail' ? entry.label : undefined}
                   onClick={() => {
                     if (active) return
                     setView(viewForNavEntry(entry))
@@ -90,7 +143,7 @@ export function Sidebar() {
                   aria-current={active ? 'page' : undefined}
                 >
                   <ViewIcon view={iconView} size="xs" />
-                  {entry.label}
+                  <span className="nav-label">{entry.label}</span>
                   <span className={`nav-count ${count > 0 ? 'has-items' : ''}`}>
                     {count}
                   </span>
@@ -105,9 +158,9 @@ export function Sidebar() {
         <button
           type="button"
           className="sidebar-toggle titlebar-no-drag"
-          aria-label={sidebarMode === 'peek' ? 'Показать меню' : 'Скрыть меню'}
-          title={sidebarMode === 'peek' ? 'Показать меню ([)' : 'Скрыть меню ([)'}
-          onClick={() => setSidebarMode(sidebarMode === 'peek' ? 'expanded' : 'peek')}
+          aria-label={toggleLabel}
+          title={`${toggleLabel} ([)`}
+          onClick={toggleSidebarMode}
         >
           <UiIcon
             icon="chevron-right"
@@ -115,9 +168,15 @@ export function Sidebar() {
             className={sidebarMode === 'peek' ? undefined : 'ui-icon-mirror'}
           />
         </button>
-        <button type="button" className="nav-item settings-btn" inert={menuHidden} onClick={openSettings}>
+        <button
+          type="button"
+          className="nav-item settings-btn"
+          inert={menuHidden}
+          title={sidebarMode === 'rail' ? 'Настройки' : undefined}
+          onClick={openSettings}
+        >
           <UiIcon icon="settings" size="md" />
-          Настройки
+          <span className="nav-label">Настройки</span>
         </button>
       </div>
     </aside>

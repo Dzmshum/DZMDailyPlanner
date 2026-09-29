@@ -1,6 +1,6 @@
 /**
  * Меню v0.31: 6 пунктов, режимы внутри, hotkeys 1–N, старые defaultView живы.
- * v0.31.1: sidebarMode peek, клавиша `[`, полоска 4px без сдвига main.
+ * v0.31.1: peek (полоска 4px), rail 48px, круговое меню, `[` возвращает прошлый вид.
  * Запуск: npx tsx scripts/verify-nav.mjs
  */
 import { readFileSync } from 'node:fs'
@@ -13,6 +13,8 @@ import {
   rememberNavView,
   viewForNavEntry,
 } from '../src/lib/nav.ts'
+import { radialLayout } from '../src/lib/radialMenu.ts'
+import { nextSidebarNavigation, toggledSidebarMode } from '../src/lib/sidebarMode.ts'
 
 const root = process.cwd()
 const sidebar = readFileSync(join(root, 'src/components/layout/Sidebar.tsx'), 'utf8')
@@ -75,18 +77,46 @@ assert('header switches modes', header.includes('header-view-switch'))
 
 const layout = readFileSync(join(root, 'src/components/layout/AppLayout.tsx'), 'utf8')
 const css = readFileSync(join(root, 'src/index.css'), 'utf8')
+const radial = readFileSync(join(root, 'src/components/layout/SidebarRadialMenu.tsx'), 'utf8')
+const store = readFileSync(join(root, 'src/store/planStore.ts'), 'utf8')
 const fresh = createDefaultPlan()
 assert('default sidebar expanded', fresh.settings.navigation.sidebarMode === 'expanded')
+assert('default open mode expanded', fresh.settings.navigation.sidebarOpenMode === 'expanded')
 const keptPeek = normalizePlan({
   ...fresh,
-  settings: { ...fresh.settings, navigation: { sidebarMode: 'peek' } },
+  settings: { ...fresh.settings, navigation: { sidebarMode: 'peek', sidebarOpenMode: 'expanded' } },
 })
-const droppedMode = normalizePlan({
+const keptRail = normalizePlan({
   ...fresh,
   settings: { ...fresh.settings, navigation: { sidebarMode: 'rail' } },
 })
+const peekRail = normalizePlan({
+  ...fresh,
+  settings: { ...fresh.settings, navigation: { sidebarMode: 'peek', sidebarOpenMode: 'rail' } },
+})
+const droppedMode = normalizePlan({
+  ...fresh,
+  settings: { ...fresh.settings, navigation: { sidebarMode: 'drawer', sidebarOpenMode: 'nope' } },
+})
 assert('sidebar peek kept', keptPeek.settings.navigation.sidebarMode === 'peek')
+assert('sidebar rail kept', keptRail.settings.navigation.sidebarMode === 'rail')
+assert('rail remembers itself', keptRail.settings.navigation.sidebarOpenMode === 'rail')
+assert(
+  'peek keeps rail restore',
+  peekRail.settings.navigation.sidebarMode === 'peek' && peekRail.settings.navigation.sidebarOpenMode === 'rail',
+)
 assert('bad sidebar mode falls back', droppedMode.settings.navigation.sidebarMode === 'expanded')
+assert('bad open mode falls back', droppedMode.settings.navigation.sidebarOpenMode === 'expanded')
+assert('toggle from expanded goes to rail', toggledSidebarMode({ sidebarMode: 'expanded', sidebarOpenMode: 'expanded' }) === 'rail')
+assert('toggle from rail hides', toggledSidebarMode({ sidebarMode: 'rail', sidebarOpenMode: 'rail' }) === 'peek')
+assert(
+  'toggle from peek opens full menu',
+  toggledSidebarMode({ sidebarMode: 'peek', sidebarOpenMode: 'rail' }) === 'expanded',
+)
+assert(
+  'hide from rail stores rail',
+  nextSidebarNavigation({ sidebarMode: 'rail', sidebarOpenMode: 'expanded' }, 'peek').sidebarOpenMode === 'rail',
+)
 assert('hotkey bracket toggles sidebar', hotkeys.includes("e.code === 'BracketLeft'") && hotkeys.includes('toggleSidebarMode'))
 assert('view hotkeys ignore sidebar mode', !/NAV_VIEW_ORDER[\s\S]{0,180}sidebarMode/.test(hotkeys))
 assert('layout uses sidebar mode', layout.includes('app-layout--peek') && layout.includes('sidebarMode'))
@@ -103,6 +133,46 @@ assert(
   sidebar.includes('const menuHidden = sidebarMode === \'peek\' && !revealed') &&
     (sidebar.match(/inert=\{menuHidden\}/g) ?? []).length >= 3,
 )
+assert('layout has rail', layout.includes('app-layout--rail'))
+assert(
+  'rail is 48px column',
+  css.includes('--sidebar-rail: 48px') &&
+    css.includes('.app-layout--rail .sidebar-slot') &&
+    !/\.app-layout--rail \.sidebar\s*\{[^}]*position:\s*absolute/.test(css),
+)
+assert(
+  'hide button stays at 12px',
+  /\.sidebar-toggle\s*\{[^}]*left:\s*12px;[^}]*bottom:\s*12px;/s.test(css),
+)
+assert('hide button uses toggle', sidebar.includes('toggleSidebarMode'))
+assert('store uses sidebar navigation helper', store.includes('nextSidebarNavigation') && store.includes('toggledSidebarMode'))
+assert(
+  'radial menu on logo',
+  sidebar.includes('sidebar-logo') &&
+    sidebar.includes('aria-haspopup="menu"') &&
+    radial.includes('role="menu"') &&
+    radial.includes('NAV_ENTRIES'),
+)
+assert('rail keeps counters', sidebar.includes('nav-count'))
+
+const radialAtRail = radialLayout(24, 40, 6, 800)
+assert('radial has six points', radialAtRail.points.length === 6)
+assert(
+  'radial clears the logo',
+  radialAtRail.points.every((point) => Math.hypot(point.x - 24, point.y - 40) >= 60),
+)
+assert('radial stays right of the rail', radialAtRail.points.every((point) => point.x >= 72))
+assert(
+  'radial stays on screen',
+  radialAtRail.points.every((point) => point.y >= 24 && point.y <= 760),
+)
+let radialSpaced = true
+for (let i = 1; i < radialAtRail.points.length; i += 1) {
+  const prev = radialAtRail.points[i - 1]
+  const next = radialAtRail.points[i]
+  if (Math.hypot(prev.x - next.x, prev.y - next.y) < 50) radialSpaced = false
+}
+assert('radial items do not overlap', radialSpaced)
 
 if (failed > 0) {
   console.error(`\n${failed} failed, ${passed} passed`)
