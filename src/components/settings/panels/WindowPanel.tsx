@@ -4,7 +4,7 @@ import { ThemedCheckbox } from '../../ui/ThemedCheckbox'
 import { SettingsSection } from '../SettingsSection'
 
 const HOTKEYS: { keys: string; action: string }[] = [
-  { keys: '1–8', action: 'Вкладки сверху вниз' },
+  { keys: '1–6', action: 'Пункты меню сверху вниз' },
   { keys: 'Q', action: 'Быстрый захват' },
   { keys: 'N', action: 'Новая задача' },
   { keys: 'Пробел', action: 'Отметить выбранную задачу' },

@@ -1,18 +1,7 @@
 import { useEffect } from 'react'
-import type { ViewId } from '../types'
 import { usePlanStore } from '../store/planStore'
 import { exportPlanToFile } from '../lib/storage'
-
-const VIEW_ORDER: ViewId[] = [
-  'dashboard',
-  'agenda',
-  'week',
-  'inbox',
-  'daily',
-  'tasks',
-  'projects',
-  'history',
-]
+import { NAV_VIEW_ORDER } from '../lib/nav'
 
 const QUICK_CAPTURE_KEYS = new Set(['q', 'Q', 'й', 'Й'])
 
@@ -102,10 +91,12 @@ export function useHotkeys() {
         return
       }
 
-      if (!isInput && e.key >= '1' && e.key <= '8') {
+      const navKeyMax = String(NAV_VIEW_ORDER.length)
+      if (!isInput && e.key >= '1' && e.key <= navKeyMax) {
         e.preventDefault()
         const index = parseInt(e.key, 10) - 1
-        if (VIEW_ORDER[index]) setView(VIEW_ORDER[index])
+        const view = NAV_VIEW_ORDER[index]
+        if (view) setView(view)
         return
       }
 

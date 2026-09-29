@@ -6,12 +6,17 @@ import { exportPlanToFile, parsePlanJson, pickPlanFileContent } from '../../lib/
 import { WindowControls } from './WindowControls'
 import { ImportModal } from '../ui/ImportModal'
 import { ViewIcon } from './ViewIcon'
+import { NAV_MODE_LABELS, navEntryForView } from '../../lib/nav'
+import { SegmentedControl, SegmentedControlItem } from '../ui/SegmentedControl'
 import { DropdownMenu } from '../ui/DropdownMenu'
 import { DayProgressBar } from '../ui/DayProgressBar'
 import { parseDate } from '../../lib/dates'
 
 export function Header() {
   const currentView = usePlanStore((s) => s.currentView)
+  const setView = usePlanStore((s) => s.setView)
+  const navEntry = navEntryForView(currentView)
+  const navModes = navEntry && navEntry.views.length > 1 ? navEntry : null
   const openNewTask = usePlanStore((s) => s.openNewTask)
   const openExportText = usePlanStore((s) => s.openExportText)
   const saving = usePlanStore((s) => s.saving)
@@ -51,6 +56,19 @@ export function Header() {
         <div className="header-leading titlebar-drag">
           <ViewIcon view={currentView} size="sm" />
           <h1 className="header-title">{VIEW_LABELS[currentView]}</h1>
+          {navModes && (
+            <SegmentedControl className="header-view-switch titlebar-no-drag" aria-label={navModes.label}>
+              {navModes.views.map((view) => (
+                <SegmentedControlItem
+                  key={view}
+                  active={currentView === view}
+                  onClick={() => setView(view)}
+                >
+                  {NAV_MODE_LABELS[view] ?? VIEW_LABELS[view]}
+                </SegmentedControlItem>
+              ))}
+            </SegmentedControl>
+          )}
           {showAgendaProgress && (
             <DayProgressBar
               tasks={tasks}
