@@ -49,6 +49,15 @@ const PALETTE_DARK_COLORS: Record<
   },
 }
 
+/** Иконки «Моей темы» берутся из палитры-основы, не из последней встроенной. */
+export function resolveIconPalette(
+  colorPalette: ColorPalette,
+  custom: { enabled: boolean; basedOn: ColorPalette | null },
+): ColorPalette {
+  if (custom.enabled && custom.basedOn) return custom.basedOn
+  return colorPalette
+}
+
 export function createCustomThemeFromPalette(
   palette: ColorPalette,
   current: CustomThemeSettings,

@@ -1,6 +1,6 @@
 import type { ColorPalette } from '../../types'
-import { usePlanStore } from '../../store/planStore'
 import { assetUrl } from '../../lib/assetUrl'
+import { useIconPalette } from '../../hooks/useIconPalette'
 
 export type UiIconId =
   | 'window-compact'
@@ -22,8 +22,8 @@ interface UiIconProps {
 }
 
 export function UiIcon({ icon, size = 'sm', palette: paletteProp, className }: UiIconProps) {
-  const storePalette = usePlanStore((s) => s.data.settings.colorPalette)
-  const palette = paletteProp ?? storePalette
+  const iconPalette = useIconPalette()
+  const palette = paletteProp ?? iconPalette
 
   const px = size === 'xs' ? 14 : size === 'sm' ? 16 : 20
 

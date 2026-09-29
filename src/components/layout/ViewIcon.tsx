@@ -1,7 +1,7 @@
 import type { ColorPalette, ViewId } from '../../types'
 import { VIEW_ICON_ALIASES } from '../../types'
-import { usePlanStore } from '../../store/planStore'
 import { assetUrl } from '../../lib/assetUrl'
+import { useIconPalette } from '../../hooks/useIconPalette'
 
 interface ViewIconProps {
   view: ViewId
@@ -14,8 +14,8 @@ function resolveViewIcon(view: ViewId): string {
 }
 
 export function ViewIcon({ view, size = 'sm', palette: paletteProp }: ViewIconProps) {
-  const storePalette = usePlanStore((s) => s.data.settings.colorPalette)
-  const palette = paletteProp ?? storePalette
+  const iconPalette = useIconPalette()
+  const palette = paletteProp ?? iconPalette
   const iconView = resolveViewIcon(view)
 
   const px = size === 'xs' ? 20 : size === 'sm' ? 28 : 36

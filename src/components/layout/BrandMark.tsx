@@ -1,6 +1,6 @@
 import type { ColorPalette } from '../../types'
-import { usePlanStore } from '../../store/planStore'
 import { assetUrl } from '../../lib/assetUrl'
+import { useIconPalette } from '../../hooks/useIconPalette'
 
 interface BrandMarkProps {
   size?: 'xs' | 'sm' | 'md' | 'lg'
@@ -13,8 +13,8 @@ export function BrandMark({
   variant = 'icon',
   palette: paletteProp,
 }: BrandMarkProps) {
-  const storePalette = usePlanStore((s) => s.data.settings.colorPalette)
-  const palette = paletteProp ?? storePalette
+  const iconPalette = useIconPalette()
+  const palette = paletteProp ?? iconPalette
   const isWordmark = variant === 'wordmark'
   const folder = isWordmark ? 'icons/wordmark' : 'icons'
 
