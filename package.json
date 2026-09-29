@@ -1,7 +1,7 @@
 {
   "name": "planboard",
   "private": true,
-  "version": "0.30.2",
+  "version": "0.30.3",
   "packageManager": "pnpm@10.23.0",
   "type": "module",
   "main": "electron/main.cjs",

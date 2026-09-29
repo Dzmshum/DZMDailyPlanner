@@ -279,7 +279,7 @@ export function CustomThemeSection() {
         type="file"
         accept="image/*"
         multiple
-        className="visually-hidden"
+        className="hidden-file-input"
         onChange={(e) => {
           void onBgFiles(e.target.files ?? undefined)
           e.target.value = ''
@@ -319,7 +319,7 @@ export function CustomThemeSection() {
         ref={importRef}
         type="file"
         accept="application/json,.json"
-        className="visually-hidden"
+        className="hidden-file-input"
         onChange={(e) => {
           onImportFile(e.target.files?.[0])
           e.target.value = ''

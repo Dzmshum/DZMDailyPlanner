@@ -19,7 +19,7 @@ pnpm test:holidays     # verify-holiday-labels.mjs (22)
 pnpm test:projects     # verify-projects.mjs (5)
 pnpm test:palettes     # verify-palettes.mjs (91)
 pnpm test:export       # verify-export-text.mjs (3)
-pnpm test:settings     # verify-settings-ui.mjs (60)
+pnpm test:settings     # verify-settings-ui.mjs (91)
 pnpm test:credit       # verify-task-credit.mjs (12)
 pnpm test:progress     # verify-day-progress.mjs (11)
 pnpm test:daily        # verify-daily-meetings.mjs (49)
@@ -182,7 +182,7 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 | 7.2d1 | «Моя тема» — карточка в сетке палитр, не отдельный чекбокс | [x] |
 | 7.2d2 | Переключение палитры не сбрасывает сохранённую «Мою тему» молча | [x] |
 | 7.2d3 | Одна настройка анимации фона (без `customTheme.ambientEnabled`) | [x] |
-| 7.2d4 | Таб «Поведение»: календарь, дейлик, экспорт, голос — вне «Оформления» | [x] |
+| 7.2d4 | Календарь, дейлик, экспорт, голос — вне «Оформления» (v0.30.3: отдельные разделы) | [x] |
 | 7.2d5 | `.btn-primary:hover` — текст читаем на всех палитрах (градиент не перезаписывается) | [x] |
 | 7.2d6 | Hover табов/кнопок: `segmented-control`, `btn-accent`, сайдбар, чипы — текст не пропадает | [x] |
 | 7.2d7 | Единые отступы: `--view-padding-*`, `--content-indent`; заголовки секций выровнены с карточками | [x] |
@@ -195,9 +195,13 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 | 7.2g | Electron `plan-file.cjs` и `index.html` — дефолт `plain` | [x] |
 | 7.3 | Иконка вкладки в шапке при смене view | [ ] |
 | 7.4 | Фоновая анимация; `prefers-reduced-motion` | [ ] |
-| 7.5 | Настройки `modal-xl`: Оформление / Поведение / Данные / Интеграции | [x] |
+| 7.5 | Настройки `modal-xl`: Оформление / Планирование / Окно и ввод / Экспорт / Данные / Интеграции | [x] |
 | 7.5a | Модалка настроек **не меняет размер** при переключении табов; прокрутка в панели справа | [x] |
-| 7.5b | `npx tsx scripts/verify-settings-ui.mjs` — 60 проверок | [x] |
+| 7.5b | `npx tsx scripts/verify-settings-ui.mjs` — 91 проверка | [x] |
+| 7.5c | Поиск по подписи переключает раздел; пустой запрос — все секции | [ ] |
+| 7.5d | Повторное открытие настроек — тот же раздел (`sessionStorage`) | [ ] |
+| 7.5e | Режим окна только в «Окно и ввод», не в «Оформлении» | [ ] |
+| 7.5f | «Моя тема»: «Добавить фон» / «Импорт темы» без системного «Выберите файл» | [ ] |
 | 7.6 | Jira-поля сохраняются автоматически | [ ] |
 | 7.7 | **Скроллбары** — тонкие, цвет палитры (не системные белые) | [ ] |
 
@@ -304,7 +308,7 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 | 6 | Завершённые проекты: селекторы, normalize | [x] | `scripts/verify-projects.mjs` (5) |
 | 7 | Палитры v0.24–v0.28: CSS, plain default, customTheme, wordmark, unified themes | [x] | `scripts/verify-palettes.mjs` (91) |
 | 8 | Telegram-экспорт: recent done, inbox, normalize | [x] | `scripts/verify-export-text.mjs` (3) |
-| 9 | Настройки UI: модалка, сайдбар, просроченные, прогресс, layout, hover, бренд | [x] | `scripts/verify-settings-ui.mjs` (60) |
+| 9 | Настройки UI: модалка, сайдбар, просроченные, прогресс, layout, hover, бренд | [x] | `scripts/verify-settings-ui.mjs` (91) |
 | 9c | Зачёт просроченных: `getTaskCreditDayKey`, `isCompletedLate` (v0.28.1) | [x] | `scripts/verify-task-credit.mjs` (12) |
 | 9a | Единые темы, миграция `customTheme` (v0.28) | [x] | `verify-palettes` + `verify-settings-ui` |
 | 9b | Дни дейликов: UI + `normalizePlan` + daily tests (v0.25.4) | [x] | `verify-daily-meetings.mjs` + `verify-settings-ui` |
@@ -321,9 +325,10 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 
 | Версия | Ключевые проверки в TESTS.md |
 |--------|------------------------------|
-| **v0.35** (был v0.30, конец очереди) | §7.2b–b2, §7.4 — анимация на палитру, интенсивность |
-| **v0.31** (эпик v0.23) | §4, §8 — адаптив, мобильный MVP |
-| **v0.32** (эпик v0.26) | §6.3 + verify — группировка похожих в дейлике |
+| **v0.31** | меню: меньше вкладок, hotkeys `1`–`N` |
+| **v0.31.1** | скрываемое меню |
+| **v0.32** | мобильный MVP |
+| **v0.35** | §7.2b–b2, §7.4 — анимация на палитру, интенсивность |
 
 ---
 
@@ -331,6 +336,7 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 
 | Версия | Дата | Автотесты | Ручной прогон | Примечание |
 |--------|------|-----------|---------------|------------|
+| v0.30.3 | 2026-09-29 | verify-settings-ui 91 | — | 6 разделов настроек, поиск, последний таб, file picker — §7.5–7.5f |
 | v0.29 | 2026-07-08 | 10 verify (~274) + calendar, build OK | — | прогресс дня, sticky-история, hover, layout, ребренд PlanBoard — §4.1b–d, §4.7a, §7.2d6–d7, §9d |
 | v0.28.1 | 2026-07-07 | 9 verify (~244) + calendar, build OK | — | зачёт просроченных, фикс btn-primary — §2.3a–b, §4.1a, §4.2b, §7.2d5, §9c, §10.3a |
 | v0.28 | 2026-07-07 | 8 verify (~228) + calendar, build OK | — | настройки UX 2.0, дни дейликов — §6.1a–b, §7.2d1–d4, §7.5, §9a–b |

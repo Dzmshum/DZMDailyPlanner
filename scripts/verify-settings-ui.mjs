@@ -6,6 +6,15 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { getOverdueTasksForAgenda } from '../src/lib/selectors.ts'
 import { formatDailyDaysLabel } from '../src/lib/dailyLabels.ts'
+import {
+  filterSettingsSections,
+  resolveSettingsTab,
+  SETTINGS_LAST_TAB_KEY,
+  SETTINGS_SECTIONS,
+  SETTINGS_TABS,
+  settingsSubnavNeeded,
+} from '../src/lib/settingsNav.ts'
+import { resolveIconPalette } from '../src/lib/paletteThemeColors.ts'
 
 const root = process.cwd()
 const css = readFileSync(join(root, 'src/index.css'), 'utf8')
@@ -16,10 +25,23 @@ const electronApi = readFileSync(join(root, 'src/lib/electron.ts'), 'utf8')
 const storage = readFileSync(join(root, 'src/lib/storage.ts'), 'utf8')
 const sidebar = readFileSync(join(root, 'src/components/layout/Sidebar.tsx'), 'utf8')
 const settingsModal = readFileSync(join(root, 'src/components/settings/SettingsModal.tsx'), 'utf8')
+const settingsNav = readFileSync(join(root, 'src/lib/settingsNav.ts'), 'utf8')
+const appearancePanel = readFileSync(
+  join(root, 'src/components/settings/panels/AppearancePanel.tsx'),
+  'utf8',
+)
+const planningPanel = readFileSync(
+  join(root, 'src/components/settings/panels/PlanningPanel.tsx'),
+  'utf8',
+)
+const windowPanel = readFileSync(join(root, 'src/components/settings/panels/WindowPanel.tsx'), 'utf8')
+const exportPanel = readFileSync(join(root, 'src/components/settings/panels/ExportPanel.tsx'), 'utf8')
 const paletteToggle = readFileSync(join(root, 'src/components/layout/PaletteToggle.tsx'), 'utf8')
 const customTheme = readFileSync(join(root, 'src/components/settings/CustomThemeSection.tsx'), 'utf8')
 const ambientBg = readFileSync(join(root, 'src/components/layout/AmbientBackground.tsx'), 'utf8')
 const uiIcon = readFileSync(join(root, 'src/components/ui/UiIcon.tsx'), 'utf8')
+const viewIcon = readFileSync(join(root, 'src/components/layout/ViewIcon.tsx'), 'utf8')
+const brandMark = readFileSync(join(root, 'src/components/layout/BrandMark.tsx'), 'utf8')
 
 let failed = 0
 let passed = 0
@@ -46,16 +68,36 @@ assert('custom theme export filename', customTheme.includes("'planboard-theme.js
 
 // --- Settings modal ---
 assert('SettingsModal size xl', settingsModal.includes('size="xl"'))
-assert('SettingsModal 4 tabs', (settingsModal.match(/id: '[^']+'/g) ?? []).length >= 4)
-assert('SettingsModal appearance tab', settingsModal.includes("'appearance'"))
-assert('SettingsModal behavior tab', settingsModal.includes("'behavior'"))
-assert('SettingsModal data tab', settingsModal.includes("'data'"))
-assert('SettingsModal integrations tab', settingsModal.includes("'integrations'"))
+assert('settings 6 tabs', SETTINGS_TABS.length === 6)
+assert('settings tab appearance', SETTINGS_TABS.some((tab) => tab.id === 'appearance'))
+assert('settings tab planning', SETTINGS_TABS.some((tab) => tab.id === 'planning'))
+assert('settings tab window', SETTINGS_TABS.some((tab) => tab.id === 'window'))
+assert('settings tab export', SETTINGS_TABS.some((tab) => tab.id === 'export'))
+assert('settings tab data', SETTINGS_TABS.some((tab) => tab.id === 'data'))
+assert('settings tab integrations', SETTINGS_TABS.some((tab) => tab.id === 'integrations'))
+assert('settings no behavior tab', !SETTINGS_TABS.some((tab) => tab.id === 'behavior'))
+assert('settings last tab key', settingsNav.includes(SETTINGS_LAST_TAB_KEY))
+assert('SettingsModal remembers tab', settingsModal.includes('readSettingsTab') && settingsModal.includes('writeSettingsTab'))
+assert('SettingsModal search', settingsModal.includes('id="settings-search"'))
 assert('SettingsModal settings-panel', settingsModal.includes('className="settings-panel"'))
-assert('SettingsModal DailyDaysPicker', settingsModal.includes('DailyDaysPicker'))
-assert('SettingsModal formatDailyDaysLabel', settingsModal.includes('formatDailyDaysLabel'))
-assert('SettingsModal calendar in behavior', settingsModal.includes("tab === 'behavior'") && settingsModal.includes('showHolidays'))
-assert('SettingsModal day progress toggles', settingsModal.includes('showOnAgenda') && settingsModal.includes('showOnDashboard'))
+assert('SettingsModal subnav', settingsModal.includes('SettingsSubnav'))
+assert('PlanningPanel DailyDaysPicker', planningPanel.includes('DailyDaysPicker'))
+assert('PlanningPanel formatDailyDaysLabel', planningPanel.includes('formatDailyDaysLabel'))
+assert('PlanningPanel calendar holidays', planningPanel.includes('showHolidays'))
+assert('PlanningPanel day progress toggles', planningPanel.includes('showOnAgenda') && planningPanel.includes('showOnDashboard'))
+assert('windowMode not in appearance', !appearancePanel.includes('setWindowMode') && !appearancePanel.includes('windowMode'))
+assert('WindowPanel windowMode', windowPanel.includes('setWindowMode'))
+assert('WindowPanel hotkeys', windowPanel.includes('id="hotkeys"') && settingsNav.includes('Горячие клавиши'))
+assert('ExportPanel includeDone', exportPanel.includes('includeDone'))
+assert('search праздники → calendar', filterSettingsSections('праздники').some((section) => section.id === 'calendar'))
+assert('search jira → integrations', filterSettingsSections('jira').every((section) => section.tab === 'integrations') && filterSettingsSections('jira').length > 0)
+assert('search miss empty', filterSettingsSections('zzzz-nope').length === 0)
+assert('blank query all sections', filterSettingsSections('  ').length === SETTINGS_SECTIONS.length)
+assert('resolve tab keeps planning', resolveSettingsTab('planning', 'праздники') === 'planning')
+assert('resolve tab jumps to jira', resolveSettingsTab('appearance', 'jira') === 'integrations')
+assert('CustomThemeSection hidden file input', customTheme.includes('hidden-file-input'))
+assert('CustomThemeSection no visually-hidden file', !customTheme.includes('visually-hidden'))
+assert('CSS visually-hidden', css.includes('.visually-hidden'))
 assert('CSS day-progress', css.includes('.day-progress'))
 assert('CSS layout spacing tokens', css.includes('--view-padding-x') && css.includes('--content-indent'))
 assert('history-view zero-padding scrollport', css.includes('.view-content:has(> .history-view)'))
@@ -69,6 +111,17 @@ assert('modal-xl fixed width', /\.modal-xl\s*\{[^}]*width:\s*min\(920px/s.test(c
 assert('modal-xl body overflow hidden', css.includes('.modal-xl .modal-body') && css.includes('overflow: hidden'))
 assert('settings-layout height 100%', /\.settings-layout\s*\{[^}]*height:\s*100%/s.test(css))
 assert('settings-panel scroll', /\.settings-panel\s*\{[^}]*overflow-y:\s*auto/s.test(css))
+assert('settings-subnav sticky', /\.settings-subnav\s*\{[^}]*position:\s*sticky/s.test(css))
+assert('settings panel body', settingsModal.includes('settings-panel-body'))
+assert('subnav hidden when fits', settingsSubnavNeeded(400, 500, 3) === false)
+assert('subnav shown when overflow', settingsSubnavNeeded(800, 500, 3) === true)
+assert('subnav hidden for one section', settingsSubnavNeeded(800, 500, 1) === false)
+assert('icon palette follows basedOn', resolveIconPalette('plain', { enabled: true, basedOn: 'witcher' }) === 'witcher')
+assert('icon palette ignores basedOn when off', resolveIconPalette('northrend', { enabled: false, basedOn: 'witcher' }) === 'northrend')
+assert('icon palette fallback without basedOn', resolveIconPalette('got', { enabled: true, basedOn: null }) === 'got')
+assert('UiIcon uses icon palette', uiIcon.includes('useIconPalette'))
+assert('ViewIcon uses icon palette', viewIcon.includes('useIconPalette'))
+assert('BrandMark uses icon palette', brandMark.includes('useIconPalette'))
 
 // --- Theme picker v0.28 ---
 assert('PaletteToggle custom card', paletteToggle.includes('Моя тема'))

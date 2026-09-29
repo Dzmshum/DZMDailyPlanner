@@ -860,9 +860,19 @@ html {
 .settings-layout {
   display: grid;
   grid-template-columns: 200px 1fr;
-  gap: 24px;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 12px 24px;
   height: 100%;
   min-height: 0;
+}
+
+.settings-search {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.settings-search .form-input {
+  width: 100%;
 }
 
 .settings-nav {
@@ -872,6 +882,7 @@ html {
   border-right: 1px solid var(--border);
   padding-right: 16px;
   min-height: 0;
+  overflow-y: auto;
 }
 
 .settings-nav-item {
@@ -911,9 +922,71 @@ html {
   padding-right: 4px;
 }
 
+.settings-subnav {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 12px;
+  padding-bottom: 10px;
+  background: var(--bg-secondary);
+}
+
+.settings-subnav-item {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.settings-subnav-item:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.settings-block {
+  scroll-margin-top: 44px;
+}
+
+.settings-block + .settings-block {
+  margin-top: 22px;
+}
+
+.settings-hotkeys {
+  display: grid;
+  gap: 8px 0;
+  margin: 0;
+}
+
+.settings-hotkey {
+  display: grid;
+  grid-template-columns: 8.5rem 1fr;
+  gap: 8px 12px;
+  align-items: baseline;
+}
+
+.settings-hotkey dt {
+  margin: 0;
+  font-family: ui-monospace, monospace;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+}
+
+.settings-hotkey dd {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
 @media (max-width: 560px) {
   .settings-layout {
     grid-template-columns: 1fr;
+    grid-template-rows: auto auto minmax(0, 1fr);
   }
 
   .settings-nav {
@@ -2601,7 +2674,8 @@ html {
   border-top: 1px solid var(--border);
 }
 
-.hidden-file-input {
+.hidden-file-input,
+.visually-hidden {
   position: absolute;
   width: 1px;
   height: 1px;
