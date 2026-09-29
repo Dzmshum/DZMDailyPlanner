@@ -19,7 +19,7 @@ pnpm test:holidays     # verify-holiday-labels.mjs (22)
 pnpm test:projects     # verify-projects.mjs (5)
 pnpm test:palettes     # verify-palettes.mjs (91)
 pnpm test:export       # verify-export-text.mjs (3)
-pnpm test:settings     # verify-settings-ui.mjs (91)
+pnpm test:settings     # verify-settings-ui.mjs (95)
 pnpm test:nav          # verify-nav.mjs (32)
 pnpm test:credit       # verify-task-credit.mjs (12)
 pnpm test:progress     # verify-day-progress.mjs (11)
@@ -196,9 +196,9 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 | 7.2g | Electron `plan-file.cjs` и `index.html` — дефолт `plain` | [x] |
 | 7.3 | Иконка вкладки в шапке при смене view | [ ] |
 | 7.4 | Фоновая анимация; `prefers-reduced-motion` | [ ] |
-| 7.5 | Настройки `modal-xl`: Оформление / Планирование / Окно и ввод / Экспорт / Данные / Интеграции | [x] |
+| 7.5 | Настройки `modal-xl`: Оформление / Планирование / Окно и ввод / Экспорт / Данные / Интеграции / Дальше | [x] |
 | 7.5a | Модалка настроек **не меняет размер** при переключении табов; прокрутка в панели справа | [x] |
-| 7.5b | `npx tsx scripts/verify-settings-ui.mjs` — 91 проверка | [x] |
+| 7.5b | `npx tsx scripts/verify-settings-ui.mjs` — 95 проверок | [x] |
 | 7.5c | Поиск по подписи переключает раздел; пустой запрос — все секции | [ ] |
 | 7.5d | Повторное открытие настроек — тот же раздел (`sessionStorage`) | [ ] |
 | 7.5e | Режим окна только в «Окно и ввод», не в «Оформлении» | [ ] |
@@ -311,7 +311,7 @@ pnpm calendar          # holidays-ru-2025/2026/2027.json
 | 6 | Завершённые проекты: селекторы, normalize | [x] | `scripts/verify-projects.mjs` (5) |
 | 7 | Палитры v0.24–v0.28: CSS, plain default, customTheme, wordmark, unified themes | [x] | `scripts/verify-palettes.mjs` (91) |
 | 8 | Telegram-экспорт: recent done, inbox, normalize | [x] | `scripts/verify-export-text.mjs` (3) |
-| 9 | Настройки UI: модалка, сайдбар, просроченные, прогресс, layout, hover, бренд | [x] | `scripts/verify-settings-ui.mjs` (91) |
+| 9 | Настройки UI: модалка, сайдбар, просроченные, прогресс, layout, hover, бренд | [x] | `scripts/verify-settings-ui.mjs` (95) |
 | 9c | Зачёт просроченных: `getTaskCreditDayKey`, `isCompletedLate` (v0.28.1) | [x] | `scripts/verify-task-credit.mjs` (12) |
 | 9a | Единые темы, миграция `customTheme` (v0.28) | [x] | `verify-palettes` + `verify-settings-ui` |
 | 9b | Дни дейликов: UI + `normalizePlan` + daily tests (v0.25.4) | [x] | `verify-daily-meetings.mjs` + `verify-settings-ui` |

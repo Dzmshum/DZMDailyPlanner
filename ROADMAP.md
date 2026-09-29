@@ -346,7 +346,7 @@ Peek сделан (2026-09-29). В покое меню либо 240px, либо 
 | `AmbientBackground` | Базовые частицы v0.24 | **v0.35** (конец очереди) |
 | TaskForm / QuickCapture drafts | ✅ v0.30.1 | — |
 | `DayProgressBar` | ✅ проценты в UI, v0.30.2 | — |
-| `SettingsModal` / панели | 6 разделов, поиск, последний таб | — |
+| `SettingsModal` / панели | 7 разделов, последний — «Дальше» | — |
 | `Sidebar` | 6 пунктов, peek (`[`, полоска 4px) | **rail**, затем Ctrl+K |
 | `useSpeechRecognition` | UI ✅, Electron ⚠️ | backlog |
 | `dailyMeetings` / export / attachments / palettes | ✅ | — |

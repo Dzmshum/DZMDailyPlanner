@@ -25,6 +25,7 @@ const electronApi = readFileSync(join(root, 'src/lib/electron.ts'), 'utf8')
 const storage = readFileSync(join(root, 'src/lib/storage.ts'), 'utf8')
 const sidebar = readFileSync(join(root, 'src/components/layout/Sidebar.tsx'), 'utf8')
 const settingsModal = readFileSync(join(root, 'src/components/settings/SettingsModal.tsx'), 'utf8')
+const roadmapPanel = readFileSync(join(root, 'src/components/settings/panels/RoadmapPanel.tsx'), 'utf8')
 const settingsNav = readFileSync(join(root, 'src/lib/settingsNav.ts'), 'utf8')
 const appearancePanel = readFileSync(
   join(root, 'src/components/settings/panels/AppearancePanel.tsx'),
@@ -68,13 +69,14 @@ assert('custom theme export filename', customTheme.includes("'planboard-theme.js
 
 // --- Settings modal ---
 assert('SettingsModal size xl', settingsModal.includes('size="xl"'))
-assert('settings 6 tabs', SETTINGS_TABS.length === 6)
+assert('settings 7 tabs', SETTINGS_TABS.length === 7)
 assert('settings tab appearance', SETTINGS_TABS.some((tab) => tab.id === 'appearance'))
 assert('settings tab planning', SETTINGS_TABS.some((tab) => tab.id === 'planning'))
 assert('settings tab window', SETTINGS_TABS.some((tab) => tab.id === 'window'))
 assert('settings tab export', SETTINGS_TABS.some((tab) => tab.id === 'export'))
 assert('settings tab data', SETTINGS_TABS.some((tab) => tab.id === 'data'))
 assert('settings tab integrations', SETTINGS_TABS.some((tab) => tab.id === 'integrations'))
+assert('settings last tab is roadmap', SETTINGS_TABS.at(-1)?.id === 'roadmap' && SETTINGS_TABS.at(-1)?.label === 'Дальше')
 assert('settings no behavior tab', !SETTINGS_TABS.some((tab) => tab.id === 'behavior'))
 assert('settings last tab key', settingsNav.includes(SETTINGS_LAST_TAB_KEY))
 assert('SettingsModal remembers tab', settingsModal.includes('readSettingsTab') && settingsModal.includes('writeSettingsTab'))
@@ -95,6 +97,14 @@ assert('search miss empty', filterSettingsSections('zzzz-nope').length === 0)
 assert('blank query all sections', filterSettingsSections('  ').length === SETTINGS_SECTIONS.length)
 assert('resolve tab keeps planning', resolveSettingsTab('planning', 'праздники') === 'planning')
 assert('resolve tab jumps to jira', resolveSettingsTab('appearance', 'jira') === 'integrations')
+assert('search ollama → roadmap', filterSettingsSections('ollama').some((section) => section.id === 'upcoming'))
+assert('SettingsModal roadmap panel', settingsModal.includes("tab === 'roadmap'") && settingsModal.includes('RoadmapPanel'))
+assert(
+  'RoadmapPanel lists the queue',
+  roadmapPanel.includes('Ctrl+K') &&
+    roadmapPanel.includes('v0.35') &&
+    !roadmapPanel.includes('usePlanStore'),
+)
 assert('CustomThemeSection hidden file input', customTheme.includes('hidden-file-input'))
 assert('CustomThemeSection no visually-hidden file', !customTheme.includes('visually-hidden'))
 assert('CSS visually-hidden', css.includes('.visually-hidden'))

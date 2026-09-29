@@ -7,6 +7,7 @@ export const SETTINGS_TABS = [
   { id: 'export', label: 'Экспорт' },
   { id: 'data', label: 'Данные' },
   { id: 'integrations', label: 'Интеграции' },
+  { id: 'roadmap', label: 'Дальше' },
 ] as const
 
 export type SettingsTab = (typeof SETTINGS_TABS)[number]['id']
@@ -96,6 +97,12 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     tab: 'integrations',
     title: 'Jira Cloud',
     keywords: 'токен api atlassian проект',
+  },
+  {
+    id: 'upcoming',
+    tab: 'roadmap',
+    title: 'Потенциальные доработки',
+    keywords: 'план очередь rail рейка ctrl+k мобильное дейлик ollama фон анимация',
   },
 ]
 

@@ -17,6 +17,7 @@ import { WindowPanel } from './panels/WindowPanel'
 import { ExportPanel } from './panels/ExportPanel'
 import { DataPanel } from './panels/DataPanel'
 import { IntegrationsPanel } from './panels/IntegrationsPanel'
+import { RoadmapPanel } from './panels/RoadmapPanel'
 
 export function SettingsModal() {
   const open = usePlanStore((s) => s.settingsOpen)
@@ -97,6 +98,7 @@ export function SettingsModal() {
                   <DataPanel query={query} planPath={planPath} sharedFile={sharedFile} />
                 )}
                 {tab === 'integrations' && <IntegrationsPanel query={query} />}
+                {tab === 'roadmap' && <RoadmapPanel query={query} />}
               </div>
             </>
           )}
