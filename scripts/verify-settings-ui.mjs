@@ -101,8 +101,12 @@ assert('search ollama → roadmap', filterSettingsSections('ollama').some((secti
 assert('SettingsModal roadmap panel', settingsModal.includes("tab === 'roadmap'") && settingsModal.includes('RoadmapPanel'))
 assert(
   'RoadmapPanel lists the queue',
-  roadmapPanel.includes('Ctrl+K') &&
+  roadmapPanel.includes('Импорт задачи из Jira по ссылке') &&
+    roadmapPanel.includes("version: 'v0.31.3'") &&
+    roadmapPanel.includes('Ctrl+K') &&
+    roadmapPanel.includes("version: 'v0.31.4'") &&
     roadmapPanel.includes('v0.35') &&
+    !roadmapPanel.includes("version: 'v0.31.1'") &&
     !roadmapPanel.includes('usePlanStore'),
 )
 assert('CustomThemeSection hidden file input', customTheme.includes('hidden-file-input'))

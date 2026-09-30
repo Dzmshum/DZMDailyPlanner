@@ -102,7 +102,7 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     id: 'upcoming',
     tab: 'roadmap',
     title: 'Потенциальные доработки',
-    keywords: 'план очередь круговое ctrl+k ввод задачи мобильное дейлик ollama фон анимация',
+    keywords: 'план очередь импорт ссылка ctrl+k ввод задачи мобильное дейлик ollama фон анимация',
   },
 ]
 
