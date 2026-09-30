@@ -228,20 +228,88 @@ async function processWordmark(sourcePath, outPath, maxWidth, maxHeight) {
   console.log(`${rel}: ${Math.round(png.length / 1024)} KB (wordmark)`)
 }
 
+/** Эмблема слева от текста: связная область вокруг центра левого квадрата, без букв. */
+async function isolateEmblem(trimmedBuffer) {
+  const { data, info } = await sharp(trimmedBuffer)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true })
+  const { width, height, channels } = info
+  const solid = new Uint8Array(width * height)
+  for (let i = 0; i < width * height; i += 1) {
+    if (data[i * channels + 3] > 40) solid[i] = 1
+  }
+
+  const radius = 2
+  const grown = new Uint8Array(width * height)
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      if (!solid[y * width + x]) continue
+      for (let dy = -radius; dy <= radius; dy += 1) {
+        const yy = y + dy
+        if (yy < 0 || yy >= height) continue
+        for (let dx = -radius; dx <= radius; dx += 1) {
+          const xx = x + dx
+          if (xx >= 0 && xx < width) grown[yy * width + xx] = 1
+        }
+      }
+    }
+  }
+
+  const seedY = Math.floor(height / 2)
+  let seed = -1
+  for (let d = 0; d < height / 2 && seed < 0; d += 1) {
+    for (const [x, y] of [
+      [Math.floor(height / 2) + d, seedY],
+      [Math.floor(height / 2) - d, seedY],
+      [Math.floor(height / 2), seedY + d],
+      [Math.floor(height / 2), seedY - d],
+    ]) {
+      if (x >= 0 && x < width && y >= 0 && y < height && grown[y * width + x]) {
+        seed = y * width + x
+        break
+      }
+    }
+  }
+  if (seed < 0) return trimmedBuffer
+
+  const keep = new Uint8Array(width * height)
+  const queue = new Int32Array(width * height)
+  let head = 0
+  let tail = 0
+  queue[tail++] = seed
+  keep[seed] = 1
+  while (head < tail) {
+    const index = queue[head++]
+    const x = index % width
+    const y = (index - x) / width
+    const next = [
+      x > 0 ? index - 1 : -1,
+      x < width - 1 ? index + 1 : -1,
+      y > 0 ? index - width : -1,
+      y < height - 1 ? index + width : -1,
+    ]
+    for (const n of next) {
+      if (n >= 0 && grown[n] && !keep[n]) {
+        keep[n] = 1
+        queue[tail++] = n
+      }
+    }
+  }
+
+  for (let i = 0; i < width * height; i += 1) {
+    if (!keep[i]) data[i * channels + 3] = 0
+  }
+  return sharp(data, { raw: { width, height, channels } }).trim().png().toBuffer()
+}
+
 async function processEmblemFromWordmark(sourcePath, outPath, size) {
   const source = readFileSync(sourcePath)
   const trimmedBuffer = await removeLightBackground(source)
     .then((img) => img.trim().png().toBuffer())
-  const meta = await sharp(trimmedBuffer).metadata()
-  const emblemWidth = Math.max(1, Math.min(meta.width, Math.round(meta.height * 1.05)))
+  const emblem = await isolateEmblem(trimmedBuffer)
 
-  const png = await sharp(trimmedBuffer)
-    .extract({
-      left: 0,
-      top: 0,
-      width: Math.min(emblemWidth, meta.width),
-      height: meta.height,
-    })
+  const png = await sharp(emblem)
     .resize(size, size, {
       fit: 'contain',
       background: { r: 0, g: 0, b: 0, alpha: 0 },
@@ -263,7 +331,12 @@ async function ensurePaletteWordmark(palette) {
     process.exit(1)
   }
   await processWordmark(source, join(wordmarkDir, `${palette}.png`), 220, 52)
-  await processEmblemFromWordmark(source, join(iconsDir, `${palette}.png`), 192)
+  const markSource = join(iconsDir, 'mark', `${palette}-source.png`)
+  if (existsSync(markSource)) {
+    await processIcon(markSource, join(iconsDir, `${palette}.png`), 192)
+  } else {
+    await processEmblemFromWordmark(source, join(iconsDir, `${palette}.png`), 192)
+  }
 }
 
 async function ensurePaletteBrand(palette) {
@@ -310,14 +383,4 @@ const appIconSource = existsSync(plainWordmark)
 await processEmblemFromWordmark(appIconSource, join(root, 'public/icon.png'), 192)
 await processEmblemFromWordmark(appIconSource, join(root, 'resources/icon.png'), 512)
 
-const faviconSource = await removeLightBackground(readFileSync(appIconSource))
-  .then((img) => img.trim().png().toBuffer())
-const favMeta = await sharp(faviconSource).metadata()
-const favEmblemWidth = Math.min(favMeta.width, Math.round(favMeta.height * 1.05))
-const favicon = await sharp(faviconSource)
-  .extract({ left: 0, top: 0, width: favEmblemWidth, height: favMeta.height })
-  .resize(32, 32, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
-  .png({ compressionLevel: 9, palette: true })
-  .toBuffer()
-writeFileSync(join(root, 'public/favicon.png'), favicon)
-console.log(`public/favicon.png: ${Math.round(favicon.length / 1024)} KB (32px)`)
+await processEmblemFromWordmark(appIconSource, join(root, 'public/favicon.png'), 32)
