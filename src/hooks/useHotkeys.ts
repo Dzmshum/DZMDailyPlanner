@@ -91,16 +91,22 @@ export function useHotkeys() {
         return
       }
 
+      const sidebarToggleKey =
+        e.code === 'BracketLeft' ||
+        e.key === '[' ||
+        e.key === '{' ||
+        e.key === 'х' ||
+        e.key === 'Х'
       if (
         !isInput &&
         !e.repeat &&
         !e.ctrlKey &&
         !e.metaKey &&
         !e.altKey &&
-        !e.shiftKey &&
-        e.code === 'BracketLeft'
+        sidebarToggleKey
       ) {
         e.preventDefault()
+        e.stopPropagation()
         usePlanStore.getState().toggleSidebarMode()
         return
       }
@@ -120,8 +126,8 @@ export function useHotkeys() {
       }
     }
 
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
+    window.addEventListener('keydown', handler, true)
+    return () => window.removeEventListener('keydown', handler, true)
   }, [
     setView,
     openNewTask,

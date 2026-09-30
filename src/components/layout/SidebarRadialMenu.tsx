@@ -50,6 +50,13 @@ export function SidebarRadialMenu({ open, anchorRef, onClose, onOpenSettings }: 
     })
   }, [open])
 
+  useEffect(() => {
+    if (phase !== 'closing') return
+    const ms = (RADIAL_ITEMS.length - 1) * ITEM_STAGGER_MS + 240
+    const timer = window.setTimeout(() => setPhase('closed'), ms)
+    return () => window.clearTimeout(timer)
+  }, [phase])
+
   useLayoutEffect(() => {
     const layoutEl = document.querySelector('.app-layout')
     if (phase === 'closed') {

@@ -75,7 +75,7 @@ export function Sidebar() {
           <button
             ref={logoRef}
             type="button"
-            className="sidebar-logo"
+            className="sidebar-logo titlebar-no-drag"
             aria-label="Разделы"
             aria-haspopup="menu"
             aria-expanded={radialOpen}
@@ -89,7 +89,7 @@ export function Sidebar() {
             <BrandMark variant="icon" size="md" />
           </button>
         ) : (
-          <div className="sidebar-logo">
+          <div className="sidebar-logo titlebar-no-drag">
             <BrandMark variant="wordmark" size="lg" />
           </div>
         )}

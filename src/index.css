@@ -556,9 +556,11 @@ html {
 
 .sidebar-slot {
   position: relative;
+  flex: 0 0 var(--sidebar-width);
   width: var(--sidebar-width);
-  flex-shrink: 0;
-  transition: width var(--transition);
+  min-width: 0;
+  overflow: hidden;
+  transition: flex-basis var(--transition), width var(--transition);
 }
 
 .sidebar {
@@ -575,6 +577,7 @@ html {
 }
 
 .app-layout--radial .sidebar-slot {
+  flex-basis: 0;
   width: 0;
 }
 
@@ -618,6 +621,19 @@ html {
   padding-left: var(--radial-pad);
   padding-right: var(--view-padding-x);
   transition: padding-left 220ms ease-out;
+  -webkit-app-region: no-drag;
+  pointer-events: none;
+}
+
+.app-layout--radial .header-leading {
+  -webkit-app-region: drag;
+  pointer-events: auto;
+}
+
+.app-layout--radial .header-actions,
+.app-layout--radial .header-leading .titlebar-no-drag {
+  -webkit-app-region: no-drag;
+  pointer-events: auto;
 }
 
 .app-layout--radial .header-leading > .view-icon {
