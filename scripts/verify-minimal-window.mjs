@@ -62,8 +62,10 @@ assert('main loads window layouts', mainCjs.includes('loadWindowLayouts'))
 assert('main captures layout on mode switch', mainCjs.includes('captureCurrentLayout'))
 assert('main restores saved layout', mainCjs.includes('applyLayout(windowLayouts'))
 assert('main moved/resized listeners', mainCjs.includes("mainWindow.on('moved'") && mainCjs.includes("mainWindow.on('resized'"))
-assert('compact controls standard mode', windowControls.includes("setWindowMode('standard')"))
-assert('compact controls maximized mode', windowControls.includes("setWindowMode('maximized')"))
+assert('size cycle standard', windowControls.includes("'standard'"))
+assert('size cycle maximized', windowControls.includes("'maximized'"))
+assert('size cycle minimal', windowControls.includes("'minimal'"))
+assert('window minimize control', windowControls.includes('windowMinimize'))
 
 if (failed > 0) {
   console.error(`\n${failed} failed, ${passed} passed`)

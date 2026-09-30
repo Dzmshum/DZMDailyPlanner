@@ -285,6 +285,10 @@ ipcMain.handle('window-close', () => {
   mainWindow?.close()
 })
 
+ipcMain.handle('window-minimize', () => {
+  mainWindow?.minimize()
+})
+
 ipcMain.handle('window-toggle-maximize', () => {
   if (!mainWindow) return false
   if (mainWindow.isMaximized()) {

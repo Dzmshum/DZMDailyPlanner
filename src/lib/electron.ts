@@ -12,6 +12,7 @@ export interface PlanBoardElectronApi {
   importPlan: () => Promise<ImportPlanResult | null>
   getPlanPath: () => Promise<string>
   windowClose: () => Promise<void>
+  windowMinimize: () => Promise<void>
   windowToggleMaximize: () => Promise<boolean>
   windowIsMaximized: () => Promise<boolean>
   setWindowMode: (mode: WindowMode) => Promise<WindowMode>

@@ -30,6 +30,7 @@ const uiIcons = [
   'window-expand',
   'window-maximize',
   'window-restore',
+  'window-minimize',
   'close',
   'chevron-down',
   'chevron-right',
@@ -107,6 +108,8 @@ const checkboxSvgPaths = {
 }
 
 const uiSvgPaths = {
+  'window-minimize':
+    '<rect x="16" y="30" width="32" height="5" rx="1.5" fill="COLOR"/>',
   settings:
     '<circle cx="32" cy="32" r="8" fill="COLOR" opacity="0.28"/><circle cx="32" cy="32" r="14" fill="none" stroke="COLOR" stroke-width="2.5" stroke-dasharray="4 3"/><path d="M32 14v5M32 45v5M14 32h5M45 32h5M19.8 19.8l3.5 3.5M40.7 40.7l3.5 3.5M44.2 19.8l-3.5 3.5M23.3 40.7l-3.5 3.5" stroke="COLOR" stroke-width="3" stroke-linecap="round"/>',
 }

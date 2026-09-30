@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('planBoard', {
   importPlan: () => ipcRenderer.invoke('import-plan'),
   getPlanPath: () => ipcRenderer.invoke('get-plan-path'),
   windowClose: () => ipcRenderer.invoke('window-close'),
+  windowMinimize: () => ipcRenderer.invoke('window-minimize'),
   windowToggleMaximize: () => ipcRenderer.invoke('window-toggle-maximize'),
   windowIsMaximized: () => ipcRenderer.invoke('window-is-maximized'),
   setWindowMode: (mode) => ipcRenderer.invoke('set-window-mode', mode),

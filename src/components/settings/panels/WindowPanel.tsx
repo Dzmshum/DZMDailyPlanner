@@ -29,7 +29,11 @@ export function WindowPanel({ query }: { query: string }) {
     <>
       <SettingsSection
         id="window-mode"
-        hint={isElectron() ? 'Минимальный — справа сверху.' : 'Только в приложении Electron.'}
+        hint={
+          isElectron()
+            ? 'Кнопка размера справа сверху: полный экран, средний, минимальный.'
+            : 'Только в приложении Electron.'
+        }
         query={query}
       >
         {isElectron() && (

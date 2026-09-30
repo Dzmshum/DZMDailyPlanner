@@ -20,6 +20,7 @@ const uiIcons = [
   'window-expand',
   'window-maximize',
   'window-restore',
+  'window-minimize',
   'close',
   'chevron-down',
   'chevron-right',
