@@ -121,13 +121,12 @@ export interface CustomThemeSettings {
   ambientEnabled: boolean
 }
 
-export type SidebarOpenMode = 'expanded' | 'rail'
-export type SidebarMode = SidebarOpenMode | 'peek'
+export type SidebarMode = 'expanded' | 'radial'
 
 export interface NavigationSettings {
   sidebarMode: SidebarMode
-  /** Куда `[` возвращает меню из peek. */
-  sidebarOpenMode: SidebarOpenMode
+  /** Повторяет sidebarMode. Старые rail и peek читаются как radial. */
+  sidebarOpenMode: SidebarMode
 }
 
 export const DEFAULT_NAVIGATION_SETTINGS: NavigationSettings = {
@@ -457,18 +456,13 @@ export function normalizePlan(data: unknown): PlanData {
     ambientAnimation = 'off'
   }
 
-  const rawSidebar = settingsIn?.navigation?.sidebarMode
+  const rawNav = settingsIn?.navigation as { sidebarMode?: unknown } | undefined
+  const rawSidebar = rawNav?.sidebarMode
   const sidebarMode: SidebarMode =
-    rawSidebar === 'peek' || rawSidebar === 'rail' || rawSidebar === 'expanded'
-      ? rawSidebar
+    rawSidebar === 'radial' || rawSidebar === 'rail' || rawSidebar === 'peek'
+      ? 'radial'
       : 'expanded'
-  const rawOpen = settingsIn?.navigation?.sidebarOpenMode
-  const sidebarOpenMode: SidebarOpenMode =
-    rawOpen === 'rail' || rawOpen === 'expanded'
-      ? rawOpen
-      : sidebarMode === 'rail'
-        ? 'rail'
-        : 'expanded'
+  const sidebarOpenMode: SidebarMode = sidebarMode
 
   const windowMode: WindowMode =
     settingsIn?.windowMode === 'maximized' ||

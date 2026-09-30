@@ -1,26 +1,59 @@
-import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
-import { NAV_ENTRIES, viewForNavEntry } from '../../lib/nav'
+import { NAV_ENTRIES, viewForNavEntry, type NavEntry } from '../../lib/nav'
 import { radialArcPath, radialLayout, type RadialLayout } from '../../lib/radialMenu'
 import { usePlanStore } from '../../store/planStore'
+import { UiIcon } from '../ui/UiIcon'
 import { ViewIcon } from './ViewIcon'
 
 interface SidebarRadialMenuProps {
   open: boolean
-  compact: boolean
   anchorRef: RefObject<HTMLButtonElement | null>
   onClose: () => void
+  onOpenSettings: () => void
 }
 
-export function SidebarRadialMenu({ open, compact, anchorRef, onClose }: SidebarRadialMenuProps) {
+type RadialItem =
+  | { id: string; kind: 'nav'; entry: NavEntry }
+  | { id: 'settings'; kind: 'settings' }
+
+const RADIAL_ITEMS: readonly RadialItem[] = [
+  ...NAV_ENTRIES.map((entry) => ({ id: entry.id, kind: 'nav' as const, entry })),
+  { id: 'settings', kind: 'settings' },
+]
+
+const ITEM_STAGGER_MS = 28
+
+type Phase = 'closed' | 'open' | 'closing'
+
+export function SidebarRadialMenu({ open, anchorRef, onClose, onOpenSettings }: SidebarRadialMenuProps) {
   const currentView = usePlanStore((s) => s.currentView)
   const setView = usePlanStore((s) => s.setView)
+  const [phase, setPhase] = useState<Phase>('closed')
   const [layout, setLayout] = useState<RadialLayout | null>(null)
   const itemRefs = useRef<Array<HTMLButtonElement | null>>([])
   const focused = useRef(false)
+  const reduceMotion = useRef(false)
+
+  useEffect(() => {
+    reduceMotion.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  }, [])
+
+  useEffect(() => {
+    if (open) {
+      setPhase('open')
+      return
+    }
+    setPhase((current) => {
+      if (current === 'closed' || reduceMotion.current) return 'closed'
+      return 'closing'
+    })
+  }, [open])
 
   useLayoutEffect(() => {
-    if (!open) {
+    const layoutEl = document.querySelector('.app-layout')
+    if (phase === 'closed') {
+      layoutEl?.classList.remove('app-layout--radial-open')
       setLayout(null)
       focused.current = false
       return
@@ -30,24 +63,25 @@ export function SidebarRadialMenu({ open, compact, anchorRef, onClose }: Sidebar
       const anchor = anchorRef.current
       if (!anchor) return
       const rect = anchor.getBoundingClientRect()
-      const x = compact ? rect.left + rect.width / 2 : rect.right - 8
-      const y = rect.top + rect.height / 2
-      setLayout(radialLayout(x, y, NAV_ENTRIES.length, window.innerHeight))
+      const x = rect.left + anchor.offsetWidth
+      const y = rect.top + anchor.offsetHeight
+      layoutEl?.classList.add('app-layout--radial-open')
+      setLayout(radialLayout(x, y, RADIAL_ITEMS.length, window.innerHeight, window.innerWidth))
     }
 
     measure()
     window.addEventListener('resize', measure)
     return () => window.removeEventListener('resize', measure)
-  }, [open, compact, anchorRef])
+  }, [phase, anchorRef])
 
   useEffect(() => {
-    if (!open || !layout || focused.current) return
+    if (phase !== 'open' || !layout || focused.current) return
     focused.current = true
     itemRefs.current[0]?.focus()
-  }, [open, layout])
+  }, [phase, layout])
 
   useEffect(() => {
-    if (!open) return
+    if (phase === 'closed') return
 
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -56,6 +90,8 @@ export function SidebarRadialMenu({ open, compact, anchorRef, onClose }: Sidebar
         onClose()
         return
       }
+
+      if (phase !== 'open') return
 
       if (
         event.key !== 'ArrowDown' &&
@@ -77,24 +113,39 @@ export function SidebarRadialMenu({ open, compact, anchorRef, onClose }: Sidebar
 
     window.addEventListener('keydown', onKey, true)
     return () => window.removeEventListener('keydown', onKey, true)
-  }, [open, onClose])
+  }, [phase, onClose])
 
-  if (!open || !layout) return null
+  if (phase === 'closed' || !layout) return null
+
+  const closing = phase === 'closing'
 
   return createPortal(
-    <div className="sidebar-radial-root">
+    <div className={`sidebar-radial-root${closing ? ' sidebar-radial-root--closing' : ''}`}>
       <div className="sidebar-radial-backdrop" onClick={onClose} />
+      <div
+        className="sidebar-radial-frost"
+        style={
+          {
+            '--frost-x': `${layout.cx}px`,
+            '--frost-y': `${layout.cy}px`,
+            '--frost-r': `${layout.radius + 36}px`,
+          } as CSSProperties
+        }
+      />
       <svg className="sidebar-radial-arc" aria-hidden>
         <path d={radialArcPath(layout)} />
       </svg>
       <div id="sidebar-radial-menu" role="menu" aria-label="Разделы">
-        {NAV_ENTRIES.map((entry, index) => {
+        {RADIAL_ITEMS.map((item, index) => {
           const point = layout.points[index]
-          const active = entry.views.includes(currentView)
-          const iconView = active ? currentView : entry.defaultView
+          const delay =
+            (closing ? RADIAL_ITEMS.length - 1 - index : index) * ITEM_STAGGER_MS
+          const active = item.kind === 'nav' && item.entry.views.includes(currentView)
+          const iconView =
+            item.kind === 'nav' ? (active ? currentView : item.entry.defaultView) : null
           return (
             <button
-              key={entry.id}
+              key={item.id}
               ref={(node) => {
                 itemRefs.current[index] = node
               }}
@@ -104,16 +155,27 @@ export function SidebarRadialMenu({ open, compact, anchorRef, onClose }: Sidebar
               style={{
                 left: point.x,
                 top: point.y,
-                animationDelay: `${index * 28}ms`,
+                animationDelay: `${delay}ms`,
               }}
               aria-current={active ? 'page' : undefined}
+              onAnimationEnd={(event) => {
+                if (!closing || event.target !== event.currentTarget || index !== 0) return
+                setPhase('closed')
+              }}
               onClick={() => {
-                setView(viewForNavEntry(entry))
+                if (item.kind === 'settings') onOpenSettings()
+                else setView(viewForNavEntry(item.entry))
                 onClose()
               }}
             >
-              <ViewIcon view={iconView} size="xs" />
-              <span className="sidebar-radial-label">{entry.label}</span>
+              {item.kind === 'settings' ? (
+                <UiIcon icon="settings" size="md" />
+              ) : (
+                <ViewIcon view={iconView ?? item.entry.defaultView} size="xs" />
+              )}
+              <span className="sidebar-radial-label">
+                {item.kind === 'settings' ? 'Настройки' : item.entry.label}
+              </span>
             </button>
           )
         })}

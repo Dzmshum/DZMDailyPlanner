@@ -66,7 +66,7 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     id: 'sidebar',
     tab: 'window',
     title: 'Меню',
-    keywords: 'сайдбар скрыть peek rail рейка закрепить полоска круговое',
+    keywords: 'сайдбар полное круговое логотип меню',
   },
   {
     id: 'voice',
@@ -102,7 +102,7 @@ export const SETTINGS_SECTIONS: SettingsSectionMeta[] = [
     id: 'upcoming',
     tab: 'roadmap',
     title: 'Потенциальные доработки',
-    keywords: 'план очередь rail рейка ctrl+k мобильное дейлик ollama фон анимация',
+    keywords: 'план очередь круговое ctrl+k мобильное дейлик ollama фон анимация',
   },
 ]
 

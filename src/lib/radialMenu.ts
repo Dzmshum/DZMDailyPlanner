@@ -1,8 +1,17 @@
-/** Дуга справа от логотипа. Верх круга — у логотипа, пункты начинаются ниже шапки. */
+/** Угловая траектория у левого края: первый пункт справа от логотипа, по диагонали вниз, дальше столбцом. */
 
-const ITEM_GAP = 58
-const LOGO_CLEAR_DEG = 56
-const SWEEP_DEG = 100
+const STEP = 64
+const MIN_STEP = 56
+const LOGO_HALF = 42
+const LABEL_SPAN = 112
+
+const BEND = [
+  { dx: 96, dy: -24 },
+  { dx: 68, dy: 62 },
+  { dx: 20, dy: 124 },
+] as const
+
+const COLUMN_Y = BEND[BEND.length - 1].dy
 
 export interface RadialPoint {
   x: number
@@ -13,8 +22,6 @@ export interface RadialLayout {
   cx: number
   cy: number
   radius: number
-  arcStart: number
-  arcEnd: number
   points: RadialPoint[]
 }
 
@@ -23,42 +30,42 @@ export function radialLayout(
   originY: number,
   count: number,
   viewportHeight = 800,
+  viewportWidth = 1280,
 ): RadialLayout {
   const safeCount = Math.max(count, 1)
-  const bottom = Math.max(originY + ITEM_GAP, viewportHeight - 32)
-  const room = Math.max(ITEM_GAP, bottom - originY - 24)
-  const gap = Math.min(ITEM_GAP, room / Math.max(safeCount - 1, 1))
-  const step = SWEEP_DEG / Math.max(safeCount - 1, 1)
-  const radius = gap / (2 * Math.sin(((step / 2) * Math.PI) / 180))
-  const first = -90 + LOGO_CLEAR_DEG
-  const arcEnd = first + SWEEP_DEG
-  const arcStart = first - 18
-  const cx = originX
-  const cy = originY + radius
+  const bottom = viewportHeight - 28
+  const columnGaps = Math.max(safeCount - BEND.length, 1)
+  const fitStep = (bottom - originY - COLUMN_Y) / columnGaps
+  const step = Math.max(MIN_STEP, Math.min(STEP, fitStep))
   const points = Array.from({ length: safeCount }, (_, index) => {
-    const rad = ((first + step * index) * Math.PI) / 180
+    const offset =
+      index < BEND.length
+        ? BEND[index]
+        : { dx: 0, dy: COLUMN_Y + (index - BEND.length + 1) * step }
     return {
-      x: cx + Math.cos(rad) * radius,
-      y: cy + Math.sin(rad) * radius,
+      x: clamp(originX + offset.dx, 36, viewportWidth - 120),
+      y: clamp(originY + offset.dy, 28, bottom),
     }
   })
+  const far = points[points.length - 1]
   return {
-    cx,
-    cy,
-    radius,
-    arcStart,
-    arcEnd,
+    cx: originX,
+    cy: originY,
+    radius: Math.hypot(far.x - originX, far.y - originY),
     points,
   }
 }
 
 export function radialArcPath(layout: RadialLayout): string {
-  const start = (layout.arcStart * Math.PI) / 180
-  const end = (layout.arcEnd * Math.PI) / 180
-  const x1 = layout.cx + Math.cos(start) * layout.radius
-  const y1 = layout.cy + Math.sin(start) * layout.radius
-  const x2 = layout.cx + Math.cos(end) * layout.radius
-  const y2 = layout.cy + Math.sin(end) * layout.radius
-  const large = layout.arcEnd - layout.arcStart > 180 ? 1 : 0
-  return `M ${x1} ${y1} A ${layout.radius} ${layout.radius} 0 ${large} 1 ${x2} ${y2}`
+  const segments = layout.points.map((point) => `L ${point.x} ${point.y}`).join(' ')
+  return `M ${layout.cx + LOGO_HALF} ${layout.cy} ${segments}`
+}
+
+/** Отступ заголовка при открытом меню: сразу за подписью первого пункта. */
+export function radialHeaderPad(originX: number): number {
+  return Math.round(originX + BEND[0].dx + LABEL_SPAN)
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value))
 }

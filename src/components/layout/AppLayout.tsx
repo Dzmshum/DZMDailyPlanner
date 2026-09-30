@@ -15,7 +15,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     <>
       <AmbientBackground />
       <div
-        className={`app-layout${sidebarMode === 'peek' ? ' app-layout--peek' : ''}${sidebarMode === 'rail' ? ' app-layout--rail' : ''}`}
+        className={`app-layout${sidebarMode === 'radial' ? ' app-layout--radial' : ''}`}
       >
         <div className="sidebar-slot">
           <Sidebar />

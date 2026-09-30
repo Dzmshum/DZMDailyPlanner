@@ -1,6 +1,6 @@
 /**
  * Меню v0.31: 6 пунктов, режимы внутри, hotkeys 1–N, старые defaultView живы.
- * v0.31.1: peek (полоска 4px), rail 48px, круговое меню, `[` возвращает прошлый вид.
+ * v0.31.1: полное меню и круговое, пункты от логотипа вниз, `[` переключает режимы.
  * Запуск: npx tsx scripts/verify-nav.mjs
  */
 import { readFileSync } from 'node:fs'
@@ -82,15 +82,15 @@ const store = readFileSync(join(root, 'src/store/planStore.ts'), 'utf8')
 const fresh = createDefaultPlan()
 assert('default sidebar expanded', fresh.settings.navigation.sidebarMode === 'expanded')
 assert('default open mode expanded', fresh.settings.navigation.sidebarOpenMode === 'expanded')
-const keptPeek = normalizePlan({
+const migratedPeek = normalizePlan({
   ...fresh,
   settings: { ...fresh.settings, navigation: { sidebarMode: 'peek', sidebarOpenMode: 'expanded' } },
 })
-const keptRail = normalizePlan({
+const migratedRail = normalizePlan({
   ...fresh,
   settings: { ...fresh.settings, navigation: { sidebarMode: 'rail' } },
 })
-const peekRail = normalizePlan({
+const migratedBoth = normalizePlan({
   ...fresh,
   settings: { ...fresh.settings, navigation: { sidebarMode: 'peek', sidebarOpenMode: 'rail' } },
 })
@@ -98,47 +98,49 @@ const droppedMode = normalizePlan({
   ...fresh,
   settings: { ...fresh.settings, navigation: { sidebarMode: 'drawer', sidebarOpenMode: 'nope' } },
 })
-assert('sidebar peek kept', keptPeek.settings.navigation.sidebarMode === 'peek')
-assert('sidebar rail kept', keptRail.settings.navigation.sidebarMode === 'rail')
-assert('rail remembers itself', keptRail.settings.navigation.sidebarOpenMode === 'rail')
 assert(
-  'peek keeps rail restore',
-  peekRail.settings.navigation.sidebarMode === 'peek' && peekRail.settings.navigation.sidebarOpenMode === 'rail',
+  'peek becomes radial',
+  migratedPeek.settings.navigation.sidebarMode === 'radial' &&
+    migratedPeek.settings.navigation.sidebarOpenMode === 'radial',
+)
+assert(
+  'rail becomes radial',
+  migratedRail.settings.navigation.sidebarMode === 'radial' &&
+    migratedRail.settings.navigation.sidebarOpenMode === 'radial',
+)
+assert(
+  'old open mode follows radial',
+  migratedBoth.settings.navigation.sidebarMode === 'radial' &&
+    migratedBoth.settings.navigation.sidebarOpenMode === 'radial',
 )
 assert('bad sidebar mode falls back', droppedMode.settings.navigation.sidebarMode === 'expanded')
 assert('bad open mode falls back', droppedMode.settings.navigation.sidebarOpenMode === 'expanded')
-assert('toggle from expanded goes to rail', toggledSidebarMode({ sidebarMode: 'expanded', sidebarOpenMode: 'expanded' }) === 'rail')
-assert('toggle from rail hides', toggledSidebarMode({ sidebarMode: 'rail', sidebarOpenMode: 'rail' }) === 'peek')
 assert(
-  'toggle from peek opens full menu',
-  toggledSidebarMode({ sidebarMode: 'peek', sidebarOpenMode: 'rail' }) === 'expanded',
+  'toggle from expanded goes to radial',
+  toggledSidebarMode({ sidebarMode: 'expanded', sidebarOpenMode: 'expanded' }) === 'radial',
 )
 assert(
-  'hide from rail stores rail',
-  nextSidebarNavigation({ sidebarMode: 'rail', sidebarOpenMode: 'expanded' }, 'peek').sidebarOpenMode === 'rail',
+  'toggle from radial opens full menu',
+  toggledSidebarMode({ sidebarMode: 'radial', sidebarOpenMode: 'radial' }) === 'expanded',
+)
+assert(
+  'radial stores radial',
+  nextSidebarNavigation({ sidebarMode: 'expanded', sidebarOpenMode: 'expanded' }, 'radial').sidebarOpenMode ===
+    'radial',
 )
 assert('hotkey bracket toggles sidebar', hotkeys.includes("e.code === 'BracketLeft'") && hotkeys.includes('toggleSidebarMode'))
 assert('view hotkeys ignore sidebar mode', !/NAV_VIEW_ORDER[\s\S]{0,180}sidebarMode/.test(hotkeys))
-assert('layout uses sidebar mode', layout.includes('app-layout--peek') && layout.includes('sidebarMode'))
-assert('peek does not reserve sidebar width', css.includes('.app-layout--peek .sidebar') && css.includes('position: absolute'))
-assert(
-  'peek strip is 4px',
-  css.includes('--sidebar-peek: 4px') &&
-    css.includes('translateX(calc(-1 * var(--sidebar-shift)))') &&
-    css.includes('width: 4px'),
-)
+assert('layout uses sidebar mode', layout.includes('app-layout--radial') && layout.includes('sidebarMode'))
 assert('sidebar is not a drag region', sidebar.includes('titlebar-no-drag'))
 assert(
-  'collapsed menu is inert',
-  sidebar.includes('const menuHidden = sidebarMode === \'peek\' && !revealed') &&
-    (sidebar.match(/inert=\{menuHidden\}/g) ?? []).length >= 3,
+  'radial column hides the nav list',
+  sidebar.includes("sidebarMode === 'radial'") && sidebar.includes('radialMode ? null'),
 )
-assert('layout has rail', layout.includes('app-layout--rail'))
 assert(
-  'rail is 48px column',
-  css.includes('--sidebar-rail: 48px') &&
-    css.includes('.app-layout--rail .sidebar-slot') &&
-    !/\.app-layout--rail \.sidebar\s*\{[^}]*position:\s*absolute/.test(css),
+  'radial does not reserve a column',
+  css.includes('.app-layout--radial .sidebar-slot') &&
+    /width:\s*0/.test(css) &&
+    /\.app-layout--radial \.sidebar\s*\{[^}]*position:\s*fixed/.test(css),
 )
 assert(
   'hide button stays at 12px',
@@ -153,24 +155,39 @@ assert(
     radial.includes('role="menu"') &&
     radial.includes('NAV_ENTRIES'),
 )
-assert('rail keeps counters', sidebar.includes('nav-count'))
-
-const radialAtRail = radialLayout(24, 40, 6, 800)
-assert('radial has six points', radialAtRail.points.length === 6)
+assert('settings sit in the menu', sidebar.includes('className="nav-item settings-btn"') && radial.includes('Настройки'))
+assert('radial closes in reverse', radial.includes('sidebar-radial-root--closing') && css.includes('sidebar-radial-out'))
+assert('expanded menu keeps counters', sidebar.includes('nav-count'))
+assert('expanded menu uses the wordmark', sidebar.includes('variant="wordmark"'))
 assert(
-  'radial clears the logo',
-  radialAtRail.points.every((point) => Math.hypot(point.x - 24, point.y - 40) >= 60),
+  'radial logo is taller than the wordmark',
+  css.includes('.app-layout--radial .sidebar-logo .brand-mark') &&
+    /\.app-layout--radial \.sidebar-logo \.brand-mark\s*\{[^}]*height:\s*56px/.test(css) &&
+    /\.brand-mark-lg\s*\{[^}]*height:\s*40px/.test(css),
 )
-assert('radial stays right of the rail', radialAtRail.points.every((point) => point.x >= 72))
+
+const radialRing = radialLayout(60, 68, 7, 800, 1280)
+assert('radial has seven points', radialRing.points.length === 7)
+assert('radial is centered on the logo', radialRing.cx === 60 && radialRing.cy === 68)
+const radialDistances = radialRing.points.map((point) => Math.hypot(point.x - 60, point.y - 68))
+assert(
+  'radial path is angular',
+  Math.max(...radialDistances) - Math.min(...radialDistances) > 80,
+)
+assert(
+  'radial stays near the logo',
+  radialDistances[0] < 120 && radialRing.points.every((point) => point.x < 200 && point.x > 30),
+)
+assert('radial first item sits high', radialRing.points[0].y < radialRing.cy - 8)
 assert(
   'radial stays on screen',
-  radialAtRail.points.every((point) => point.y >= 24 && point.y <= 760),
+  radialRing.points.every((point) => point.x >= 20 && point.y >= 20 && point.y <= 760 && point.x <= 1240),
 )
 let radialSpaced = true
-for (let i = 1; i < radialAtRail.points.length; i += 1) {
-  const prev = radialAtRail.points[i - 1]
-  const next = radialAtRail.points[i]
-  if (Math.hypot(prev.x - next.x, prev.y - next.y) < 50) radialSpaced = false
+for (let i = 1; i < radialRing.points.length; i += 1) {
+  const prev = radialRing.points[i - 1]
+  const next = radialRing.points[i]
+  if (Math.hypot(prev.x - next.x, prev.y - next.y) < 56) radialSpaced = false
 }
 assert('radial items do not overlap', radialSpaced)
 

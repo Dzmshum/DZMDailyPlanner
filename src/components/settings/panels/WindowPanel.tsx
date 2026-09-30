@@ -5,7 +5,7 @@ import { SettingsSection } from '../SettingsSection'
 
 const HOTKEYS: { keys: string; action: string }[] = [
   { keys: '1–6', action: 'Пункты меню сверху вниз' },
-  { keys: '[', action: 'Полное меню, иконки или скрыто' },
+  { keys: '[', action: 'Полное меню или круговое' },
   { keys: 'Q', action: 'Быстрый захват' },
   { keys: 'N', action: 'Новая задача' },
   { keys: 'Пробел', action: 'Отметить выбранную задачу' },
@@ -56,15 +56,14 @@ export function WindowPanel({ query }: { query: string }) {
 
       <SettingsSection
         id="sidebar"
-        hint="[ по кругу: полное меню, иконки, скрыто. Логотип открывает круговое меню."
+        hint="[ переключает полное меню и круговое. В круговом логотип открывает разделы."
         query={query}
       >
         <div className="settings-radio-row">
           {(
             [
               ['expanded', 'Полное'],
-              ['rail', 'Иконки'],
-              ['peek', 'Скрыто'],
+              ['radial', 'Круговое'],
             ] as const
           ).map(([mode, label]) => (
             <button
