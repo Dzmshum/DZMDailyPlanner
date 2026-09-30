@@ -640,10 +640,6 @@ html {
   display: none;
 }
 
-.app-layout--radial .header-actions .window-controls {
-  margin-right: calc(var(--view-padding-x) * -1);
-}
-
 .app-layout.app-layout--radial-open {
   z-index: auto;
 }
@@ -1540,11 +1536,10 @@ button.sidebar-logo {
 }
 
 .header {
-  --header-pad-y: 12px;
   display: flex;
-  align-items: stretch;
+  align-items: center;
   justify-content: space-between;
-  padding: var(--header-pad-y) 0 var(--header-pad-y) 24px;
+  padding: 12px 16px 12px 24px;
   border-bottom: 1px solid var(--border);
   background: var(--header-gradient);
   flex-shrink: 0;
@@ -1561,7 +1556,8 @@ button.sidebar-logo {
 
 .titlebar-no-drag,
 .window-controls,
-.window-controls button {
+.window-controls button,
+.window-control-edge {
   -webkit-app-region: no-drag;
 }
 
@@ -1621,27 +1617,19 @@ button.sidebar-logo {
   display: flex;
   align-items: stretch;
   margin-left: 4px;
-  border: none;
-  border-left: 1px solid var(--border);
-  border-radius: 0;
-  overflow: hidden;
-}
-
-.header .window-controls {
-  align-self: stretch;
-  margin-top: calc(var(--header-pad-y) * -1);
-  margin-bottom: calc(var(--header-pad-y) * -1);
-  z-index: 1;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: visible;
+  background: var(--bg-secondary);
 }
 
 .window-control-btn {
-  width: 46px;
-  height: auto;
-  align-self: stretch;
-  min-height: 32px;
+  position: relative;
+  width: 40px;
+  height: 32px;
   border: none;
   border-right: 1px solid var(--border);
-  background: var(--bg-secondary);
+  background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
   font-size: 0.85rem;
@@ -1650,6 +1638,24 @@ button.sidebar-logo {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.window-control-btn:first-child {
+  border-top-left-radius: calc(var(--radius-sm) - 1px);
+  border-bottom-left-radius: calc(var(--radius-sm) - 1px);
+}
+
+.window-control-btn:last-child {
+  border-top-right-radius: calc(var(--radius-sm) - 1px);
+  border-bottom-right-radius: calc(var(--radius-sm) - 1px);
+}
+
+.window-control-edge {
+  position: absolute;
+  top: -80px;
+  right: -40px;
+  bottom: 0;
+  left: 0;
 }
 
 .window-control-btn:last-child {
@@ -4351,16 +4357,12 @@ html.lightbox-open .view-content {
 
 .minimal-header {
   display: flex;
-  align-items: stretch;
+  align-items: center;
   justify-content: space-between;
-  padding: 0;
-  border-bottom: 1px solid var(--border);
-  gap: 0;
-  min-height: 0;
-}
-
-.minimal-header .minimal-brand {
   padding: var(--minimal-pad-header);
+  border-bottom: 1px solid var(--border);
+  gap: 4px;
+  min-height: 0;
 }
 
 .minimal-brand {
@@ -4490,20 +4492,9 @@ html.lightbox-open .view-content {
   }
 }
 
-.minimal-header > .titlebar-no-drag {
-  display: flex;
-  align-items: stretch;
-}
-
-.window-controls-compact {
-  align-self: stretch;
-  margin-left: 0;
-}
-
 .window-controls-compact .window-control-btn {
-  width: 32px;
-  height: auto;
-  min-height: 28px;
+  width: 24px;
+  height: 24px;
 }
 
 /* calendar views */

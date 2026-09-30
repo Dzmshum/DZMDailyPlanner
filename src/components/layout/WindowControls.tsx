@@ -89,6 +89,7 @@ export function WindowControls({ compact = false }: { compact?: boolean }) {
         title="Закрыть"
         aria-label="Закрыть"
       >
+        <span className="window-control-edge" aria-hidden="true" />
         <UiIcon icon="close" size="xs" />
       </button>
     </div>
