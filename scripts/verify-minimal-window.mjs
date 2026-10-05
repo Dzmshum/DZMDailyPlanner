@@ -13,6 +13,7 @@ const brandMark = readFileSync(join(root, 'src/components/layout/BrandMark.tsx')
 const mainCjs = readFileSync(join(root, 'electron/main.cjs'), 'utf8')
 const windowLayouts = readFileSync(join(root, 'electron/window-layouts.cjs'), 'utf8')
 const windowControls = readFileSync(join(root, 'src/components/layout/WindowControls.tsx'), 'utf8')
+const header = readFileSync(join(root, 'src/components/layout/Header.tsx'), 'utf8')
 
 let failed = 0
 let passed = 0
@@ -33,6 +34,11 @@ assert('minimal gap tokens', css.includes('--minimal-gap-item') && css.includes(
 assert('minimal pad tokens', css.includes('--minimal-pad-header') && css.includes('--minimal-pad-body'))
 assert('minimal content indent zero', css.includes('--minimal-content-indent: 0'))
 assert('minimal container query', css.includes('container-type: inline-size') && css.includes('container-name: minimal'))
+assert(
+  'minimal layout clips window-edge overflow',
+  /\.minimal-layout\s*\{[^}]*overflow:\s*clip/s.test(css) &&
+    /\.minimal-layout\s*\{[^}]*height:\s*100%/s.test(css),
+)
 assert('minimal narrow brand swap', css.includes('@container minimal (max-width: 300px)'))
 assert('minimal item title line-clamp', /\.minimal-item-title\s*\{[^}]*-webkit-line-clamp:\s*2/s.test(css))
 assert('minimal footer flex-wrap', /\.minimal-footer\s*\{[^}]*flex-wrap:\s*wrap/s.test(css))
@@ -66,6 +72,12 @@ assert('size cycle standard', windowControls.includes("'standard'"))
 assert('size cycle maximized', windowControls.includes("'maximized'"))
 assert('size cycle minimal', windowControls.includes("'minimal'"))
 assert('window minimize control', windowControls.includes('windowMinimize'))
+assert('window close control', windowControls.includes('windowClose'))
+assert('header uses same window controls', header.includes('<WindowControls'))
+assert('minimal uses same window controls', minimalView.includes('<WindowControls'))
+assert('release limits before resize', mainCjs.includes('function releaseWindowLimits()'))
+assert('maximized path releases limits', /mode === 'maximized'[\s\S]*releaseWindowLimits\(\)/.test(mainCjs))
+assert('minimal layout before max lock', /mode === 'minimal'[\s\S]*applyLayout\([\s\S]*setMaximumSize\(MINIMAL_SIZE/.test(mainCjs))
 
 if (failed > 0) {
   console.error(`\n${failed} failed, ${passed} passed`)

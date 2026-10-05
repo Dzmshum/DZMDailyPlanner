@@ -133,6 +133,13 @@ function applyLayout(layout, mode) {
   mainWindow.setBounds(clampLayout(layout, mode))
 }
 
+/** Сначала широкий диапазон: из minimal min 900 при max 380 Electron отклоняет. */
+function releaseWindowLimits() {
+  if (!mainWindow) return
+  mainWindow.setMinimumSize(MINIMAL_SIZE.minWidth, MINIMAL_SIZE.minHeight)
+  mainWindow.setMaximumSize(STANDARD_SIZE.maxWidth, STANDARD_SIZE.maxHeight)
+}
+
 function applyWindowMode(mode) {
   if (!mainWindow) return
 
@@ -143,26 +150,29 @@ function applyWindowMode(mode) {
   currentWindowMode = mode
 
   runWithoutLayoutCapture(() => {
+    if (mode === 'maximized') {
+      mainWindow.setAlwaysOnTop(false)
+      if (mainWindow.isMaximized()) return
+      releaseWindowLimits()
+      mainWindow.setMinimumSize(STANDARD_SIZE.minWidth, STANDARD_SIZE.minHeight)
+      mainWindow.maximize()
+      return
+    }
+
+    if (mainWindow.isMaximized()) mainWindow.unmaximize()
+    releaseWindowLimits()
+
     if (mode === 'minimal') {
+      mainWindow.setAlwaysOnTop(true, 'floating')
+      applyLayout(windowLayouts.minimal ?? defaultMinimalLayout(), 'minimal')
       mainWindow.setMinimumSize(MINIMAL_SIZE.minWidth, MINIMAL_SIZE.minHeight)
       mainWindow.setMaximumSize(MINIMAL_SIZE.maxWidth, MINIMAL_SIZE.maxHeight)
-      mainWindow.setAlwaysOnTop(true, 'floating')
-      if (mainWindow.isMaximized()) mainWindow.unmaximize()
-      applyLayout(windowLayouts.minimal ?? defaultMinimalLayout(), 'minimal')
       return
     }
 
     mainWindow.setAlwaysOnTop(false)
     mainWindow.setMinimumSize(STANDARD_SIZE.minWidth, STANDARD_SIZE.minHeight)
     mainWindow.setMaximumSize(STANDARD_SIZE.maxWidth, STANDARD_SIZE.maxHeight)
-
-    if (mode === 'maximized') {
-      if (mainWindow.isMaximized()) return
-      mainWindow.maximize()
-      return
-    }
-
-    if (mainWindow.isMaximized()) mainWindow.unmaximize()
     applyLayout(windowLayouts.standard ?? defaultStandardLayout(), 'standard')
   })
 }

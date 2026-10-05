@@ -1566,6 +1566,7 @@ button.sidebar-logo {
   align-items: center;
   gap: 12px;
   min-width: 0;
+  overflow: hidden;
 }
 
 .sidebar-toggle {
@@ -1673,16 +1674,25 @@ button.sidebar-logo {
 }
 
 .header-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 1.25rem;
   font-weight: 700;
   margin: 0;
   letter-spacing: 0.03em;
 }
 
+.header-view-switch {
+  flex-shrink: 0;
+}
+
 .header-actions {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .dropdown-menu {
@@ -4350,7 +4360,8 @@ html.lightbox-open .view-content {
   container-name: minimal;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
+  overflow: clip;
   background: var(--bg-primary);
   color: var(--text-primary);
 }
@@ -4392,7 +4403,8 @@ html.lightbox-open .view-content {
 
 .minimal-body {
   flex: 1;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   padding: var(--minimal-pad-body);
   min-height: 0;
 }
