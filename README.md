@@ -29,9 +29,9 @@
 Двойной клик по **`PlanBoard.cmd`** или:
 
 ```
-dist-electron\PlanBoard 0.29.3.exe              ← portable
+dist-electron\PlanBoard 0.31.1.exe              ← portable
 dist-electron\win-unpacked\PlanBoard.exe       ← распакованная версия
-dist-electron\PlanBoard Setup 0.29.3.exe        ← установщик
+dist-electron\PlanBoard Setup 0.31.1.exe        ← установщик
 ```
 
 ### Разработка (окно приложения)
@@ -65,7 +65,7 @@ pnpm dev
 | `pnpm dev` | Только Vite в браузере |
 | `pnpm electron:build` | Собрать .exe → `dist-electron\` |
 | `pnpm build` | Фронтенд в `build\` |
-| `pnpm test` | Автотесты ≈ **330** (+ stabilize) |
+| `pnpm test` | Автотесты — **433** проверки, 14 verify-скриптов |
 | `pnpm lint` | oxlint |
 
 **Двойной клик (Windows):** `PlanBoard.cmd` · `Build-Electron.cmd`  
@@ -90,15 +90,18 @@ pnpm dev
 
 ### Рядом с доской
 
+- **Меню** — полное (колонка с логотипом) или круговое (логотип в шапке, пункты от него). `[` / `х` переключает
 - **Быстрый захват** — `Q` / `Й` (можно только фото)
-- **Фото** — `Ctrl+V`, drag-and-drop, лайтбокс
-- **Минимальное окно** — ⚙ → Режим окна; позиция запоминается отдельно
+- **Черновики** — случайное закрытие формы или захвата не стирает ввод (`sessionStorage`)
+- **Фото** — `Ctrl+V` в форме и в быстром захвате, drag-and-drop, лайтбокс
+- **Окно** — обычный / развёрнутый / минимальный (только Electron); раскладка запоминается
+- **Настройки** — 7 разделов и поиск. «Дальше» — очередь релизов, без переключателей
 - **Текст TG** — `Ctrl+Shift+C` (период, сделанное, inbox)
-- **Jira** — создать задачу в Jira Cloud (только Electron)
-- **Голос** — `Ctrl+Shift+V` (включается в настройках)
-- **Темы** — светлая / тёмная / системная; палитры + «Моя тема»
-- **Праздники РФ** — производственный календарь 2025–2027
-- **Прогресс дня** — полоса на дашборде, в повестке и в шапке
+- **Jira** — создать задачу в Jira Cloud (только Electron). Импорт по ссылке — ещё нет
+- **Голос** — `Ctrl+Shift+V` (включается в настройках; в Electron нестабилен)
+- **Темы** — светлая / тёмная / системная; 7 палитр + «Моя тема»
+- **Праздники РФ** — производственный календарь 2025–2027; с 2028 — праздники ТК без переносов
+- **Прогресс дня** — процент и счётчик на дашборде, в повестке и в шапке
 
 ### Горячие клавиши
 
@@ -106,7 +109,7 @@ pnpm dev
 |---------|----------|
 | `N` | Новая задача |
 | `1`–`6` | Пункты меню |
-| `[` | Скрыть или показать меню |
+| `[` / `х` | Полное меню или круговое |
 | `Q` / `Й` | Быстрый захват |
 | `Ctrl+S` | Сохранить |
 | `Ctrl+E` | Экспорт JSON |
@@ -114,7 +117,7 @@ pnpm dev
 | `Ctrl+Shift+C` | Текст для Telegram |
 | `Ctrl+V` | Вставить фото |
 | `Ctrl+Shift+V` | Голосовой ввод |
-| `Пробел` | Отметить задачу |
+| `Пробел` | Отметить выбранную задачу |
 | `Esc` | Закрыть форму |
 
 ---
@@ -129,8 +132,7 @@ pnpm dev
 pnpm electron:build
 ```
 
-Перед упаковкой: `pnpm build` → strip icon sources → verify icons → electron-builder  
-(копия в `dist-electron\`, обход EPERM через временную папку).
+Перед упаковкой: `pnpm build` (календарь, иконки, tsc, vite, strip sources) → `verify-icons` → electron-builder во временную папку → копия в `dist-electron\`.
 
 **Если `EPERM`:** закройте PlanBoard → удалите `dist-electron` → PowerShell → при необходимости исключение в антивирусе.
 
@@ -151,7 +153,8 @@ pnpm electron:build
 | Режим | Данные |
 |-------|--------|
 | Electron / `pnpm dev` | `%APPDATA%\PlanBoard\plan.json` |
-| Статический preview | `localStorage` → `planboard-plan` |
+| Первый запуск | если плана нет, копируется `%APPDATA%\DoomPlanner\` |
+| Статический preview | `localStorage` → `planboard-plan` (старый ключ `doomplanner-plan` тоже читается) |
 | Фото | `%APPDATA%\PlanBoard\attachments\{taskId}\` |
 | Бэкап | `plan.json.bak` |
 | Окна | `window-layouts.json` |
@@ -171,6 +174,7 @@ pnpm electron:build
     "colorPalette": "plain",
     "defaultView": "dashboard",
     "windowMode": "standard",
+    "navigation": { "sidebarMode": "expanded" },
     "daily": { "enabled": true, "days": [1, 4] },
     "jira": { "enabled": false }
   },
@@ -215,7 +219,7 @@ PlanBoard/
 
 ## Требования
 
-- [Node.js](https://nodejs.org/) 18+
+- [Node.js](https://nodejs.org/) 20.19+ или 22.12+ (Vite 8)
 - [pnpm](https://pnpm.io/) 10+
 
 ## Частые проблемы
@@ -236,7 +240,7 @@ PlanBoard/
 |--|--|
 | **Версия** | **v0.31.1** — меню: полное и круговое |
 | **Дальше** | Импорт задачи из Jira по ссылке (v0.31.2), затем Ctrl+K (v0.31.3) и упрощение ввода (v0.31.4). Анимации фона — **v0.35**, в конце очереди |
-| **Тесты** | `pnpm test` — verify-скрипты + календарь РФ |
+| **Тесты** | `pnpm test` — 14 verify-скриптов + календарь РФ (**433**) |
 | **Чеклист** | [`TESTS.md`](TESTS.md) |
 | **План** | [`ROADMAP.md`](ROADMAP.md) |
 
@@ -251,7 +255,7 @@ PlanBoard/
 | **v0.30.2** ✅ | Прогресс дня — явные % |
 | **v0.30.3** ✅ | Реструктуризация настроек |
 | **v0.31** ✅ | Меню: 6 пунктов, режимы внутри |
-| **v0.31.1** | Меню: полное и круговое, одинаково в веб и Electron |
+| **v0.31.1** ✅ | Меню: полное и круговое, одинаково в веб и Electron |
 | **v0.31.2** | Импорт задачи из Jira по ссылке |
 | **v0.31.3** | Ctrl+K — палитра команд |
 | **v0.31.4** | Упрощение ввода задачи |
@@ -267,14 +271,15 @@ PlanBoard/
 | `verify-month-calendar.mjs` | 9 |
 | `verify-holiday-labels.mjs` | 22 |
 | `verify-projects.mjs` | 5 |
-| `verify-palettes.mjs` | 91 |
+| `verify-palettes.mjs` | 92 |
 | `verify-export-text.mjs` | 3 |
 | `verify-settings-ui.mjs` | 95 |
 | `verify-nav.mjs` | 54 |
 | `verify-task-credit.mjs` | 12 |
-| `verify-day-progress.mjs` | 11 |
-| `verify-minimal-window.mjs` | 30 |
-| `verify-stabilize.mjs` | ~20 |
+| `verify-day-progress.mjs` | 12 |
+| `verify-minimal-window.mjs` | 32 |
+| `verify-stabilize.mjs` | 26 |
+| `verify-task-draft.mjs` | 10 |
 
 </details>
 
