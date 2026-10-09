@@ -105,6 +105,10 @@ assert(
     roadmapPanel.includes("version: 'v0.31.3'") &&
     roadmapPanel.includes('Ctrl+K') &&
     roadmapPanel.includes("version: 'v0.31.4'") &&
+    roadmapPanel.includes("version: 'v0.31.5'") &&
+    roadmapPanel.includes('выполненные') &&
+    roadmapPanel.includes("version: 'v0.31.6'") &&
+    roadmapPanel.includes('светлом фоне') &&
     roadmapPanel.includes('v0.35') &&
     !roadmapPanel.includes("version: 'v0.31.1'") &&
     !roadmapPanel.includes('usePlanStore'),
