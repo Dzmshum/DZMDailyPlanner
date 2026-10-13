@@ -36,8 +36,21 @@ assert('minimal content indent zero', css.includes('--minimal-content-indent: 0'
 assert('minimal container query', css.includes('container-type: inline-size') && css.includes('container-name: minimal'))
 assert(
   'minimal layout clips window-edge overflow',
-  /\.minimal-layout\s*\{[^}]*overflow:\s*clip/s.test(css) &&
+  /\.minimal-layout\s*\{[^}]*overflow:\s*hidden/s.test(css) &&
     /\.minimal-layout\s*\{[^}]*height:\s*100%/s.test(css),
+)
+assert(
+  'minimal document has no extra scroll',
+  /html:has\(\.minimal-layout\)[\s\S]*?overflow:\s*hidden/.test(css),
+)
+assert(
+  'minimal header clips control edge',
+  /\.minimal-header\s*\{[^}]*overflow:\s*hidden/s.test(css),
+)
+assert(
+  'minimal body scrolls vertically only',
+  /\.minimal-body\s*\{[^}]*overflow-x:\s*clip/s.test(css) &&
+    /\.minimal-body\s*\{[^}]*overflow-y:\s*auto/s.test(css),
 )
 assert('minimal narrow brand swap', css.includes('@container minimal (max-width: 300px)'))
 assert('minimal item title line-clamp', /\.minimal-item-title\s*\{[^}]*-webkit-line-clamp:\s*2/s.test(css))
